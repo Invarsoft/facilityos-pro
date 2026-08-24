@@ -5,12 +5,12 @@ import { useApp } from '@/lib/context/AppContext';
 import { Ticket, UserProfile } from '@/lib/types';
 import { UserCheck, Star, Shield, Clock, CheckCircle2, AlertCircle, X, Wrench, AlertTriangle } from 'lucide-react';
 
-interface AIWorkerRecommendModalProps {
+interface WorkerRecommendModalProps {
   ticket: Ticket;
   onClose: () => void;
 }
 
-export const AIWorkerRecommendModal: React.FC<AIWorkerRecommendModalProps> = ({ ticket, onClose }) => {
+export const WorkerRecommendModal: React.FC<WorkerRecommendModalProps> = ({ ticket, onClose }) => {
   const { users, assignWorker } = useApp();
   
   // Filter worker profiles

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useApp } from '@/lib/context/AppContext';
 import { getRoleDisplayName, formatStatusLabel, getStatusColorClass, getPriorityBadge } from '@/lib/utils';
-import { AIWorkerRecommendModal } from '@/components/ai/AIWorkerRecommendModal';
+import { WorkerRecommendModal } from '@/components/assistant/WorkerRecommendModal';
 import { Ticket } from '@/lib/types';
 import {
   LayoutDashboard,
@@ -174,7 +174,7 @@ export default function ManagerDashboardPage() {
 
       {/* AI Worker Assignment Modal */}
       {selectedTicketForAssign && (
-        <AIWorkerRecommendModal
+        <WorkerRecommendModal
           ticket={selectedTicketForAssign}
           onClose={() => setSelectedTicketForAssign(null)}
         />

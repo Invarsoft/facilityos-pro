@@ -12,7 +12,7 @@ interface ChatMessage {
   actionButtons?: { label: string; href?: string; actionType?: string }[];
 }
 
-export const AIAssistantDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
+export const AssistantDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
   isOpen,
   onClose,
 }) => {

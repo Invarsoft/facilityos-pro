@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { useApp } from '@/lib/context/AppContext';
 import { formatStatusLabel, getStatusColorClass, getPriorityBadge } from '@/lib/utils';
 import { VerificationModal } from '@/components/tickets/VerificationModal';
-import { AIWorkerRecommendModal } from '@/components/ai/AIWorkerRecommendModal';
+import { WorkerRecommendModal } from '@/components/assistant/WorkerRecommendModal';
 import { Ticket } from '@/lib/types';
 import {
   Clock,
@@ -415,9 +415,12 @@ export default function TicketDetailsPage() {
         <VerificationModal ticket={ticket} onClose={() => setVerificationModalOpen(false)} />
       )}
 
-      {/* AI Worker Assignment Modal */}
+      {/* Worker Assignment Modal */}
       {assignmentModalOpen && (
-        <AIWorkerRecommendModal ticket={ticket} onClose={() => setAssignmentModalOpen(false)} />
+        <WorkerRecommendModal
+          ticket={ticket}
+          onClose={() => setAssignmentModalOpen(false)}
+        />
       )}
     </div>
   );

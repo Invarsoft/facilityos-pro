@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
-import { AIAssistantDrawer } from '../ai/AIAssistantDrawer';
+import { AssistantDrawer } from '../assistant/AssistantDrawer';
 import { MobileBottomNav } from './MobileBottomNav';
 
 export const MainLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -36,7 +36,7 @@ export const MainLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
       {/* Mobile Fixed Bottom Navigation Bar */}
       <MobileBottomNav />
 
-      <AIAssistantDrawer isOpen={false} onClose={() => {}} />
+      <AssistantDrawer isOpen={false} onClose={() => {}} />
     </div>
   );
 };
