@@ -1,0 +1,22 @@
+{
+  "name": "FacilityOS Mobile App",
+  "short_name": "FacilityOS",
+  "description": "Manage. Maintain. Resolve. Enterprise Facility Operations App.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/invarsoft-logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/invarsoft-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
