@@ -28,3 +28,15 @@ yarn-error.log*
 
 # Vercel
 .vercel
+
+# Python / backend
+__pycache__/
+*.pyc
+.venv/
+backend/facilityos.db*
+backend/.env
+
+# Node / frontend
+node_modules/
+.next/
+frontend/.env.local
