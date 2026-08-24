@@ -34,8 +34,6 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
   const {
     activeOrg,
     isAuthenticated,
-    activeRole,
-    setActiveRole,
     currentUser,
     logout,
     theme,
@@ -45,7 +43,6 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
     setAiDrawerOpen,
   } = useApp();
 
-  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const [notifDropdownOpen, setNotifDropdownOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [emergencyModalOpen, setEmergencyModalOpen] = useState(false);
@@ -62,22 +59,7 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
     pathname === '/select-facility' ||
     pathname === '/organizations';
 
-  const availableRoles: { role: Role; label: string }[] = [
-    {
-      role: activeOrg.type === 'university' ? 'student' : activeOrg.type === 'apartment' ? 'resident' : 'employee',
-      label: activeOrg.type === 'university' ? 'Student / Requester' : activeOrg.type === 'apartment' ? 'Resident / Requester' : 'Employee / Requester',
-    },
-    { role: 'worker', label: 'Technician / Field Worker' },
-    {
-      role: activeOrg.type === 'university' ? 'warden' : 'manager',
-      label: getRoleDisplayName(activeOrg.type === 'university' ? 'warden' : 'manager', activeOrg.type),
-    },
-    { role: 'org_admin', label: `${activeOrg.name} Admin` },
-    { role: 'super_admin', label: 'FacilityOS System Super Admin' },
-  ];
-
   const closeAllDropdowns = () => {
-    setRoleDropdownOpen(false);
     setNotifDropdownOpen(false);
     setUserMenuOpen(false);
   };
@@ -155,58 +137,6 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
             </button>
           )}
 
-          {/* Quick Demo Role Switcher Bar - ONLY SHOWN WHEN AUTHENTICATED */}
-          {!isUnauthenticatedPage && (
-            <div className="relative">
-              <button
-                onClick={() => {
-                  setRoleDropdownOpen(!roleDropdownOpen);
-                  setNotifDropdownOpen(false);
-                  setUserMenuOpen(false);
-                }}
-                className="flex items-center gap-1 px-2 sm:px-3 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-[11px] sm:text-xs font-semibold hover:bg-amber-500/20 transition-all max-w-[110px] sm:max-w-none"
-              >
-                <UserCheck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                <span className="hidden md:inline">Role:</span>
-                <span className="font-bold truncate max-w-[55px] sm:max-w-[140px]">{getRoleDisplayName(activeRole, activeOrg.type, activeOrg.name)}</span>
-                <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500 shrink-0" />
-              </button>
-
-              {roleDropdownOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setRoleDropdownOpen(false)} />
-                  <div className="absolute right-0 mt-2 w-64 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 shadow-xl z-50 animate-in fade-in slide-in-from-top-2">
-                    <div className="px-3 py-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">
-                      Demo Role Switcher
-                    </div>
-                    <p className="px-3 pb-2 text-[10px] text-slate-400 border-b border-slate-100 dark:border-slate-800">
-                      Instantly preview UI as different system actors:
-                    </p>
-                    <div className="space-y-1 mt-1">
-                      {availableRoles.map((r) => (
-                        <button
-                          key={r.role}
-                          onClick={() => {
-                            setActiveRole(r.role);
-                            setRoleDropdownOpen(false);
-                          }}
-                          className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left text-xs transition-colors ${
-                            activeRole === r.role
-                              ? 'bg-amber-50 dark:bg-amber-950/50 text-amber-800 dark:text-amber-300 font-bold'
-                              : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
-                          }`}
-                        >
-                          <span>{r.label}</span>
-                          {activeRole === r.role && <CheckCircle2 className="w-3.5 h-3.5 text-amber-600" />}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-
           {/* Dark / Light Mode Toggle */}
           <button
             onClick={toggleTheme}
@@ -222,7 +152,6 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
               <button
                 onClick={() => {
                   setNotifDropdownOpen(!notifDropdownOpen);
-                  setRoleDropdownOpen(false);
                   setUserMenuOpen(false);
                 }}
                 className="relative p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -282,7 +211,6 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
               <button
                 onClick={() => {
                   setUserMenuOpen(!userMenuOpen);
-                  setRoleDropdownOpen(false);
                   setNotifDropdownOpen(false);
                 }}
                 className="flex items-center gap-2 p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-left"
@@ -307,7 +235,7 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
                       <p className="text-xs font-extrabold text-slate-900 dark:text-white">{currentUser.name}</p>
                       <p className="text-[10px] text-slate-400 font-mono truncate">{currentUser.email}</p>
                       <span className="inline-block text-[9px] font-extrabold uppercase px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
-                        {getRoleDisplayName(activeRole, activeOrg.type, activeOrg.name)}
+                        {getRoleDisplayName(currentUser.role, activeOrg.type, activeOrg.name)}
                       </span>
                     </div>
 
