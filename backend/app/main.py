@@ -30,11 +30,32 @@ async def _sla_breach_loop() -> None:
         await asyncio.sleep(settings.SLA_BREACH_CHECK_INTERVAL_SECONDS)
 
 
+async def _ensure_missing_columns(conn) -> None:
+    """
+    SQLite dev-safety net: add columns that exist in models but not in an
+    older database file (create_all only creates missing TABLES, not columns).
+    Production uses Alembic migrations instead.
+    """
+    if engine.dialect.name != "sqlite":
+        return
+    for table in Base.metadata.sorted_tables:
+        result = await conn.exec_driver_sql(f"PRAGMA table_info({table.name})")
+        existing = {row[1] for row in result}
+        for col in table.columns:
+            if col.name not in existing:
+                coltype = col.type.compile(engine.dialect)
+                logger.warning("Adding missing column %s.%s (%s)", table.name, col.name, coltype)
+                await conn.exec_driver_sql(
+                    f"ALTER TABLE {table.name} ADD COLUMN {col.name} {coltype}"
+                )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Dev convenience: create tables if missing (Alembic owns real migrations).
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        await _ensure_missing_columns(conn)
     task = asyncio.create_task(_sla_breach_loop())
     logger.info("%s started (sla sweep every %ss)", settings.PROJECT_NAME,
                 settings.SLA_BREACH_CHECK_INTERVAL_SECONDS)
