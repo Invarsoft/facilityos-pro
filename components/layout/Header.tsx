@@ -136,7 +136,7 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
           {!isUnauthenticatedPage && (
             <button
               onClick={() => setEmergencyModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md shadow-rose-600/20 animate-pulse transition-transform active:scale-95"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md shadow-rose-600/20 animate-pulse transition-transform active:scale-95"
               title="Trigger Immediate Emergency Maintenance Dispatch"
             >
               <AlertTriangle className="w-4 h-4" />
@@ -144,11 +144,11 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
             </button>
           )}
 
-          {/* Facos Bot Drawer Trigger - ONLY SHOWN WHEN AUTHENTICATED */}
+          {/* Dispatch Desk Trigger - ONLY SHOWN WHEN AUTHENTICATED */}
           {!isUnauthenticatedPage && (
             <button
               onClick={() => setAiDrawerOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold shadow-sm transition-all active:scale-95"
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold shadow-sm transition-all active:scale-95"
             >
               <UserCheck className="w-4 h-4 text-violet-200" />
               <span className="hidden sm:inline">Dispatch Desk</span>
@@ -164,12 +164,12 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
                   setNotifDropdownOpen(false);
                   setUserMenuOpen(false);
                 }}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-semibold hover:bg-amber-500/20 transition-all"
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-semibold hover:bg-amber-500/20 transition-all max-w-[130px] sm:max-w-none"
               >
-                <UserCheck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                <span className="hidden sm:inline">Role:</span>
-                <span className="font-bold">{getRoleDisplayName(activeRole, activeOrg.type, activeOrg.name)}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-amber-500" />
+                <UserCheck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span className="hidden md:inline">Role:</span>
+                <span className="font-bold truncate max-w-[70px] sm:max-w-[140px]">{getRoleDisplayName(activeRole, activeOrg.type, activeOrg.name)}</span>
+                <ChevronDown className="w-3.5 h-3.5 text-amber-500 shrink-0" />
               </button>
 
               {roleDropdownOpen && (

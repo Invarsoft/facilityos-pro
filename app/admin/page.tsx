@@ -23,21 +23,31 @@ import {
   Star,
   CheckCircle2,
   PlusCircle,
+  FilePlus,
+  QrCode,
+  HelpCircle,
+  ArrowRight,
+  ShieldCheck,
+  UserCheck,
 } from 'lucide-react';
 
 export default function AdminCommandCenterPage() {
-  const { getFilteredTickets, activeOrg, activeRole, users, auditLogs } = useApp();
+  const { getFilteredTickets, activeOrg, activeRole, users, auditLogs, currentUser } = useApp();
   const tickets = getFilteredTickets();
   const [addFacilityModalOpen, setAddFacilityModalOpen] = useState(false);
 
+  const isRequesterRole = activeRole === 'student' || activeRole === 'resident' || activeRole === 'employee';
   const isSuperAdmin = activeRole === 'super_admin';
+
+  const myTickets = tickets.filter(
+    (t) => t.requesterName === currentUser?.name || t.room?.includes('204') || t.orgId === activeOrg.id
+  );
 
   const total = tickets.length;
   const active = tickets.filter((t) => t.status !== 'closed' && t.status !== 'resolved').length;
   const completed = tickets.filter((t) => t.status === 'completed' || t.status === 'awaiting_verification').length;
   const closed = tickets.filter((t) => t.status === 'closed' || t.status === 'resolved').length;
   const reopened = tickets.filter((t) => t.status === 'reopened').length;
-  const escalated = tickets.filter((t) => t.status === 'escalated').length;
   const slaBreaches = tickets.filter((t) => t.slaBreached).length;
 
   // Filter audit logs dynamically for active tenant
@@ -53,50 +63,148 @@ export default function AdminCommandCenterPage() {
           text: `${log.user}: ${log.action} (${log.details})`,
           time: log.timestamp.includes(':') ? log.timestamp.split(' ')[1] || 'Just now' : log.timestamp,
         }))
-      : activeOrg.id === 'green-valley'
-      ? [
-          { text: 'Karthik Nair updated progress on Tower 3 Elevator Door Sensor to 75%', time: '10:30 AM' },
-          { text: 'Water pressure valve flushed at Tower 1 Main Line', time: '09:45 AM' },
-          { text: 'Priya Nambiar created request FOS-2026-008101', time: '08:00 AM' },
-        ]
-      : activeOrg.id === 'invartech-solutions'
-      ? [
-          { text: 'Amit Verma accepted Executive Boardroom AC Chiller job', time: '11:00 AM' },
-          { text: 'Floor 4 Bay C MCB trip logged by Vikram Mehta', time: '09:00 AM' },
-          { text: 'HVAC gas recharge completed for Central Chiller B', time: '08:30 AM' },
-        ]
       : [
           { text: 'Ravi Kumar started work on FOS-2026-004821 (Bathroom tap leakage)', time: '11:30 AM' },
           { text: 'Suresh Patel completed capacitor replacement on FOS-2026-004822', time: '10:00 AM' },
           { text: 'Dr. Rajesh Verma assigned ticket FOS-2026-004821 to Ravi Kumar', time: '09:30 AM' },
-          { text: 'Aarav Sharma submitted service request FOS-2026-004821', time: '09:15 AM' },
         ];
 
-  const gisBuildingMarkers =
-    activeOrg.id === 'green-valley'
-      ? [
-          { name: 'Tower 1 Resident Block', activeJobs: 0, status: 'Clear', coords: '12.9716° N, 77.5946° E' },
-          { name: 'Tower 3 Elevator Well', activeJobs: 1, status: 'In Progress', coords: '12.9718° N, 77.5948° E' },
-          { name: 'Community Clubhouse & Pool', activeJobs: 0, status: 'Optimal', coords: '12.9720° N, 77.5950° E' },
-        ]
-      : activeOrg.id === 'invartech-solutions'
-      ? [
-          { name: 'Main Block - Floor 5 Boardroom', activeJobs: 1, status: 'In Progress', coords: '28.4595° N, 77.0266° E' },
-          { name: 'Floor 4 Software Bay C', activeJobs: 0, status: 'Optimal', coords: '28.4597° N, 77.0268° E' },
-          { name: 'Datacenter Server Room A', activeJobs: 0, status: 'Secure', coords: '28.4599° N, 77.0270° E' },
-        ]
-      : [
-          { name: 'Hostel A (Boys Hostel)', activeJobs: 1, status: 'In Progress', coords: '17.3850° N, 78.4867° E' },
-          { name: 'Hostel B (Girls Hostel)', activeJobs: 1, status: 'Awaiting Verification', coords: '17.3852° N, 78.4869° E' },
-          { name: 'Academic Block 1 Labs', activeJobs: 0, status: 'Optimal', coords: '17.3855° N, 78.4872° E' },
-        ];
+  // IF ROLE IS A REQUESTER (STUDENT / RESIDENT / EMPLOYEE), SHOW REQUESTER DASHBOARD
+  if (isRequesterRole) {
+    return (
+      <div className="py-4 sm:py-8 px-3.5 sm:px-6 max-w-6xl mx-auto space-y-6 sm:space-y-8 animate-in fade-in duration-300">
+        {/* Requester Hero Header */}
+        <div className="p-6 sm:p-8 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+          <div className="space-y-2 z-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-bold uppercase tracking-wider">
+              <span>{activeOrg.logo}</span>
+              <span>{getRoleDisplayName(activeRole, activeOrg.type, activeOrg.name)}</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black">{activeOrg.name} Helpdesk</h1>
+            <p className="text-xs text-slate-300 max-w-xl leading-relaxed font-medium">
+              Welcome, {currentUser?.name || 'Requester'}. Report facility issues, track repair progress, and verify resolution in real-time.
+            </p>
+          </div>
 
+          <div className="flex items-center gap-2.5 flex-wrap z-10 w-full sm:w-auto">
+            <Link
+              href="/requests/new"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs shadow-lg shadow-blue-500/30"
+            >
+              <FilePlus className="w-4 h-4" />
+              <span>Raise New Request</span>
+            </Link>
+            <Link
+              href="/my-requests"
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700"
+            >
+              <FileText className="w-4 h-4 text-blue-400" />
+              <span>My Requests</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* Demo Switcher Notice */}
+        <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <UserCheck className="w-4 h-4 text-amber-500 shrink-0" />
+            <span>Currently previewing as <strong>{getRoleDisplayName(activeRole, activeOrg.type)}</strong>. Switch role in top bar to access Manager / Admin controls.</span>
+          </div>
+        </div>
+
+        {/* Requester Metrics */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Filed</span>
+            <p className="text-3xl font-black text-slate-900 dark:text-white mt-1">{myTickets.length}</p>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">In Progress</span>
+            <p className="text-3xl font-black text-amber-500 mt-1">
+              {myTickets.filter((t) => t.status === 'assigned' || t.status === 'in_progress').length}
+            </p>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Awaiting Verification</span>
+            <p className="text-3xl font-black text-yellow-500 mt-1">
+              {myTickets.filter((t) => t.status === 'awaiting_verification').length}
+            </p>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Resolved</span>
+            <p className="text-3xl font-black text-emerald-500 mt-1">
+              {myTickets.filter((t) => t.status === 'closed' || t.status === 'resolved').length}
+            </p>
+          </div>
+        </div>
+
+        {/* Quick Action Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Link
+            href="/requests/new"
+            className="p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-blue-500 transition-all group shadow-sm flex flex-col justify-between"
+          >
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center">
+                <FilePlus className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-extrabold group-hover:text-blue-600 transition-colors">Report Issue</h3>
+              <p className="text-xs text-slate-500 font-medium">Plumbing, electrical, AC cooling, Wi-Fi, or room repair.</p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-blue-600">
+              <span>Open Wizard</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
+
+          <Link
+            href="/my-requests"
+            className="p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-indigo-500 transition-all group shadow-sm flex flex-col justify-between"
+          >
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
+                <FileText className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-extrabold group-hover:text-indigo-600 transition-colors">Track Tickets</h3>
+              <p className="text-xs text-slate-500 font-medium">View technician assignment, live status, and resolution OTP.</p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-indigo-600">
+              <span>View Active</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
+
+          <Link
+            href="/organizations"
+            className="p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-violet-500 transition-all group shadow-sm flex flex-col justify-between"
+          >
+            <div className="space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-violet-500/10 text-violet-500 flex items-center justify-center">
+                <Building2 className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-extrabold group-hover:text-violet-600 transition-colors">Facility Directory</h3>
+              <p className="text-xs text-slate-500 font-medium">Browse facilities, custom services, and campus contact details.</p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-bold text-violet-600">
+              <span>Browse All</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // EXECUTIVE ADMIN & MANAGER COMMAND CENTER
   return (
     <>
-      <div className="space-y-6 max-w-7xl mx-auto animate-in fade-in duration-300">
+      <div className="py-4 sm:py-8 px-3.5 sm:px-6 max-w-7xl mx-auto space-y-6 sm:space-y-8 animate-in fade-in duration-300">
         {/* Top Banner */}
-        <div className="p-6 md:p-8 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="space-y-1">
+        <div className="p-6 md:p-8 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+          <div className="space-y-1 z-10">
             <div className="flex items-center gap-2">
               <span className="text-2xl">{isSuperAdmin ? '🌐' : activeOrg.logo}</span>
               <span className="text-xs uppercase font-extrabold tracking-widest text-blue-400">
@@ -107,14 +215,14 @@ export default function AdminCommandCenterPage() {
             <h1 className="text-2xl md:text-3xl font-black">
               {isSuperAdmin ? 'FacilityOS System Super Admin Console' : `${activeOrg.name} Executive Operations`}
             </h1>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
               {isSuperAdmin
                 ? 'Platform-wide control, facility tenant onboarding, system audit logs, and global SLA engine control.'
                 : `Internal organization administration, technician fleet management, asset tracking, and SLA enforcement for ${activeOrg.name}.`}
             </p>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap z-10 w-full sm:w-auto">
             {isSuperAdmin && (
               <button
                 onClick={() => setAddFacilityModalOpen(true)}
@@ -143,7 +251,7 @@ export default function AdminCommandCenterPage() {
         </div>
 
         {/* Metric Cards Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
             <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Total Requests</span>
             <p className="text-2xl font-black text-slate-900 dark:text-white mt-1">{total}</p>
@@ -176,7 +284,7 @@ export default function AdminCommandCenterPage() {
         </div>
 
         {/* Admin Modules Hub */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           {[
             ...(isSuperAdmin
               ? [
@@ -198,88 +306,55 @@ export default function AdminCommandCenterPage() {
             { title: 'Export Reports', desc: 'CSV & Executive PDFs', href: '/admin/reports', icon: FileText, color: 'text-rose-500', bg: 'bg-rose-500/10' },
             { title: 'Audit Trail', desc: 'Security Logs', href: '/admin/audit-logs', icon: Shield, color: 'text-cyan-500', bg: 'bg-cyan-500/10' },
             { title: 'Facility Hierarchy', desc: 'Buildings & Blocks', href: '/admin/facilities', icon: Building, color: 'text-teal-500', bg: 'bg-teal-500/10' },
-          ].map((mod) => {
-            const Icon = mod.icon;
+          ].map((m) => {
+            const Icon = m.icon;
             return (
               <Link
-                key={mod.title}
-                href={mod.href}
-                className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-blue-500 transition-all shadow-md group space-y-2"
+                key={m.title}
+                href={m.href}
+                className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-blue-500 dark:hover:border-blue-500 transition-all group shadow-xs flex flex-col justify-between"
               >
-                <div className={`w-10 h-10 rounded-2xl ${mod.bg} ${mod.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                  <Icon className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-extrabold text-slate-900 dark:text-white">{mod.title}</h3>
-                  <p className="text-[11px] text-slate-400">{mod.desc}</p>
+                <div className="space-y-3">
+                  <div className={`w-10 h-10 rounded-xl ${m.bg} ${m.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-extrabold text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">
+                      {m.title}
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{m.desc}</p>
+                  </div>
                 </div>
               </Link>
             );
           })}
         </div>
 
-        {/* GIS Live Map Simulation & Activity Feed */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* GIS Map Box */}
-          <div className="lg:col-span-2 p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-rose-500" />
-                <span>GIS Dispatch Map — {isSuperAdmin ? 'FacilityOS Global Platform' : activeOrg.name}</span>
-              </h2>
-              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
-                Live Dispatch Active
-              </span>
-            </div>
+        {/* Activity Stream Section */}
+        <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          <h3 className="text-sm font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
+            <Activity className="w-4 h-4 text-blue-500" />
+            <span>Tenant Live Activity Feed ({activeOrg.name})</span>
+          </h3>
 
-            <div className="relative h-64 rounded-2xl bg-slate-950 overflow-hidden border border-slate-800 flex items-center justify-center p-4">
-              <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:16px_16px]" />
-              <div className="z-10 w-full space-y-3">
-                <p className="text-xs text-slate-400 font-mono text-center mb-2">BUILDING INFRASTRUCTURE MARKERS:</p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {gisBuildingMarkers.map((b) => (
-                    <div key={b.name} className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 text-xs space-y-1">
-                      <span className="font-bold text-white block text-[11px] truncate">{b.name}</span>
-                      <span className="text-[10px] text-slate-400 block font-mono">{b.coords}</span>
-                      <div className="pt-1 flex items-center justify-between text-[10px]">
-                        <span className={b.activeJobs > 0 ? 'text-amber-400 font-bold' : 'text-emerald-400'}>
-                          {b.activeJobs} Active Jobs
-                        </span>
-                        <span className="text-slate-400 font-semibold">{b.status}</span>
-                      </div>
-                    </div>
-                  ))}
+          <div className="space-y-2.5">
+            {liveActivities.map((act, i) => (
+              <div
+                key={i}
+                className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-700 dark:text-slate-300"
+              >
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span className="font-medium">{act.text}</span>
                 </div>
+                <span className="text-[11px] font-bold text-slate-400 shrink-0 ml-2">{act.time}</span>
               </div>
-            </div>
-          </div>
-
-          {/* Live Operational Activity Feed */}
-          <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                <Activity className="w-5 h-5 text-blue-500" />
-                <span>Live Operations Feed</span>
-              </h2>
-              <span className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
-            </div>
-
-            <div className="space-y-3">
-              {liveActivities.map((act, i) => (
-                <div key={i} className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-xs space-y-1">
-                  <p className="text-slate-800 dark:text-slate-200 font-medium leading-snug">{act.text}</p>
-                  <span className="text-[9px] text-slate-400 font-mono block">{act.time}</span>
-                </div>
-              ))}
-            </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Admin Facility Provisioning Modal */}
-      {addFacilityModalOpen && (
-        <AddFacilityModal onClose={() => setAddFacilityModalOpen(false)} />
-      )}
+      {addFacilityModalOpen && <AddFacilityModal onClose={() => setAddFacilityModalOpen(false)} />}
     </>
   );
 }
