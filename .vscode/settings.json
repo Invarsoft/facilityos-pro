@@ -1,0 +1,22 @@
+{
+  // Hide dependency/build folders from the Explorer, search & watcher.
+  // They stay on disk — VS Code just stops showing and indexing them.
+  "files.exclude": {
+    "frontend/node_modules": true,
+    "frontend/.next": true,
+    "frontend/.env.local": true,
+    "backend/.venv": true,
+    "backend/facilityos.db": true,
+    "**/__pycache__": true,
+    "**/.pytest_cache": true
+  },
+  "search.exclude": {
+    "frontend/node_modules": true,
+    "frontend/.next": true,
+    "backend/.venv": true,
+    "**/__pycache__": true
+  },
+  // Silence the noisy CRLF warnings on Windows
+  "git.autofetch": true,
+  "files.eol": "\n"
+}
