@@ -12,7 +12,6 @@ import {
   MapPin,
   User,
   ArrowRight,
-  Sparkles,
 } from 'lucide-react';
 
 export default function WorkerDashboardPage() {

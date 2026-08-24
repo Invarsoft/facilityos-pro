@@ -17,7 +17,7 @@ import {
   Star,
   MapPin,
   Phone,
-  Sparkles,
+  Wrench,
   Check,
   User,
   ArrowRight,
@@ -157,7 +157,7 @@ export default function TicketDetailsPage() {
           <div className="p-4 rounded-2xl bg-yellow-500/10 border-2 border-yellow-500/50 text-yellow-900 dark:text-yellow-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-md">
             <div className="space-y-1">
               <h3 className="text-sm font-extrabold flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-yellow-500" />
+                <Wrench className="w-5 h-5 text-yellow-500" />
                 <span>Verification Required Before Ticket Closure</span>
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-300">

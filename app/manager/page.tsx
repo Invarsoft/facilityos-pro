@@ -12,7 +12,6 @@ import {
   Clock,
   AlertTriangle,
   CheckCircle2,
-  Sparkles,
   ArrowRight,
   ShieldCheck,
   Search,
@@ -59,8 +58,8 @@ export default function ManagerDashboardPage() {
           href="/manager/assignments"
           className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-extrabold text-xs shadow-lg shadow-violet-600/30"
         >
-          <Sparkles className="w-4 h-4" />
-          <span>AI Worker Match Center</span>
+          <UserCheck className="w-4 h-4" />
+          <span>Worker Match Center</span>
         </Link>
       </div>
 
@@ -157,8 +156,8 @@ export default function ManagerDashboardPage() {
                       onClick={() => setSelectedTicketForAssign(ticket)}
                       className="px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-extrabold text-xs shadow-md flex items-center gap-1.5"
                     >
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>AI Assign Technician</span>
+                      <UserCheck className="w-3.5 h-3.5" />
+                      <span>Assign Technician</span>
                     </button>
                     <Link
                       href={`/requests/${ticket.id}`}

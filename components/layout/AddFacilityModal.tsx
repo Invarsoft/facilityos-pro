@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/context/AppContext';
 import { ALL_SERVICE_CATEGORIES } from '@/lib/mockData';
 import { FacilityType } from '@/lib/types';
-import { Building2, Sparkles, CheckCircle2, X, PlusCircle } from 'lucide-react';
+import { Building2, CheckCircle2, X, PlusCircle } from 'lucide-react';
 
 interface AddFacilityModalProps {
   onClose: () => void;

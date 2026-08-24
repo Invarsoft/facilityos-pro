@@ -428,7 +428,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           actorRole: currentUser?.role || 'manager',
           actorAvatar: currentUser?.avatar,
           action: `Assigned to ${worker.name}`,
-          notes: notes || `Assigned based on AI match score. Skill: ${worker.skills?.[0] || 'Technician'}`,
+          notes: notes || `Assigned based on trade match score. Skill: ${worker.skills?.[0] || 'Technician'}`,
           oldStatus: t.status,
           newStatus: 'assigned' as TicketStatus,
         };

@@ -184,9 +184,9 @@ export const AIWorkerRecommendModal: React.FC<AIWorkerRecommendModalProps> = ({ 
             </div>
             <div>
               <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <span>Facos Bot Worker Match</span>
+                <span>Worker Match Engine</span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-950 text-violet-700 dark:text-violet-300 font-bold border border-violet-300 dark:border-violet-800">
-                  FACOS BOT
+                  FACOS MATCH
                 </span>
               </h3>
               <p className="text-[11px] text-slate-500 font-medium">Assign technician for {ticket.id} ({ticket.serviceCategory})</p>
@@ -203,7 +203,7 @@ export const AIWorkerRecommendModal: React.FC<AIWorkerRecommendModalProps> = ({ 
         {/* Body: Recommended Workers List */}
         <div className="p-6 overflow-y-auto space-y-4 flex-1">
           <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-            Facos Bot recommended technicians ranked by trade discipline, location proximity, and active workload:
+            Recommended technicians ranked by trade discipline, location proximity, and active workload:
           </p>
 
           <div className="space-y-3">

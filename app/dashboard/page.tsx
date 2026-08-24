@@ -12,7 +12,6 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
-  Sparkles,
   ArrowRight,
   TrendingUp,
   AlertTriangle,
@@ -73,7 +72,7 @@ export default function DashboardPage() {
       {metrics.awaitingVerification > 0 && (
         <div className="p-4 rounded-2xl bg-yellow-500/10 border-2 border-yellow-500/40 text-yellow-900 dark:text-yellow-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md animate-pulse">
           <div className="flex items-center gap-3">
-            <Sparkles className="w-6 h-6 text-yellow-500 shrink-0" />
+            <CheckCircle2 className="w-6 h-6 text-yellow-500 shrink-0" />
             <div>
               <h3 className="text-sm font-extrabold">Work Completed — Verification Pending</h3>
               <p className="text-xs text-slate-600 dark:text-slate-300">

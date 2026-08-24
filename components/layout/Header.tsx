@@ -12,7 +12,6 @@ import {
   Sun,
   Moon,
   Bell,
-  Bot,
   AlertTriangle,
   ChevronDown,
   Menu,
@@ -151,8 +150,8 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
               onClick={() => setAiDrawerOpen(true)}
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold shadow-sm transition-all active:scale-95"
             >
-              <Bot className="w-4 h-4 text-violet-200" />
-              <span className="hidden sm:inline">Facos Bot</span>
+              <UserCheck className="w-4 h-4 text-violet-200" />
+              <span className="hidden sm:inline">Dispatch Desk</span>
             </button>
           )}
 

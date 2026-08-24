@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import { AIAssistantDrawer } from '../ai/AIAssistantDrawer';
+import { MobileBottomNav } from './MobileBottomNav';
 
 export const MainLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
@@ -19,7 +20,7 @@ export const MainLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
     pathname === '/login';
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors relative">
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
       <div className="flex-1 flex w-full">
@@ -27,10 +28,13 @@ export const MainLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
           <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         )}
 
-        <main className={`flex-1 p-4 md:p-6 overflow-x-hidden ${isFullWidthPage ? 'w-full max-w-7xl mx-auto' : ''}`}>
+        <main className={`flex-1 p-3.5 sm:p-5 md:p-6 pb-20 md:pb-6 overflow-x-hidden ${isFullWidthPage ? 'w-full max-w-7xl mx-auto' : ''}`}>
           {children}
         </main>
       </div>
+
+      {/* Mobile Fixed Bottom Navigation Bar */}
+      <MobileBottomNav />
 
       <AIAssistantDrawer isOpen={false} onClose={() => {}} />
     </div>

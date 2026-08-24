@@ -16,7 +16,6 @@ import {
   Hospital,
   Users,
   Building,
-  Sparkles,
   ArrowRight,
   ShieldCheck,
   Key,
@@ -110,7 +109,7 @@ export default function FirstScreenSelectPlace() {
       type: 'other',
       title: 'Other Facility',
       subtitle: 'Use FacilityOS for your custom facility.',
-      icon: Sparkles,
+      icon: Building2,
       color: 'text-slate-400',
       gradient: 'from-slate-600/20 to-slate-700/10 border-slate-500/30',
     },
@@ -121,19 +120,19 @@ export default function FirstScreenSelectPlace() {
   };
 
   return (
-    <div className="py-8 px-4 max-w-6xl mx-auto space-y-12 animate-in fade-in duration-300">
+    <div className="py-4 sm:py-8 px-3.5 sm:px-6 max-w-6xl mx-auto space-y-8 sm:space-y-12 animate-in fade-in duration-300">
       {/* Brand Hero Header */}
-      <div className="text-center space-y-4 max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-extrabold uppercase tracking-widest shadow-xs">
-          <ShieldCheck className="w-4 h-4 text-blue-500" />
-          <span>The Operating System for Modern Facility Services</span>
+      <div className="text-center space-y-3 sm:space-y-4 max-w-3xl mx-auto">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider shadow-xs">
+          <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 shrink-0" />
+          <span>Operating System for Facility Services</span>
         </div>
 
-        <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
+        <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
           Where do you need a service?
         </h1>
 
-        <p className="text-base md:text-lg text-slate-600 dark:text-slate-300 font-medium">
+        <p className="text-xs sm:text-base md:text-lg text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
           Choose your facility type to access custom services, report maintenance issues, and track verified resolution in real-time.
         </p>
       </div>

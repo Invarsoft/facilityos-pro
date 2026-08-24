@@ -623,7 +623,7 @@ export const ALL_SERVICE_CATEGORIES: ServiceCategory[] = [
   {
     id: 'cleaning',
     name: 'Cleaning & Housekeeping',
-    iconName: 'Sparkles',
+    iconName: 'Droplets',
     description: 'Deep room cleaning, garbage clearance, sanitization',
     defaultPriority: 'normal',
     enabled: true,
@@ -947,7 +947,7 @@ export const DEMO_TICKETS: Ticket[] = [
         actorName: 'Dr. Rajesh Verma',
         actorRole: 'warden',
         action: 'Assigned to Ravi Kumar',
-        notes: 'Assigned based on 94% AI match score',
+        notes: 'Assigned based on 94% trade match score',
       },
       {
         id: 't4',

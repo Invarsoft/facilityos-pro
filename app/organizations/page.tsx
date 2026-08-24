@@ -86,28 +86,28 @@ function SelectOrganizationContent() {
   };
 
   return (
-    <div className="py-8 px-4 max-w-6xl mx-auto space-y-8 animate-in fade-in duration-300">
+    <div className="py-4 sm:py-8 px-3.5 sm:px-6 max-w-6xl mx-auto space-y-6 sm:space-y-8 animate-in fade-in duration-300">
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight flex flex-wrap items-center gap-2">
             <span>Registered Facility Directory</span>
             {isSuperAdmin && (
               <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
-                Super Admin Controls
+                Super Admin
               </span>
             )}
           </h1>
-          <p className="text-xs text-slate-500 font-medium mt-1">
+          <p className="text-[11px] sm:text-xs text-slate-500 font-medium mt-1 leading-relaxed">
             Browse and access service portals across all registered universities, hospitals, corporate offices, and residential communities.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 scrollbar-none">
           {isSuperAdmin ? (
             <button
               onClick={() => setAddFacilityModalOpen(true)}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs shadow-md"
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs shadow-md shrink-0"
             >
               <PlusCircle className="w-4 h-4" />
               <span>+ Provision Facility</span>
@@ -115,7 +115,7 @@ function SelectOrganizationContent() {
           ) : (
             <button
               onClick={() => setRequestOnboardingModalOpen(true)}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs"
+              className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-xs shrink-0"
             >
               <Send className="w-4 h-4 text-blue-500" />
               <span>Request Onboarding</span>
@@ -124,10 +124,10 @@ function SelectOrganizationContent() {
 
           <button
             onClick={() => setCodeModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-100 dark:hover:bg-slate-800 shrink-0"
           >
             <Key className="w-4 h-4 text-amber-500" />
-            <span className="hidden sm:inline">Enter Code</span>
+            <span>Enter Code</span>
           </button>
 
           <button

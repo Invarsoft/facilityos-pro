@@ -7,7 +7,6 @@ import { ALL_SERVICE_CATEGORIES } from '@/lib/mockData';
 import { Priority } from '@/lib/types';
 import {
   Wrench,
-  Sparkles,
   Upload,
   CheckCircle2,
   ArrowRight,
@@ -32,7 +31,6 @@ const ICON_MAP: Record<string, any> = {
   Droplets,
   Zap,
   Hammer,
-  Sparkles,
   Wind,
   Building,
   Armchair,
@@ -261,9 +259,9 @@ function RequestWizardContent() {
           {aiSuggestion && (
             <div className="p-3.5 rounded-2xl bg-gradient-to-r from-violet-500/10 via-indigo-500/10 to-purple-500/10 border border-violet-500/30 flex items-center justify-between text-xs text-violet-900 dark:text-violet-200">
               <div className="flex items-center gap-2.5">
-                <Sparkles className="w-5 h-5 text-violet-600 shrink-0" />
+                <Wrench className="w-5 h-5 text-violet-600 shrink-0" />
                 <div>
-                  <p className="font-extrabold">AI Smart Classification</p>
+                  <p className="font-extrabold">Smart Service Classification</p>
                   <p className="text-[11px] text-slate-600 dark:text-slate-300">
                     Detected: <strong>{aiSuggestion.category}</strong> • Suggested Priority: <strong>{aiSuggestion.priority?.toUpperCase()}</strong>
                   </p>

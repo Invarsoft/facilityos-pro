@@ -31,14 +31,12 @@ import {
   CheckCircle2,
   Plus,
   Minus,
-  Bot,
 } from 'lucide-react';
 
 const ICON_MAP: Record<string, any> = {
   Droplets,
   Zap,
   Hammer,
-  Bot,
   Wind,
   Building,
   Armchair,
@@ -78,20 +76,20 @@ export default function OrganizationServicesPage() {
   };
 
   return (
-    <div className="py-8 px-4 max-w-5xl mx-auto space-y-8 animate-in fade-in duration-300">
+    <div className="py-4 sm:py-8 px-3.5 sm:px-6 max-w-5xl mx-auto space-y-6 sm:space-y-8 animate-in fade-in duration-300">
       {/* Organization Header Banner */}
       <div
-        className="p-8 rounded-3xl text-white shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
+        className="p-5 sm:p-8 rounded-2xl sm:rounded-3xl text-white shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-5 sm:gap-6"
         style={{
           background: `linear-gradient(135deg, ${org.primaryColor} 0%, #0f172a 100%)`,
         }}
       >
-        <div className="space-y-3 z-10">
-          <div className="flex items-center gap-3">
-            <span className="text-4xl p-2 rounded-2xl bg-white/10 backdrop-blur-md">{org.logo}</span>
+        <div className="space-y-2 sm:space-y-3 z-10">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <span className="text-3xl sm:text-4xl p-2 rounded-2xl bg-white/10 backdrop-blur-md">{org.logo}</span>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-2xl md:text-3xl font-black">{org.name}</h1>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-black">{org.name}</h1>
                 {org.verified && <ShieldCheck className="w-5 h-5 text-blue-400" />}
               </div>
               <p className="text-xs text-slate-300 flex items-center gap-1.5 mt-0.5">
