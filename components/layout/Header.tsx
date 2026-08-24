@@ -84,33 +84,33 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
 
   return (
     <>
-      <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 px-4 backdrop-blur-md transition-colors">
+      <header className="sticky top-0 z-30 flex h-14 sm:h-16 w-full max-w-full items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 px-2.5 sm:px-4 backdrop-blur-md transition-colors overflow-x-clip">
         {/* Left Section: Logo & Static Tenant Badge */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           {toggleSidebar && !isUnauthenticatedPage && (
             <button
               onClick={toggleSidebar}
-              className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 md:hidden"
+              className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 md:hidden"
               aria-label="Toggle Navigation Menu"
             >
               <Menu className="w-5 h-5" />
             </button>
           )}
 
-          <Link href="/" className="flex items-center gap-2 group" onClick={closeAllDropdowns}>
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white font-bold shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
+          <Link href="/" className="flex items-center gap-1.5 sm:gap-2 group" onClick={closeAllDropdowns}>
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white font-bold shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform text-sm sm:text-base">
               F
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+              <div className="flex items-center gap-1">
+                <span className="font-extrabold text-base sm:text-lg tracking-tight bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
                   FacilityOS
                 </span>
-                <span className="text-[10px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300">
+                <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-widest px-1 py-0.2 rounded bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 hidden sm:inline-block">
                   PRO
                 </span>
               </div>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium -mt-1 hidden sm:block">
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium -mt-1 hidden md:block">
                 Manage. Maintain. Resolve.
               </p>
             </div>
@@ -121,9 +121,9 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
             <>
               <div className="h-6 w-[1px] bg-slate-200 dark:bg-slate-800 mx-1 hidden md:block" />
 
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-xs font-semibold text-slate-800 dark:text-slate-200">
+              <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-xs font-semibold text-slate-800 dark:text-slate-200">
                 <span className="text-base">{activeOrg.logo}</span>
-                <span className="max-w-[160px] truncate">{activeOrg.name}</span>
+                <span className="max-w-[140px] truncate">{activeOrg.name}</span>
                 {activeOrg.verified && <ShieldCheck className="w-3.5 h-3.5 text-blue-500 shrink-0" />}
               </div>
             </>
@@ -131,12 +131,12 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
         </div>
 
         {/* Right Section: Actions, Role Selector & Profile / Sign In */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           {/* Emergency Alert Button - ONLY SHOWN WHEN AUTHENTICATED */}
           {!isUnauthenticatedPage && (
             <button
               onClick={() => setEmergencyModalOpen(true)}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md shadow-rose-600/20 animate-pulse transition-transform active:scale-95"
+              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md shadow-rose-600/20 animate-pulse transition-transform active:scale-95"
               title="Trigger Immediate Emergency Maintenance Dispatch"
             >
               <AlertTriangle className="w-4 h-4" />
@@ -148,10 +148,10 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
           {!isUnauthenticatedPage && (
             <button
               onClick={() => setAiDrawerOpen(true)}
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold shadow-sm transition-all active:scale-95"
+              className="hidden md:flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-xs font-bold shadow-sm transition-all active:scale-95"
             >
               <UserCheck className="w-4 h-4 text-violet-200" />
-              <span className="hidden sm:inline">Dispatch Desk</span>
+              <span className="hidden lg:inline">Dispatch Desk</span>
             </button>
           )}
 
@@ -164,12 +164,12 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
                   setNotifDropdownOpen(false);
                   setUserMenuOpen(false);
                 }}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-semibold hover:bg-amber-500/20 transition-all max-w-[130px] sm:max-w-none"
+                className="flex items-center gap-1 px-2 sm:px-3 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-[11px] sm:text-xs font-semibold hover:bg-amber-500/20 transition-all max-w-[110px] sm:max-w-none"
               >
                 <UserCheck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span className="hidden md:inline">Role:</span>
-                <span className="font-bold truncate max-w-[70px] sm:max-w-[140px]">{getRoleDisplayName(activeRole, activeOrg.type, activeOrg.name)}</span>
-                <ChevronDown className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                <span className="font-bold truncate max-w-[55px] sm:max-w-[140px]">{getRoleDisplayName(activeRole, activeOrg.type, activeOrg.name)}</span>
+                <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500 shrink-0" />
               </button>
 
               {roleDropdownOpen && (
@@ -210,7 +210,7 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
           {/* Dark / Light Mode Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="p-1.5 sm:p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors hidden sm:block"
             aria-label="Toggle Theme"
           >
             {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
