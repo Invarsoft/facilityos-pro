@@ -4,6 +4,7 @@ import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useApp } from '@/lib/context/AppContext';
+import { checkFacilityCode } from '@/src/features/onboarding/api';
 import { Organization, FacilityType } from '@/lib/types';
 import {
   Search,
@@ -71,11 +72,37 @@ function SelectOrganizationContent() {
     router.push(`/organizations/${org.id}`);
   };
 
-  const handleCodeSubmit = (e: React.FormEvent) => {
+  const handleCodeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = facilityCodeInput.trim().toUpperCase();
-    const matched = organizations.find((o) => o.code.toUpperCase() === code);
+    setCodeError('');
 
+    // Real check against the backend first; mock fallback when offline.
+    try {
+      const resolved = await checkFacilityCode(code);
+      const matched = organizations.find(
+        (o) => o.name === resolved.name || o.code.toUpperCase() === code
+      );
+      if (matched) {
+        setActiveOrg(matched);
+        setCodeModalOpen(false);
+        router.push(`/organizations/${matched.id}`);
+        return;
+      }
+      // Backend knows the code but it's not in the picker yet (e.g. approved
+      // via onboarding) — still route to login for that facility.
+      setCodeModalOpen(false);
+      router.push('/login');
+      return;
+    } catch (err) {
+      if (!(err instanceof TypeError)) {
+        setCodeError(`Invalid Facility Code "${code}". Please check with your administrator.`);
+        return;
+      }
+      // backend offline → legacy mock matching
+    }
+
+    const matched = organizations.find((o) => o.code.toUpperCase() === code);
     if (matched) {
       setActiveOrg(matched);
       setCodeModalOpen(false);

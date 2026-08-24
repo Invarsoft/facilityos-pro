@@ -9,7 +9,7 @@ from app.models.enums import (
     UserRole,
 )
 from app.models.organization import Organization
-from app.models.support import AuditLog, Notification, Verification
+from app.models.support import AuditLog, Notification, OnboardingRequest, Verification
 from app.models.ticket import Comment, Ticket, TicketEvent
 from app.models.user import RefreshToken, ServiceCategoryModel, User
 
@@ -20,6 +20,7 @@ __all__ = [
     "AuditLog",
     "Comment",
     "Notification",
+    "OnboardingRequest",
     "Organization",
     "PMFrequency",
     "PreventiveMaintenanceSchedule",

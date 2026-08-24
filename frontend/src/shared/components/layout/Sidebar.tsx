@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useApp } from '@/lib/context/AppContext';
 import {
   LayoutDashboard,
+  UserPlus,
   PlusCircle,
   ClipboardList,
   Wrench,
@@ -66,7 +67,10 @@ export const Sidebar: React.FC<{ isOpen?: boolean; onClose?: () => void }> = ({ 
   const adminLinks: SidebarLink[] = [
     { href: '/admin', label: 'Command Center', icon: LayoutDashboard },
     ...(isSuperAdmin
-      ? [{ href: '/organizations', label: 'Registered Organizations', icon: Building2, highlight: true, badge: 'Super Admin' }]
+      ? [
+          { href: '/organizations', label: 'Registered Organizations', icon: Building2, highlight: true, badge: 'Super Admin' },
+          { href: '/admin/onboarding', label: 'Onboarding Requests', icon: UserPlus, highlight: true, badge: 'Super Admin' },
+        ]
       : []),
     { href: '/admin/analytics', label: 'Analytics & Insights', icon: BarChart3 },
     { href: '/admin/users', label: 'User Directory', icon: Users },

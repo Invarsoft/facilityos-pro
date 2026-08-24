@@ -83,7 +83,14 @@ async def org_users(session_factory):
         admin = mk("admin@test.edu", "Admin One", "admin")
         w1 = mk("w1@test.edu", "Plumber Pro", "worker", ["plumbing"])
         w2 = mk("w2@test.edu", "Sparky Volt", "worker", ["electrical"])
-        for u in (requester, manager, admin, w1, w2):
+        super_admin = User(
+            email="superadmin@facilityos.pro",
+            hashed_password=hash_password("Super@123"),
+            full_name="Platform Super Admin",
+            role="super_admin",
+            org_id=None,
+        )
+        for u in (requester, manager, admin, w1, w2, super_admin):
             s.add(u)
         for prio, rh, sh in [("emergency", 0.5, 2.0), ("high", 1.0, 8.0),
                              ("medium", 4.0, 24.0), ("low", 8.0, 72.0)]:

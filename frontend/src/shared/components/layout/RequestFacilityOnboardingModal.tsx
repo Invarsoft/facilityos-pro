@@ -1,11 +1,22 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Building2, Send, CheckCircle2, X, ShieldAlert } from 'lucide-react';
+import { Building2, Send, CheckCircle2, X, ShieldAlert, AlertTriangle } from 'lucide-react';
+import { submitOnboarding } from '@/src/features/onboarding/api';
 
 interface RequestFacilityOnboardingModalProps {
   onClose: () => void;
 }
+
+const VERTICAL_MAP: Record<string, string> = {
+  'University / College': 'university',
+  'Apartment / Community': 'apartment',
+  'Office / Corporate Campus': 'office',
+  'Hostel': 'hostel',
+  'Hospital': 'hospital',
+  'School': 'school',
+  'Commercial Building': 'commercial',
+};
 
 export const RequestFacilityOnboardingModal: React.FC<RequestFacilityOnboardingModalProps> = ({ onClose }) => {
   const [orgName, setOrgName] = useState('');
@@ -13,10 +24,26 @@ export const RequestFacilityOnboardingModal: React.FC<RequestFacilityOnboardingM
   const [email, setEmail] = useState('');
   const [facilityType, setFacilityType] = useState('University / College');
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSubmitting(true);
+    setErrorMsg('');
+    try {
+      await submitOnboarding({
+        org_name: orgName.trim(),
+        vertical: VERTICAL_MAP[facilityType] ?? null,
+        contact_name: contactName.trim() || undefined,
+        contact_email: email.trim(),
+      });
+      setSubmitted(true);
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to submit request — please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -128,6 +155,13 @@ export const RequestFacilityOnboardingModal: React.FC<RequestFacilityOnboardingM
                 />
               </div>
 
+              {errorMsg && (
+                <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-[11px] text-rose-700 dark:text-rose-300 font-semibold flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                  <span>{errorMsg}</span>
+                </div>
+              )}
+
               <div className="pt-2 flex items-center justify-end gap-3">
                 <button
                   type="button"
@@ -138,10 +172,11 @@ export const RequestFacilityOnboardingModal: React.FC<RequestFacilityOnboardingM
                 </button>
                 <button
                   type="submit"
-                  className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs shadow-md shadow-blue-600/20"
+                  disabled={submitting}
+                  className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-extrabold text-xs shadow-md shadow-blue-600/20"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>Submit Onboarding Request</span>
+                  <span>{submitting ? 'Submitting...' : 'Submit Onboarding Request'}</span>
                 </button>
               </div>
             </form>

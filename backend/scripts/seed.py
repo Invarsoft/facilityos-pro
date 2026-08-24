@@ -48,6 +48,7 @@ ORG_BLUEPRINTS = [
         "vertical": "university",
         "brand_color": "#0ea5e9",
         "welcome_message": "Welcome to Woxsen Facilities — how can we help?",
+        "code": "WOXSEN-2026",
         "token_prefix": "WOXSEN",
         "users": [
             ("admin@woxsen.edu", "Dr. Meera Krishnan", UserRole.ADMIN),
@@ -64,6 +65,7 @@ ORG_BLUEPRINTS = [
         "vertical": "apartment",
         "brand_color": "#22c55e",
         "welcome_message": "Welcome home, Green Valley resident!",
+        "code": "GV-2026",
         "token_prefix": "GV",
         "users": [
             ("admin@greenvalley.com", "Kavitha Reddy", UserRole.ADMIN),
@@ -78,6 +80,7 @@ ORG_BLUEPRINTS = [
         "vertical": "office",
         "brand_color": "#8b5cf6",
         "welcome_message": "InvarTech Workplace Services",
+        "code": "INV-2026",
         "token_prefix": "INV",
         "users": [
             ("admin@invartech.io", "Nikhil Menon", UserRole.ADMIN),
@@ -120,6 +123,7 @@ def _blueprint_for(org_id: str, name: str, vertical: str, prefix: str) -> dict:
     return {
         "name": name,
         "vertical": vertical,
+        "code": f"{prefix}-2026",
         "users": [
             (f"admin@{domain}", f"{name} Admin", UserRole.ADMIN),
             (f"manager@{domain}", f"{name} Manager", UserRole.MANAGER),
@@ -167,6 +171,7 @@ async def seed() -> None:
         for bp in ORG_BLUEPRINTS:
             org = Organization(
                 name=bp["name"],
+                code=bp.get("code"),
                 vertical=bp["vertical"],
                 brand_color=bp.get("brand_color"),
                 welcome_message=bp.get("welcome_message"),

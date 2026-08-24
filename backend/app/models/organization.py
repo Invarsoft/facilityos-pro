@@ -15,6 +15,9 @@ class Organization(Base):
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
     name: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
 
+    # public facility code (e.g. WOXSEN-2026) used by "Enter Facility Code"
+    code: Mapped[str | None] = mapped_column(String(40), unique=True, index=True)
+
     # vertical: university/apartment/office/hostel/school/hospital/residential/commercial
     vertical: Mapped[str | None] = mapped_column(String(50))
 

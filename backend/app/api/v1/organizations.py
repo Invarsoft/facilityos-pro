@@ -24,6 +24,18 @@ async def my_organization(db: DB, user: CurrentUser):
     return org
 
 
+@router.get("/by-code/{code}")
+async def organization_by_code(db: DB, code: str):
+    """Public: resolve a facility code (e.g. WOXSEN-2026) to its organization."""
+    rows = await db.execute(
+        select(Organization).where(Organization.code == code.strip().upper())
+    )
+    org = rows.scalar_one_or_none()
+    if not org or not org.is_active:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Invalid facility code")
+    return {"id": org.id, "name": org.name, "vertical": org.vertical, "code": org.code}
+
+
 @router.get("", response_model=list[OrganizationOut], dependencies=[SUPER_ONLY])
 async def list_organizations(db: DB):
     """super_admin only: browse all tenants."""

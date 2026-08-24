@@ -40,3 +40,6 @@ backend/.env
 node_modules/
 .next/
 frontend/.env.local
+
+# Production build dir (separate from dev cache)
+.next-prod/

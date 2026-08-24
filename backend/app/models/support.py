@@ -65,3 +65,32 @@ class Verification(Base):
     feedback: Mapped[str | None] = mapped_column(String(1000))
     verified_by: Mapped[str | None] = mapped_column(String(32), ForeignKey("users.id"))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class OnboardingRequest(Base):
+    """Facility signup request from the public 'Request Facility Onboarding' form.
+    Super admins review the queue; approval provisions a real tenant."""
+
+    __tablename__ = "onboarding_requests"
+    __table_args__ = (
+        Index("ix_onboarding_status_created", "status", "created_at"),
+    )
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    org_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    vertical: Mapped[str | None] = mapped_column(String(50))
+    contact_name: Mapped[str | None] = mapped_column(String(255))
+    contact_email: Mapped[str] = mapped_column(String(255), nullable=False)
+    contact_phone: Mapped[str | None] = mapped_column(String(50))
+    message: Mapped[str | None] = mapped_column(String(2000))
+
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending")
+    reviewed_by: Mapped[str | None] = mapped_column(String(32), ForeignKey("users.id"))
+
+    # filled on approval — shown once to the approving admin
+    created_org_id: Mapped[str | None] = mapped_column(String(32))
+    created_admin_email: Mapped[str | None] = mapped_column(String(255))
+    created_admin_password: Mapped[str | None] = mapped_column(String(255))
+    created_facility_code: Mapped[str | None] = mapped_column(String(40))
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
