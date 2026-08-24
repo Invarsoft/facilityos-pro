@@ -87,6 +87,38 @@ function LoginContent() {
       manager: 'manager@invartech.io',
       admin: 'admin@invartech.io',
     },
+    // Standardized scheme: {PREFIX}-8849-T / 2026, staff @ {org-id}.facilityos.pro
+    ...Object.fromEntries(
+      [
+        ['iit-bombay', 'IITB'],
+        ['manipal-university', 'MAHE'],
+        ['bits-pilani', 'BITS'],
+        ['srm-ist', 'SRM'],
+        ['prestige-falcon', 'PFC'],
+        ['dlf-crest', 'DLF'],
+        ['hiranandani-powai', 'HIRA'],
+        ['microsoft-idc', 'MSFT'],
+        ['infosys-ecity', 'INFY'],
+        ['apollo-main', 'APOLLO'],
+        ['fortis-fmri', 'FORTIS'],
+        ['manipal-hospital', 'MSH'],
+        ['xavier-hostel', 'XAVIER'],
+        ['scholars-nest', 'SNEST'],
+        ['doon-school', 'DOON'],
+        ['dps-intl', 'DPS'],
+        ['palm-meadows', 'PALM'],
+        ['phoenix-marketcity', 'PHOENIX'],
+      ].map(([id, prefix]) => [
+        id,
+        {
+          requesterToken: `${prefix}-8849-T`,
+          requesterPin: '2026',
+          worker: `worker@${id}.facilityos.pro`,
+          manager: `manager@${id}.facilityos.pro`,
+          admin: `admin@${id}.facilityos.pro`,
+        },
+      ]),
+    ),
   };
   const realOrg = REAL_ORGS[activeOrg.id];
 
@@ -157,8 +189,8 @@ function LoginContent() {
         },
       ];
 
-  // Email form state
-  const [emailInput, setEmailInput] = useState(realOrg ? requesterEmail : '');
+  // Email form state — staff tab starts empty (never a requester email)
+  const [emailInput, setEmailInput] = useState(realOrg ? realOrg.manager : '');
   const [password, setPassword] = useState('');
 
   // Token & PIN form state
@@ -170,7 +202,7 @@ function LoginContent() {
   const [loggingIn, setLoggingIn] = useState(false);
 
   useEffect(() => {
-    setEmailInput(realOrg ? requesterEmail : '');
+    setEmailInput(realOrg ? realOrg.manager : '');
     setPassword('');
     setTokenInput(realOrg ? realOrg.requesterToken : '');
     setPinInput(realOrg ? realOrg.requesterPin : '');
@@ -375,7 +407,7 @@ function LoginContent() {
                     type="text"
                     value={emailInput}
                     onChange={(e) => setEmailInput(e.target.value)}
-                    placeholder={`e.g. care@${domain}`}
+                    placeholder={realOrg ? realOrg.admin : 'staff@facilityos.pro'}
                     required
                     className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none font-medium"
                   />

@@ -88,6 +88,49 @@ ORG_BLUEPRINTS = [
     },
 ]
 
+# Remaining facilities from frontend/lib/mockData.ts — generated with the
+# standardized credential scheme so EVERY org in the picker has real logins.
+EXTRA_ORGS = [
+    # (org_id, name, vertical, token_prefix)
+    ("iit-bombay", "IIT Bombay Campus", "university", "IITB"),
+    ("manipal-university", "Manipal Academy of Higher Education", "university", "MAHE"),
+    ("bits-pilani", "BITS Pilani Campus", "university", "BITS"),
+    ("srm-ist", "SRM Institute of Science & Tech", "university", "SRM"),
+    ("prestige-falcon", "Prestige Falcon City", "apartment", "PFC"),
+    ("dlf-crest", "DLF The Crest Phase 5", "apartment", "DLF"),
+    ("hiranandani-powai", "Hiranandani Gardens", "apartment", "HIRA"),
+    ("microsoft-idc", "Microsoft India Dev Center", "office", "MSFT"),
+    ("infosys-ecity", "Infosys World Headquarters", "office", "INFY"),
+    ("apollo-main", "Apollo Hospitals Main Hub", "hospital", "APOLLO"),
+    ("fortis-fmri", "Fortis Memorial Research Institute", "hospital", "FORTIS"),
+    ("manipal-hospital", "Manipal Super Speciality Hospital", "hospital", "MSH"),
+    ("xavier-hostel", "St. Xavier's Student Residence", "hostel", "XAVIER"),
+    ("scholars-nest", "Scholar's Nest Executive Hostel", "hostel", "SNEST"),
+    ("doon-school", "The Doon School Campus", "school", "DOON"),
+    ("dps-intl", "DPS International Campus", "school", "DPS"),
+    ("palm-meadows", "Palm Meadows Villa Society", "apartment", "PALM"),
+    ("phoenix-marketcity", "Phoenix Marketcity Commercial Hub", "commercial", "PHOENIX"),
+]
+
+
+def _blueprint_for(org_id: str, name: str, vertical: str, prefix: str) -> dict:
+    """Standardized credentials: requester token {PREFIX}-8849-T / 2026,
+    staff emails {role}@{org_id}.facilityos.pro with role-default passwords."""
+    domain = f"{org_id}.facilityos.pro"
+    return {
+        "name": name,
+        "vertical": vertical,
+        "users": [
+            (f"admin@{domain}", f"{name} Admin", UserRole.ADMIN),
+            (f"manager@{domain}", f"{name} Manager", UserRole.MANAGER),
+            (f"user@{domain}", f"{name} Resident", UserRole.REQUESTER, f"{prefix}-8849-T", "2026"),
+            (f"worker@{domain}", f"{name} Technician", UserRole.WORKER, None, None, ["plumbing"]),
+        ],
+    }
+
+
+ORG_BLUEPRINTS.extend(_blueprint_for(*args) for args in EXTRA_ORGS)
+
 DEFAULT_PASSWORD = {
     UserRole.SUPER_ADMIN: "Super@123",
     UserRole.ADMIN: "Admin@123",
@@ -176,6 +219,10 @@ async def seed() -> None:
                 "university": ["Main Block Chiller", "Library Lift-1", "Boys Hostel Water Pump"],
                 "apartment": ["Tower-A Borewell Motor", "Clubhouse AC Unit"],
                 "office": ["3rd Floor AHU", "Reception Access Panel"],
+                "hospital": ["OT Air Handling Unit", "Central Medical Gas Compressor"],
+                "school": ["Auditorium AC Unit", "Water Cooler — Block B"],
+                "hostel": ["Mess Refrigerator", "Geyser — Room 204"],
+                "commercial": ["Food Court AHU", "Service Lift — East Wing"],
             }
             for i, aname in enumerate(asset_names.get(bp["vertical"], ["Generic Asset"])):
                 db.add(
@@ -224,15 +271,18 @@ async def seed() -> None:
             await db.commit()
 
         print("Seed complete.")
-        print("\nDemo credentials — requesters (Access Token + PIN):")
-        print("  Woxsen student   : WOXSEN-8849-T / 2026")
-        print("  Green Valley     : GV-8849-T / 2026")
-        print("  InvarTech        : INV-8849-T / 2026")
+        print("\nDemo credentials — requesters (Access Token + PIN, all use PIN 2026):")
+        for _id, name, _v, prefix in EXTRA_ORGS:
+            print(f"  {name:45s} {prefix}-8849-T / 2026")
+        print("  Woxsen University (custom)                      WOXSEN-8849-T / 2026")
+        print("  Green Valley Apartments (custom)                GV-8849-T / 2026")
+        print("  InvarTech Office (custom)                       INV-8849-T / 2026")
         print("\nDemo credentials — staff (Email + Password):")
         print("  super admin : superadmin@facilityos.pro / Super@123")
-        print("  admin       : admin@woxsen.edu / Admin@123")
-        print("  manager     : manager@woxsen.edu / Manager@123")
-        print("  worker      : worker.plumbing@woxsen.edu / Worker@123")
+        print("  woxsen      : admin@woxsen.edu / Admin@123 | manager@woxsen.edu / Manager@123")
+        print("  woxsen      : worker.plumbing@woxsen.edu / Worker@123")
+        print("  others      : admin|manager|worker|user@{org-id}.facilityos.pro")
+        print("                (Admin@123 / Manager@123 / Worker@123 / User@123)")
     await engine.dispose()
 
 
