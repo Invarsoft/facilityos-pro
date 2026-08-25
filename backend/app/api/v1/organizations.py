@@ -21,7 +21,29 @@ async def my_organization(db: DB, user: CurrentUser):
     org = await db.get(Organization, user.org_id)
     if not org:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Organization not found")
+    await db.commit()
     return org
+
+
+@router.get("/public")
+async def public_organizations(db: DB):
+    """Public facility directory for the picker — safe fields only."""
+    rows = await db.execute(
+        select(Organization)
+        .where(Organization.is_active.is_(True))
+        .order_by(Organization.name)
+    )
+    return [
+        {
+            "id": org.id,
+            "name": org.name,
+            "code": org.code,
+            "vertical": org.vertical,
+            "brand_color": org.brand_color,
+            "welcome_message": org.welcome_message,
+        }
+        for org in rows.scalars().all()
+    ]
 
 
 @router.get("/by-code/{code}")
@@ -57,6 +79,7 @@ async def create_organization(db: DB, body: OrganizationCreate, actor: CurrentUs
     )
     db.add(org)
     await db.flush()
+    await db.commit()
     return org
 
 
@@ -71,6 +94,7 @@ async def update_branding(org_id: str, body: OrganizationUpdate, db: DB, user: C
     for field, value in body.model_dump(exclude_unset=True).items():
         setattr(org, field, value)
     await db.flush()
+    await db.commit()
     return org
 
 

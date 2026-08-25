@@ -60,6 +60,7 @@ async def create_asset(db: DB, org_id: OrgId, body: AssetCreate):
     asset = Asset(org_id=org_id, **data)
     db.add(asset)
     await db.flush()
+    await db.commit()
     return asset
 
 
@@ -71,6 +72,7 @@ async def update_asset(db: DB, org_id: OrgId, asset_id: str, body: AssetUpdate):
     for field, value in body.model_dump(exclude_unset=True).items():
         setattr(asset, field, value.value if hasattr(value, "value") else value)
     await db.flush()
+    await db.commit()
     return asset
 
 
@@ -119,6 +121,7 @@ async def upsert_sla_rule(db: DB, org_id: OrgId, body: SLARuleCreate):
     )
     db.add(rule)
     await db.flush()
+    await db.commit()
     return rule
 
 
@@ -130,6 +133,7 @@ async def update_sla_rule(db: DB, org_id: OrgId, rule_id: str, body: SLARuleUpda
     for field, value in body.model_dump(exclude_unset=True).items():
         setattr(rule, field, value)
     await db.flush()
+    await db.commit()
     return rule
 
 
@@ -163,6 +167,7 @@ async def create_pm_schedule(db: DB, org_id: OrgId, body: PMScheduleCreate):
     schedule = PreventiveMaintenanceSchedule(org_id=org_id, **body.model_dump())
     db.add(schedule)
     await db.flush()
+    await db.commit()
     return schedule
 
 
@@ -174,6 +179,7 @@ async def update_pm_schedule(db: DB, org_id: OrgId, schedule_id: str, body: PMSc
     for field, value in body.model_dump(exclude_unset=True).items():
         setattr(schedule, field, value.value if hasattr(value, "value") else value)
     await db.flush()
+    await db.commit()
     return schedule
 
 

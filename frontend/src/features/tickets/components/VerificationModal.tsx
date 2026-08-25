@@ -11,13 +11,16 @@ interface VerificationModalProps {
 }
 
 export const VerificationModal: React.FC<VerificationModalProps> = ({ ticket, onClose }) => {
-  const { verifyTicket } = useApp();
+  const { verifyTicket, serverMode } = useApp();
 
   const [step, setStep] = useState<'prompt' | 'yes_feedback' | 'no_reopen'>('prompt');
   const [rating, setRating] = useState<number>(5);
   const [feedback, setFeedback] = useState<string>('');
   const [reopenReason, setReopenReason] = useState<string>('Issue not fully fixed');
   const [customComment, setCustomComment] = useState<string>('');
+  const [otp, setOtp] = useState<string>('');
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const reopenOptions = [
     'Issue not fully fixed',
@@ -28,15 +31,31 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ ticket, on
     'Other reason',
   ];
 
-  const handleConfirmYes = () => {
-    verifyTicket(ticket.id, true, rating, feedback);
-    onClose();
+  const handleConfirmYes = async () => {
+    setSubmitting(true);
+    setErrorMsg('');
+    try {
+      await verifyTicket(ticket.id, true, rating, feedback, undefined, otp);
+      onClose();
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Verification failed. Check the OTP and try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleConfirmNo = () => {
+  const handleConfirmNo = async () => {
     const finalReason = reopenReason === 'Other reason' ? customComment || 'Issue still exists' : `${reopenReason}${customComment ? `: ${customComment}` : ''}`;
-    verifyTicket(ticket.id, false, undefined, undefined, finalReason);
-    onClose();
+    setSubmitting(true);
+    setErrorMsg('');
+    try {
+      await verifyTicket(ticket.id, false, undefined, undefined, finalReason);
+      onClose();
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to reopen ticket.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -136,6 +155,23 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ ticket, on
                 ))}
               </div>
 
+              {/* OTP (live backend requires requester verification code) */}
+              {serverMode && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Verification OTP <span className="text-slate-400 font-medium">(from your notification)</span> *
+                  </label>
+                  <input
+                    type="text"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                    placeholder="e.g. 4821"
+                    maxLength={4}
+                    className="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-mono font-bold tracking-widest text-center text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                  />
+                </div>
+              )}
+
               {/* Optional Feedback */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
@@ -157,11 +193,13 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ ticket, on
                 >
                   Back
                 </button>
+                {errorMsg && <p className="flex-1 text-[11px] text-rose-500 font-bold">{errorMsg}</p>}
                 <button
                   onClick={handleConfirmYes}
-                  className="w-2/3 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-600/20"
+                  disabled={submitting || (serverMode && otp.length !== 4)}
+                  className="w-2/3 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 shadow-md shadow-emerald-600/20"
                 >
-                  Confirm Resolution & Close Ticket
+                  {submitting ? 'Verifying...' : 'Confirm Resolution & Close Ticket'}
                 </button>
               </div>
             </div>
@@ -228,12 +266,14 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({ ticket, on
                 >
                   Back
                 </button>
+                {errorMsg && <p className="flex-1 text-[11px] text-rose-500 font-bold">{errorMsg}</p>}
                 <button
                   onClick={handleConfirmNo}
-                  className="w-2/3 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-md shadow-rose-600/20 flex items-center justify-center gap-2"
+                  disabled={submitting}
+                  className="w-2/3 py-2.5 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-60 shadow-md shadow-rose-600/20 flex items-center justify-center gap-2"
                 >
                   <RotateCcw className="w-4 h-4" />
-                  <span>Reopen Ticket & Notify Manager</span>
+                  <span>{submitting ? 'Reopening...' : 'Reopen Ticket & Notify Manager'}</span>
                 </button>
               </div>
             </div>

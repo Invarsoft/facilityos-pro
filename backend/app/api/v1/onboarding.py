@@ -64,6 +64,7 @@ async def submit_onboarding_request(body: OnboardingCreate, db: DB):
     )
     db.add(request)
     await db.flush()
+    await db.commit()
     return request
 
 
@@ -144,4 +145,5 @@ async def reject_onboarding_request(db: DB, request_id: str, actor: CurrentUser)
     request.reviewed_by = actor.id
     await db.flush()
     await _audit(db, actor, "onboarding.rejected", "onboarding_request", request.id)
+    await db.commit()
     return request

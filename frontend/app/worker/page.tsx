@@ -16,11 +16,11 @@ import {
 
 export default function WorkerDashboardPage() {
   const router = useRouter();
-  const { getFilteredTickets, currentUser, updateTicketProgress, completeWorkerTask, setActiveRole, activeOrg } = useApp();
+  const { getFilteredTickets, currentUser, updateTicketProgress, completeWorkerTask, activeOrg } = useApp();
   const tickets = getFilteredTickets();
 
   const workerTasks = tickets.filter(
-    (t) => currentUser ? (t.assignedWorkerId === currentUser.id || t.assignedWorkerName === currentUser.name || true) : true
+    (t) => (currentUser ? t.assignedWorkerId === currentUser.id || t.assignedWorkerName === currentUser.name : false)
   );
 
   const metrics = {
@@ -34,12 +34,13 @@ export default function WorkerDashboardPage() {
     if (progress === 100) {
       completeWorkerTask(ticketId, 'Technician completed repair work and verified functionality.', [
         'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&auto=format&fit=crop&q=80',
-      ]);
-      const requesterRole = activeOrg.type === 'university' ? 'student' : activeOrg.type === 'apartment' ? 'resident' : 'employee';
-      setActiveRole(requesterRole);
-      router.push(`/requests/${ticketId}`);
+      ])
+        .then(() => router.push(`/requests/${ticketId}`))
+        .catch((err) => window.alert(err instanceof Error ? err.message : 'Failed to complete task'));
     } else {
-      updateTicketProgress(ticketId, progress, `Worker updated progress to ${progress}%`);
+      updateTicketProgress(ticketId, progress, `Worker updated progress to ${progress}%`).catch((err) =>
+        window.alert(err instanceof Error ? err.message : 'Failed to update progress')
+      );
     }
   };
 
@@ -217,16 +218,6 @@ export default function WorkerDashboardPage() {
                         <Clock className="w-4 h-4 text-yellow-500" />
                         <span>Submitted for Student Approval. Waiting for Requester Verification.</span>
                       </div>
-                      <button
-                        onClick={() => {
-                          const requesterRole = activeOrg.type === 'university' ? 'student' : activeOrg.type === 'apartment' ? 'resident' : 'employee';
-                          setActiveRole(requesterRole);
-                          router.push(`/requests/${task.id}`);
-                        }}
-                        className="px-3 py-1 rounded-lg bg-yellow-500 text-slate-950 text-[10px] font-extrabold shrink-0"
-                      >
-                        Test Student Approval →
-                      </button>
                     </div>
                   )}
                 </div>

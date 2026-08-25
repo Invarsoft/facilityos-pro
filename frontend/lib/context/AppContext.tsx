@@ -26,6 +26,20 @@ import {
   INITIAL_NOTIFICATIONS,
   INITIAL_AUDIT_LOGS,
 } from '../mockData';
+import { useAuthStore } from '@/src/features/auth/store';
+import { api } from '@/src/shared/api/client';
+import {
+  mapApiTicket,
+  mapApiEvent,
+  mapApiComment,
+  mapApiNotification,
+  mapApiUser,
+  mapApiSlaRule,
+  mapApiAsset,
+  mapApiPmSchedule,
+  mapApiAuditLog,
+} from '@/src/features/tickets/adapter';
+import type { ApiTicket } from '@/src/features/tickets/api';
 
 interface AppContextType {
   // Tenant & Branding
@@ -35,6 +49,11 @@ interface AppContextType {
   addOrganization: (orgData: Partial<Organization>) => Organization;
   updateOrgBranding: (orgId: string, updates: Partial<Organization>) => void;
   toggleOrgService: (orgId: string, serviceId: string) => void;
+
+  // Live backend mode (real API data when logged in with JWT)
+  serverMode: boolean;
+  refreshServerTickets: () => Promise<void>;
+  loadTicketDetail: (id: string) => Promise<void>;
 
   // Active Role & User Session
   isAuthenticated: boolean;
@@ -53,27 +72,28 @@ interface AppContextType {
   tickets: Ticket[];
   getFilteredTickets: () => Ticket[];
   getTicketById: (id: string) => Ticket | undefined;
-  createTicket: (data: Partial<Ticket>) => Ticket;
-  assignWorker: (ticketId: string, workerId: string, notes?: string) => void;
+  createTicket: (data: Partial<Ticket>) => Promise<Ticket>;
+  assignWorker: (ticketId: string, workerId: string, notes?: string) => Promise<void>;
   updateTicketProgress: (
     ticketId: string,
     progress: number,
     notes?: string,
     photos?: string[],
     materials?: string[]
-  ) => void;
-  completeWorkerTask: (ticketId: string, notes?: string, photos?: string[]) => void;
+  ) => Promise<void>;
+  completeWorkerTask: (ticketId: string, notes?: string, photos?: string[]) => Promise<void>;
   verifyTicket: (
     ticketId: string,
     isResolved: boolean,
     rating?: number,
     feedback?: string,
-    reopenReason?: string
-  ) => void;
-  reopenTicket: (ticketId: string, reason: string) => void;
-  escalateTicket: (ticketId: string, level?: number) => void;
-  addComment: (ticketId: string, content: string) => void;
-  triggerEmergency: (title: string, category: string, location: string, description: string) => Ticket;
+    reopenReason?: string,
+    otp?: string
+  ) => Promise<void>;
+  reopenTicket: (ticketId: string, reason: string) => Promise<void>;
+  escalateTicket: (ticketId: string, level?: number) => Promise<void>;
+  addComment: (ticketId: string, content: string) => Promise<void>;
+  triggerEmergency: (title: string, category: string, location: string, description: string) => Promise<Ticket>;
 
   // Facilities & Assets
   assets: Asset[];
@@ -112,10 +132,77 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [tickets, setTickets] = useState<Ticket[]>(DEMO_TICKETS);
   const [assets, setAssets] = useState<Asset[]>(DEMO_ASSETS);
   const [preventiveSchedules, setPreventiveSchedules] = useState<PreventiveMaintenanceSchedule[]>(DEMO_PREVENTIVE_SCHEDULES);
-  const [slaRules] = useState<SLARule[]>(DEMO_SLA_RULES);
+  const [slaRules, setSlaRules] = useState<SLARule[]>(DEMO_SLA_RULES);
   const [notifications, setNotifications] = useState<AppNotification[]>(INITIAL_NOTIFICATIONS);
   const [auditLogs, setAuditLogs] = useState<AuditLogItem[]>(INITIAL_AUDIT_LOGS);
   const [aiDrawerOpen, setAiDrawerOpen] = useState<boolean>(false);
+
+  // ---- Live backend mode: when signed in with a real JWT, all data comes
+  // from the FastAPI server. Offline/fallback → legacy demo data. ----
+  const authUser = useAuthStore((s) => s.user);
+  const accessToken = useAuthStore((s) => s.accessToken);
+  const [serverMode, setServerMode] = useState(false);
+
+  const refreshServerTickets = async () => {
+    if (!authUser) return;
+    const apiTickets = await api.get<ApiTicket[]>('/tickets');
+    setTickets(apiTickets.map((t) => mapApiTicket(t, authUser)));
+  };
+
+  useEffect(() => {
+    if (!accessToken || !authUser) {
+      setServerMode(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const apiTickets = await api.get<ApiTicket[]>('/tickets');
+        if (cancelled) return;
+        setTickets(apiTickets.map((t) => mapApiTicket(t, authUser)));
+        setServerMode(true);
+        // notifications + workers enrich in background — failures are non-fatal
+        try {
+          const notifs = await api.get<any[]>('/notifications');
+          if (!cancelled) setNotifications(notifs.map(mapApiNotification));
+        } catch { /* non-fatal */ }
+        try {
+          if (authUser.role !== 'requester') {
+            const workers = await api.get<any[]>('/users/workers');
+            if (!cancelled) {
+              const mapped = workers.map(mapApiUser);
+              setUsers((prev) => [
+                ...prev.filter((p) => !mapped.some((m) => m.email === p.email)),
+                ...mapped,
+              ]);
+            }
+          }
+        } catch { /* non-fatal */ }
+        try {
+          const rules = await api.get<any[]>('/sla-rules');
+          if (!cancelled) setSlaRules(rules.map(mapApiSlaRule));
+        } catch { /* requester lacks permission — keep demo rules */ }
+        try {
+          const assets = await api.get<any[]>('/assets');
+          if (!cancelled) setAssets(assets.map(mapApiAsset));
+        } catch { /* non-fatal */ }
+        try {
+          const pms = await api.get<any[]>('/pm-schedules');
+          if (!cancelled) setPreventiveSchedules(pms.map(mapApiPmSchedule));
+        } catch { /* non-fatal */ }
+        try {
+          const logs = await api.get<any[]>('/audit-logs');
+          if (!cancelled) setAuditLogs(logs.map(mapApiAuditLog));
+        } catch { /* non-fatal */ }
+      } catch (err) {
+        // backend unreachable → demo fallback; real API errors → still server mode
+        if (!cancelled && !(err instanceof TypeError)) setServerMode(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken, authUser?.id]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -337,6 +424,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const getFilteredTickets = () => {
+    // Backend already scopes by org + role — return as-is in server mode
+    if (serverMode) return tickets;
     if (activeOrg.id === 'global-facilityos-all' || (activeRole === 'super_admin' && activeOrg.id === 'global-facilityos-all')) {
       return tickets;
     }
@@ -347,7 +436,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return tickets.find((t) => t.id === id);
   };
 
-  const createTicket = (data: Partial<Ticket>): Ticket => {
+  const createTicket = async (data: Partial<Ticket>): Promise<Ticket> => {
+    if (serverMode) {
+      const created = await api.post<ApiTicket>('/tickets', {
+        title: data.title || 'Untitled Request',
+        description: data.description || '',
+        category: data.serviceId || 'plumbing',
+        priority: data.priority === 'normal' ? 'medium' : data.priority === 'critical' ? 'high' : data.priority || 'medium',
+        location: data.location || undefined,
+        room: data.room || undefined,
+        photos: data.attachments || [],
+      });
+      const mapped = mapApiTicket(created, authUser);
+      setTickets((prev) => [mapped, ...prev]);
+      return mapped;
+    }
+
     const ticketSeq = Math.floor(100000 + Math.random() * 900000);
     const ticketId = `FOS-2026-${ticketSeq}`;
     
@@ -415,7 +519,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return newTicket;
   };
 
-  const assignWorker = (ticketId: string, workerId: string, notes?: string) => {
+  const assignWorker = async (ticketId: string, workerId: string, notes?: string) => {
+    if (serverMode) {
+      await api.post(`/tickets/${ticketId}/assign`, { worker_id: workerId });
+      await refreshServerTickets();
+      return;
+    }
     const worker = users.find((u) => u.id === workerId);
     if (!worker) return;
 
@@ -461,13 +570,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     );
   };
 
-  const updateTicketProgress = (
+  const updateTicketProgress = async (
     ticketId: string,
     progress: number,
     notes?: string,
     photos?: string[],
     materials?: string[]
   ) => {
+    if (serverMode) {
+      await api.post(`/tickets/${ticketId}/progress`, {
+        progress,
+        note: notes || undefined,
+        photos: photos || [],
+      });
+      await refreshServerTickets();
+      return;
+    }
     const updated = tickets.map((t) => {
       if (t.id === ticketId) {
         const newStatus: TicketStatus = progress === 0 ? 'accepted' : 'in_progress';
@@ -501,7 +619,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     addAuditLog(currentUser?.name || 'Technician', `Updated progress for ${ticketId}`, `Progress: ${progress}%`, ticketId);
   };
 
-  const completeWorkerTask = (ticketId: string, notes?: string, photos?: string[]) => {
+  const completeWorkerTask = async (ticketId: string, notes?: string, photos?: string[]) => {
+    if (serverMode) {
+      await api.post(`/tickets/${ticketId}/complete`, {
+        note: notes || undefined,
+        photos: photos || [],
+      });
+      await refreshServerTickets();
+      return;
+    }
     const updated = tickets.map((t) => {
       if (t.id === ticketId) {
         const newTimelineItem = {
@@ -542,18 +668,29 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       'ticket',
       ticketId
     );
-
-    const requesterRole = activeOrg.type === 'university' ? 'student' : activeOrg.type === 'apartment' ? 'resident' : 'employee';
-    setActiveRoleState(requesterRole);
   };
 
-  const verifyTicket = (
+  const verifyTicket = async (
     ticketId: string,
     isResolved: boolean,
     rating?: number,
     feedback?: string,
-    reopenReason?: string
+    reopenReason?: string,
+    otp?: string
   ) => {
+    if (serverMode) {
+      if (isResolved) {
+        await api.post(`/tickets/${ticketId}/verify`, {
+          otp_code: otp || '0000',
+          rating: rating || 5,
+          feedback: feedback || undefined,
+        });
+      } else {
+        await api.post(`/tickets/${ticketId}/reopen`, { reason: reopenReason || 'Issue still exists' });
+      }
+      await refreshServerTickets();
+      return;
+    }
     const updated = tickets.map((t) => {
       if (t.id === ticketId) {
         if (isResolved) {
@@ -623,11 +760,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
-  const reopenTicket = (ticketId: string, reason: string) => {
-    verifyTicket(ticketId, false, undefined, undefined, reason);
+  const reopenTicket = async (ticketId: string, reason: string) => {
+    await verifyTicket(ticketId, false, undefined, undefined, reason);
   };
 
-  const escalateTicket = (ticketId: string, level = 2) => {
+  const escalateTicket = async (ticketId: string, level = 2) => {
+    if (serverMode) {
+      await api.post(`/tickets/${ticketId}/escalate`, { reason: `Escalated to level ${level} by ${currentUser?.name || 'manager'}` });
+      await refreshServerTickets();
+      return;
+    }
     const updated = tickets.map((t) => {
       if (t.id === ticketId) {
         const timelineItem = {
@@ -657,7 +799,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     addNotification('Ticket Escalated', `Ticket ${ticketId} has been escalated to Admin team.`, 'escalation', ticketId);
   };
 
-  const addComment = (ticketId: string, content: string) => {
+  const addComment = async (ticketId: string, content: string) => {
+    if (serverMode) {
+      await api.post(`/tickets/${ticketId}/comments`, { content });
+      await refreshServerTickets();
+      return;
+    }
     const updated = tickets.map((t) => {
       if (t.id === ticketId) {
         const newComment = {
@@ -683,12 +830,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     saveTickets(updated);
   };
 
-  const triggerEmergency = (
+  const triggerEmergency = async (
     title: string,
     category: string,
     location: string,
     description: string
-  ): Ticket => {
+  ): Promise<Ticket> => {
+    if (serverMode) {
+      const created = await api.post<ApiTicket>('/tickets/emergency', {
+        title,
+        description,
+        category,
+        location: location || undefined,
+      });
+      const mapped = mapApiTicket(created, authUser);
+      setTickets((prev) => [mapped, ...prev]);
+      return mapped;
+    }
     const ticketSeq = Math.floor(100000 + Math.random() * 900000);
     const ticketId = `FOS-EMERGENCY-${ticketSeq}`;
 
@@ -755,6 +913,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
+    if (serverMode) {
+      api.post(`/notifications/${id}/read`).catch(() => { /* non-fatal */ });
+    }
+  };
+
+  // Fetch immutable timeline events + comments for the ticket detail page
+  const loadTicketDetail = async (id: string) => {
+    if (!serverMode) return;
+    try {
+      const events = await api.get<any[]>(`/tickets/${id}/events`);
+      const comments = await api.get<any[]>(`/tickets/${id}/comments`);
+      setTickets((prev) =>
+        prev.map((t) =>
+          t.id === id
+            ? { ...t, timeline: events.map(mapApiEvent), comments: comments.map(mapApiComment) }
+            : t
+        )
+      );
+    } catch { /* non-fatal — page still renders base ticket */ }
   };
 
   const resetDemoData = () => {
@@ -768,6 +945,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   return (
     <AppContext.Provider
       value={{
+        serverMode,
+        refreshServerTickets,
+        loadTicketDetail,
         organizations,
         activeOrg,
         setActiveOrg,

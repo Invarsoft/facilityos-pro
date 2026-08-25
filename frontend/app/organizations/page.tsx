@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useState, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useApp } from '@/lib/context/AppContext';
 import { checkFacilityCode } from '@/src/features/onboarding/api';
+import { usePublicOrganizations } from '@/src/features/organizations/api';
 import { Organization, FacilityType } from '@/lib/types';
 import {
   Search,
@@ -47,6 +48,41 @@ function SelectOrganizationContent() {
 
   const isSuperAdmin = activeRole === 'super_admin';
 
+  // Backend orgs (source of truth) merged with the branded picker list.
+  // Facilities approved via onboarding appear here automatically.
+  const { data: backendOrgs } = usePublicOrganizations();
+  const allOrganizations = useMemo(() => {
+    const backendOnly = (backendOrgs ?? [])
+      .filter(
+        (b) => !organizations.some(
+          (m) => m.name.toLowerCase() === b.name.toLowerCase()
+        )
+      )
+      .map(
+        (b) =>
+          ({
+            id: b.id,
+            name: b.name,
+            code: b.code ?? '',
+            type: (b.vertical ?? 'office') as FacilityType,
+            location: 'Onboarded on FacilityOS',
+            logo: '🏢',
+            primaryColor: '#3b82f6',
+            secondaryColor: '#6366f1',
+            welcomeMessage: b.welcome_message ?? `Welcome to ${b.name}`,
+            contactEmail: '',
+            contactPhone: '',
+            verified: true,
+            totalServicesCount: 14,
+            enabledServiceIds: [],
+          }) as Organization
+      );
+    return [...organizations, ...backendOnly];
+  }, [organizations, backendOrgs]);
+
+  const isBackendOnlyOrg = (org: Organization) =>
+    !organizations.some((m) => m.id === org.id);
+
   // Category Configuration Array
   const CATEGORIES: { type: FacilityType; label: string; icon: any; color: string; bg: string }[] = [
     { type: 'university', label: 'Universities & Campus Facilities', icon: GraduationCap, color: 'text-blue-500', bg: 'bg-blue-500/10 border-blue-500/20' },
@@ -58,7 +94,7 @@ function SelectOrganizationContent() {
     { type: 'commercial', label: 'Commercial Malls & Shopping Hubs', icon: Building2, color: 'text-cyan-500', bg: 'bg-cyan-500/10 border-cyan-500/20' },
   ];
 
-  const filteredOrgs = organizations.filter((org) => {
+  const filteredOrgs = allOrganizations.filter((org) => {
     const matchesType = selectedType === 'all' || org.type === selectedType;
     const matchesSearch =
       org.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -69,7 +105,12 @@ function SelectOrganizationContent() {
 
   const handleSelectOrg = (org: Organization) => {
     setActiveOrg(org);
-    router.push(`/organizations/${org.id}`);
+    // Backend-only facilities (onboarded) have no mock detail page — go to login
+    if (isBackendOnlyOrg(org)) {
+      router.push(`/login?code=${encodeURIComponent(org.code)}`);
+    } else {
+      router.push(`/organizations/${org.id}`);
+    }
   };
 
   const handleCodeSubmit = async (e: React.FormEvent) => {
@@ -80,19 +121,20 @@ function SelectOrganizationContent() {
     // Real check against the backend first; mock fallback when offline.
     try {
       const resolved = await checkFacilityCode(code);
-      const matched = organizations.find(
+      const matched = allOrganizations.find(
         (o) => o.name === resolved.name || o.code.toUpperCase() === code
       );
       if (matched) {
         setActiveOrg(matched);
         setCodeModalOpen(false);
-        router.push(`/organizations/${matched.id}`);
+        if (isBackendOnlyOrg(matched)) {
+          router.push(`/login?code=${encodeURIComponent(code)}`);
+        } else {
+          router.push(`/organizations/${matched.id}`);
+        }
         return;
       }
-      // Backend knows the code but it's not in the picker yet (e.g. approved
-      // via onboarding) — still route to login for that facility.
-      setCodeModalOpen(false);
-      router.push('/login');
+      setCodeError(`Invalid Facility Code "${code}". Please check with your administrator.`);
       return;
     } catch (err) {
       if (!(err instanceof TypeError)) {
@@ -102,7 +144,7 @@ function SelectOrganizationContent() {
       // backend offline → legacy mock matching
     }
 
-    const matched = organizations.find((o) => o.code.toUpperCase() === code);
+    const matched = allOrganizations.find((o) => o.code.toUpperCase() === code);
     if (matched) {
       setActiveOrg(matched);
       setCodeModalOpen(false);
@@ -199,11 +241,11 @@ function SelectOrganizationContent() {
                 : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-100'
             }`}
           >
-            All Facilities ({organizations.length})
+            All Facilities ({allOrganizations.length})
           </button>
 
           {CATEGORIES.map((cat) => {
-            const count = organizations.filter((o) => o.type === cat.type).length;
+            const count = allOrganizations.filter((o) => o.type === cat.type).length;
             if (count === 0) return null;
 
             return (

@@ -58,6 +58,7 @@ async def login(body: LoginRequest, db: DB):
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Account disabled")
     pair = _issue_pair(user)
     await _store_refresh(db, user.id, pair.refresh_token)
+    await db.commit()
     return pair
 
 
@@ -88,6 +89,7 @@ async def token_login(body: TokenLoginRequest, db: DB):
         )
     pair = _issue_pair(user)
     await _store_refresh(db, user.id, pair.refresh_token)
+    await db.commit()
     return pair
 
 
@@ -110,6 +112,7 @@ async def refresh(body: RefreshRequest, db: DB):
         raise invalid
     pair = _issue_pair(user)
     await _store_refresh(db, user.id, pair.refresh_token)
+    await db.commit()
     return pair
 
 
@@ -123,6 +126,7 @@ async def logout(body: RefreshRequest, db: DB):
     row = await db.get(RefreshToken, payload.get("jti"))
     if row and row.revoked_at is None:
         row.revoked_at = datetime.utcnow()
+        await db.commit()
     return {"detail": "Logged out"}
 
 

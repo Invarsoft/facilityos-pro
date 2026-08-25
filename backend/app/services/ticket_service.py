@@ -146,6 +146,7 @@ async def create_ticket(
             db, mgr.id, org_id, "ticket_created",
             f"New {data.category} request", ticket.title, ticket.id,
         )
+    await db.commit()
     return ticket
 
 
@@ -174,6 +175,7 @@ async def trigger_emergency(
         if u.role in {UserRole.MANAGER, UserRole.ADMIN}:
             await _notify(db, u.id, org_id, "emergency",
                           "🚨 Emergency dispatched", ticket.title, ticket.id)
+    await db.commit()
     return ticket
 
 
@@ -213,6 +215,7 @@ async def assign_worker(
     if ticket.requester_id != actor.id:
         await _notify(db, ticket.requester_id, org_id, "status_change",
                       "Worker assigned to your request", ticket.title, ticket.id)
+    await db.commit()
     return ticket
 
 
@@ -253,6 +256,7 @@ async def update_progress(
                  {"progress": {"old": old, "new": data.progress}})
     await _notify(db, ticket.requester_id, org_id, "status_change",
                   f"Work in progress ({data.progress}%)", ticket.title, ticket.id)
+    await db.commit()
     return ticket
 
 
@@ -300,6 +304,7 @@ async def complete_work(
     await _notify(db, ticket.requester_id, org_id, "verification_ready",
                   "Work completed — verify to close",
                   f"Verify completed work — OTP {otp}", ticket.id)
+    await db.commit()
     return ticket, otp
 
 
@@ -350,6 +355,7 @@ async def verify_ticket(
     await _notify(db, ticket.assignee_id, org_id, "closed",
                   f"{ticket.ticket_number} verified & closed ({data.rating}★)",
                   ticket.title, ticket.id)
+    await db.commit()
     return ticket
 
 
@@ -381,6 +387,7 @@ async def reopen_ticket(
     for m in managers.scalars():
         await _notify(db, m.id, org_id, "reopened",
                       f"{ticket.ticket_number} reopened", reason[:200], ticket.id)
+    await db.commit()
     return ticket
 
 
@@ -408,6 +415,7 @@ async def escalate_ticket(
     for a in admins.scalars():
         await _notify(db, a.id, org_id, "escalation",
                       f"{ticket.ticket_number} escalated", reason[:200], ticket.id)
+    await db.commit()
     return ticket
 
 
@@ -432,6 +440,7 @@ async def add_comment(
         await _notify(db, uid, org_id, "comment",
                       f"New comment on {ticket.ticket_number}",
                       content[:200], ticket.id)
+    await db.commit()
     return comment
 
 

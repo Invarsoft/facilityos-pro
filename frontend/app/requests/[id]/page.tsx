@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useApp } from '@/lib/context/AppContext';
 import { formatStatusLabel, getStatusColorClass, getPriorityBadge } from '@/lib/utils';
@@ -31,12 +31,13 @@ export default function TicketDetailsPage() {
     getTicketById,
     currentUser,
     activeRole,
-    setActiveRole,
     addComment,
     completeWorkerTask,
     updateTicketProgress,
     escalateTicket,
     activeOrg,
+    serverMode,
+    loadTicketDetail,
   } = useApp();
 
   const ticket = getTicketById(ticketId);
@@ -44,6 +45,12 @@ export default function TicketDetailsPage() {
   const [commentInput, setCommentInput] = useState('');
   const [verificationModalOpen, setVerificationModalOpen] = useState(false);
   const [assignmentModalOpen, setAssignmentModalOpen] = useState(false);
+
+  // Pull real timeline events + comments from the backend
+  useEffect(() => {
+    if (serverMode && ticketId) loadTicketDetail(ticketId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ticketId, serverMode]);
 
   if (!ticket) {
     return (
@@ -69,8 +76,6 @@ export default function TicketDetailsPage() {
   };
 
   const handleSwitchToStudentRole = () => {
-    const requesterRole = activeOrg.type === 'university' ? 'student' : activeOrg.type === 'apartment' ? 'resident' : 'employee';
-    setActiveRole(requesterRole);
     setVerificationModalOpen(true);
   };
 

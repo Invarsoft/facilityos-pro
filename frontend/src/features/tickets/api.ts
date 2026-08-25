@@ -38,6 +38,8 @@ export interface ApiTicket {
   resolved_at: string | null;
   closed_at: string | null;
   verification_rating: number | null;
+  requester_name?: string | null;
+  assignee_name?: string | null;
   created_at: string;
   updated_at: string;
 }

@@ -71,6 +71,8 @@ function RequestWizardContent() {
   const [attachments, setAttachments] = useState<string[]>([]);
   const [aiSuggestion, setAiSuggestion] = useState<{ category?: string; priority?: Priority } | null>(null);
   const [createdTicketId, setCreatedTicketId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   useEffect(() => {
     if (scannedAssetTag) {
@@ -120,24 +122,31 @@ function RequestWizardContent() {
     setAttachments((prev) => [...prev, ...mockPhotos]);
   };
 
-  const handleSubmitRequest = () => {
-    const newTicket = createTicket({
-      title: title || `${ALL_SERVICE_CATEGORIES.find((s) => s.id === selectedServiceId)?.name} Request`,
-      description,
-      serviceId: selectedServiceId,
-      location: `${activeOrg.name} — ${building}`,
-      building,
-      block,
-      floor,
-      room,
-      preferredVisitTime,
-      priority,
-      attachments,
-      assetId: scannedAssetTag || undefined,
-    });
+  const handleSubmitRequest = async () => {
+    setSubmitting(true);
+    try {
+      const newTicket = await createTicket({
+        title: title || `${ALL_SERVICE_CATEGORIES.find((s) => s.id === selectedServiceId)?.name} Request`,
+        description,
+        serviceId: selectedServiceId,
+        location: `${activeOrg.name} — ${building}`,
+        building,
+        block,
+        floor,
+        room,
+        preferredVisitTime,
+        priority,
+        attachments,
+        assetId: scannedAssetTag || undefined,
+      });
 
-    setCreatedTicketId(newTicket.id);
-    setStep(4);
+      setCreatedTicketId(newTicket.id);
+      setStep(4);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Failed to submit request. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -464,12 +473,16 @@ function RequestWizardContent() {
               <ArrowLeft className="w-4 h-4" />
               <span>Edit Details</span>
             </button>
+            {submitError && (
+              <p className="text-xs text-rose-500 font-bold">{submitError}</p>
+            )}
             <button
               onClick={handleSubmitRequest}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold text-xs shadow-lg shadow-emerald-600/20"
+              disabled={submitting}
+              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-60 text-white font-extrabold text-xs shadow-lg shadow-emerald-600/20"
             >
               <CheckCircle2 className="w-4 h-4" />
-              <span>Submit Service Request</span>
+              <span>{submitting ? 'Submitting...' : 'Submit Service Request'}</span>
             </button>
           </div>
         </div>

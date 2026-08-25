@@ -3,6 +3,8 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useApp } from '@/lib/context/AppContext';
+import { useQuery } from '@tanstack/react-query';
+import { checkFacilityCode } from '@/src/features/onboarding/api';
 import { UserProfile } from '@/lib/types';
 import { login as apiLogin, tokenLogin as apiTokenLogin } from '@/src/features/auth/api';
 import { ShieldCheck, LogIn, Lock, Mail, Key, CheckCircle2, Fingerprint } from 'lucide-react';
@@ -189,26 +191,39 @@ function LoginContent() {
         },
       ];
 
+  // Facility-code entry (e.g. from "Enter Facility Code"): resolve the real
+  // facility name from the backend and show it — never stale browser state.
+  const facilityCodeParam = searchParams.get('code');
+  const { data: codeResolved } = useQuery({
+    queryKey: ['facility-by-code', facilityCodeParam],
+    queryFn: () => checkFacilityCode(facilityCodeParam!),
+    enabled: Boolean(facilityCodeParam),
+    staleTime: 60_000,
+    retry: false,
+  });
+  const displayOrgName = codeResolved?.name ?? activeOrg.name;
+  const viaFacilityCode = Boolean(facilityCodeParam && codeResolved);
+
   // Email form state — staff tab starts empty (never a requester email)
-  const [emailInput, setEmailInput] = useState(realOrg ? realOrg.manager : '');
+  const [emailInput, setEmailInput] = useState(realOrg && !facilityCodeParam ? realOrg.manager : '');
   const [password, setPassword] = useState('');
 
   // Token & PIN form state
-  const [tokenInput, setTokenInput] = useState(realOrg ? realOrg.requesterToken : '');
-  const [pinInput, setPinInput] = useState(realOrg ? realOrg.requesterPin : '');
+  const [tokenInput, setTokenInput] = useState(realOrg && !facilityCodeParam ? realOrg.requesterToken : '');
+  const [pinInput, setPinInput] = useState(realOrg && !facilityCodeParam ? realOrg.requesterPin : '');
 
   const [rememberMe, setRememberMe] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
   const [loggingIn, setLoggingIn] = useState(false);
 
   useEffect(() => {
-    setEmailInput(realOrg ? realOrg.manager : '');
+    setEmailInput(realOrg && !facilityCodeParam ? realOrg.manager : '');
     setPassword('');
-    setTokenInput(realOrg ? realOrg.requesterToken : '');
-    setPinInput(realOrg ? realOrg.requesterPin : '');
+    setTokenInput(realOrg && !facilityCodeParam ? realOrg.requesterToken : '');
+    setPinInput(realOrg && !facilityCodeParam ? realOrg.requesterPin : '');
     setErrorMsg('');
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeOrg.id]);
+  }, [activeOrg.id, facilityCodeParam]);
 
   const mapBackendRole = (role: string): string => {
     switch (role) {
@@ -348,7 +363,7 @@ function LoginContent() {
         <div>
           <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white">Authorised Facility Sign In</h1>
           <p className="text-xs text-slate-500 font-medium mt-1">
-            Sign in to access services for <strong className="text-blue-600 dark:text-blue-400">{activeOrg.name}</strong>
+            Sign in to access services for <strong className="text-blue-600 dark:text-blue-400">{displayOrgName}</strong>
           </p>
         </div>
       </div>
@@ -508,13 +523,18 @@ function LoginContent() {
         {/* Demo Quick Sign-in Presets - DYNAMICALLY GENERATED FOR ACTIVE FACILITY */}
         <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
           <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            {activeOrg.name} Demo Credentials:
+            {viaFacilityCode ? `Signing in for ${displayOrgName}` : `${activeOrg.name} Demo Credentials`}:
           </p>
-          {!realOrg && (
+          {viaFacilityCode ? (
+            <p className="text-[10px] text-amber-500/90 font-medium">
+              Use the admin credentials issued during onboarding approval.
+            </p>
+          ) : !realOrg ? (
             <p className="text-[10px] text-amber-500/90 font-medium">
               Select a facility above to see its role credentials.
             </p>
-          )}
+          ) : null}
+          {!viaFacilityCode && (
           <div className="space-y-1.5">
             {demoTokenPresets.map((acc) => (
               <button
@@ -548,7 +568,7 @@ function LoginContent() {
                 )}
               </button>
             ))}
-          </div>
+          </div>)}
         </div>
       </div>
     </div>

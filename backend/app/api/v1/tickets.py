@@ -28,8 +28,29 @@ router = APIRouter(prefix="/tickets", tags=["tickets"])
 MANAGER_PLUS = require_roles(UserRole.MANAGER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
 
 
+async def _attach_names(db, tickets: list[Ticket]) -> list[dict]:
+    """Serialize tickets with human-readable requester/assignee names."""
+    ids = {t.requester_id for t in tickets}
+    ids |= {t.assignee_id for t in tickets if t.assignee_id}
+    users: dict[str, str] = {}
+    if ids:
+        rows = await db.execute(select(User).where(User.id.in_(ids)))
+        users = {u.id: u.full_name for u in rows.scalars()}
+    out = []
+    for t in tickets:
+        d = TicketOut.model_validate(t).model_dump()
+        d["requester_name"] = users.get(t.requester_id)
+        d["assignee_name"] = users.get(t.assignee_id) if t.assignee_id else None
+        out.append(d)
+    return out
+
+
 async def _ticket_or_404(db, org_id: str, ticket_id: str) -> Ticket:
+    """Accepts either the uuid id or the human ticket number (FOS-YYYY-NNNNN)."""
     ticket = await db.get(Ticket, ticket_id)
+    if ticket is None and ticket_id.upper().startswith("FOS-"):
+        rows = await db.execute(select(Ticket).where(Ticket.ticket_number == ticket_id.upper()))
+        ticket = rows.scalar_one_or_none()
     if not ticket or ticket.org_id != org_id:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Ticket not found")
     return ticket
@@ -68,12 +89,13 @@ async def list_tickets(
 
         stmt = stmt.where(or_(Ticket.title.ilike(f"%{q}%"), Ticket.description.ilike(f"%{q}%")))
     rows = await db.execute(stmt.order_by(Ticket.created_at.desc()).offset(offset).limit(limit))
-    return list(rows.scalars().all())
+    return await _attach_names(db, list(rows.scalars().all()))
 
 
 @router.post("", response_model=TicketOut, status_code=201)
 async def create_ticket(db: DB, org_id: OrgId, body: TicketCreate, user: CurrentUser):
-    return await svc.create_ticket(db, user, org_id, body)
+    ticket = await svc.create_ticket(db, user, org_id, body)
+    return (await _attach_names(db, [ticket]))[0]
 
 
 @router.get("/recommend-workers", response_model=list[WorkerRecommendation], dependencies=[MANAGER_PLUS])

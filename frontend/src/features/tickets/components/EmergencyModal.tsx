@@ -15,6 +15,8 @@ export const EmergencyModal: React.FC<EmergencyModalProps> = ({ onClose }) => {
   const [details, setDetails] = useState<string>('Sparks coming out of main circuit breaker panel.');
   const [confirmed, setConfirmed] = useState<boolean>(false);
   const [submittedTicketId, setSubmittedTicketId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const emergencyTypes = [
     'Electrical Danger / Fire Hazard',
@@ -24,10 +26,18 @@ export const EmergencyModal: React.FC<EmergencyModalProps> = ({ onClose }) => {
     'Structural Safety Hazard',
   ];
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!confirmed) return;
-    const ticket = triggerEmergency(emergencyType, 'Emergency Dispatch', location, details);
-    setSubmittedTicketId(ticket.id);
+    setSubmitting(true);
+    setSubmitError('');
+    try {
+      const ticket = await triggerEmergency(emergencyType, 'Emergency Dispatch', location, details);
+      setSubmittedTicketId(ticket.id);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Emergency dispatch failed — call security immediately.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (

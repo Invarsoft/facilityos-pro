@@ -57,6 +57,7 @@ async def create_user(db: DB, org_id: OrgId, body: UserCreate, actor: CurrentUse
     )
     db.add(user)
     await db.flush()
+    await db.commit()
     return user
 
 
@@ -82,6 +83,7 @@ async def update_user(db: DB, org_id: OrgId, user_id: str, body: UserUpdate):
     for field, value in body.model_dump(exclude_unset=True).items():
         setattr(user, field, value.value if hasattr(value, "value") else value)
     await db.flush()
+    await db.commit()
     return user
 
 

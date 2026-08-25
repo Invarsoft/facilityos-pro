@@ -140,6 +140,8 @@ class TicketOut(BaseModel):
     resolved_at: datetime | None
     closed_at: datetime | None
     verification_rating: float | None
+    requester_name: str | None = None
+    assignee_name: str | None = None
     created_at: datetime
     updated_at: datetime
 
