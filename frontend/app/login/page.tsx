@@ -55,13 +55,14 @@ function LoginContent() {
   const demoTokenPresets = realOrg
     ? [
         {
-          label: requesterLabel,
-          mode: 'token' as const,
+          label: 'Student / Requester',
+          mode: 'email' as const,
           token: realOrg.requesterToken,
           pin: realOrg.requesterPin,
-          role: activeOrg.type === 'university' ? 'student' : activeOrg.type === 'apartment' ? 'resident' : 'employee',
-          email: requesterEmail,
-          hint: `Token: ${realOrg.requesterToken} | PIN: ${realOrg.requesterPin}`,
+          role: 'student',
+          email: 'student@university.edu',
+          password: 'Student@123',
+          hint: 'student@university.edu',
         },
         {
           label: 'Technician / Field Worker',
@@ -465,10 +466,10 @@ function LoginContent() {
                     {acc.label}
                   </span>
                   <span className="text-[10px] text-slate-400">
-                    {acc.mode === 'token' ? acc.hint : `${acc.hint} / ${acc.password}`}
+                    {`${acc.hint} / ${acc.password || '2026'}`}
                   </span>
                 </div>
-                {(authMode === 'email' ? emailInput === acc.email : tokenInput === acc.token) && (
+                {emailInput === acc.email && (
                   <CheckCircle2 className="w-4 h-4 text-blue-600" />
                 )}
               </button>
