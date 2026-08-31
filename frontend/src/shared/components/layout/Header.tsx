@@ -132,14 +132,7 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
             </button>
           )}
 
-          {/* Dark / Light Mode Toggle */}
-          <button
-            onClick={toggleTheme}
-            className="p-1.5 sm:p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors hidden sm:block"
-            aria-label="Toggle Theme"
-          >
-            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
-          </button>
+
 
           {/* Notifications Dropdown - ONLY SHOWN WHEN AUTHENTICATED */}
           {!isUnauthenticatedPage && (
