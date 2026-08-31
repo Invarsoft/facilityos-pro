@@ -116,7 +116,7 @@ export default function FirstScreenSelectPlace() {
   ];
 
   const handleCategorySelect = (type: FacilityType) => {
-    router.push(`/organizations?type=${type}`);
+    router.push(`/organizations/woxsen-university`);
   };
 
   return (
@@ -125,15 +125,15 @@ export default function FirstScreenSelectPlace() {
       <div className="text-center space-y-3 sm:space-y-4 max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider shadow-xs">
           <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 shrink-0" />
-          <span>Operating System for Facility Services</span>
+          <span>Woxsen University Campus Maintenance Platform</span>
         </div>
 
         <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
-          Where do you need a service?
+          Woxsen Campus Operations & Services
         </h1>
 
         <p className="text-xs sm:text-base md:text-lg text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-          Choose your facility type to access custom services, report maintenance issues, and track verified resolution in real-time.
+          Access Woxsen hostel maintenance, academic block IT support, plumbing, electrical repairs, and track verified resolution in real-time.
         </p>
       </div>
 
