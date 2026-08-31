@@ -52,12 +52,7 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
   const unreadNotifs = notifications.filter((n) => !n.read);
 
   // Determine if current page is unauthenticated or public onboarding
-  const isUnauthenticatedPage =
-    !isAuthenticated ||
-    pathname.startsWith('/login') ||
-    pathname === '/' ||
-    pathname === '/select-facility' ||
-    pathname === '/organizations';
+  const isUnauthenticatedPage = !isAuthenticated;
 
   const closeAllDropdowns = () => {
     setNotifDropdownOpen(false);
@@ -207,7 +202,17 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
 
           {/* User Profile Menu Dropdown OR Sign In Button */}
           {!isUnauthenticatedPage && currentUser ? (
-            <div className="relative pl-2 border-l border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-800">
+              <button
+                onClick={logout}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-600 dark:text-rose-400 font-extrabold text-xs transition-all active:scale-95 shrink-0"
+                title="Sign Out of Woxsen Portal"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Sign Out</span>
+              </button>
+
+              <div className="relative">
               <button
                 onClick={() => {
                   setUserMenuOpen(!userMenuOpen);
@@ -275,6 +280,7 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
                 </>
               )}
             </div>
+          </div>
           ) : (
             <Link
               href="/login"
