@@ -64,6 +64,8 @@ interface AppContextType {
   login: (user: UserProfile) => void;
   loginWithToken: (token: string, pin: string) => boolean;
   loginWithEmail: (email: string, pass: string) => boolean;
+  signUpStudent: (name: string, email: string, room?: string) => UserProfile;
+  updateUserRole: (userId: string, newRole: Role) => void;
   logout: () => void;
 
   // Theme
@@ -374,6 +376,36 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       return true;
     }
     return false;
+  };
+
+  const signUpStudent = (name: string, email: string, room?: string): UserProfile => {
+    const newStudent: UserProfile = {
+      id: 'user-student-' + Date.now(),
+      orgId: 'woxsen-university',
+      name: name.trim() || 'New Woxsen Student',
+      email: email.trim() || 'student@woxsen.edu.in',
+      phone: '+91 98000 ' + Math.floor(10005 + Math.random() * 89999),
+      role: 'student',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      department: 'Woxsen Student',
+      roomOrUnit: room?.trim() || 'Hostel A - Room 101',
+      accessTokenNo: `WOX-${Math.floor(1000 + Math.random() * 9000)}-T`,
+      accessPin: '2026',
+    };
+
+    setUsers((prev) => [...prev, newStudent]);
+    login(newStudent);
+    return newStudent;
+  };
+
+  const updateUserRole = (userId: string, newRole: Role) => {
+    setUsers((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
+    );
+    if (currentUser?.id === userId) {
+      setCurrentUser((prev) => (prev ? { ...prev, role: newRole } : null));
+      setActiveRoleState(newRole);
+    }
   };
 
   const logout = () => {
@@ -991,6 +1023,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         login,
         loginWithToken,
         loginWithEmail,
+        signUpStudent,
+        updateUserRole,
         logout,
 
         theme,

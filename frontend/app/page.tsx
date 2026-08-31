@@ -18,10 +18,11 @@ import {
   Key,
   Mail,
   UserCheck,
-  Sparkles,
+  UserPlus,
   AlertCircle,
   ChevronRight,
   LogOut,
+  Sparkles,
 } from 'lucide-react';
 
 export default function WoxsenCampusPortalPage() {
@@ -34,15 +35,24 @@ export default function WoxsenCampusPortalPage() {
     isAuthenticated,
     loginWithToken,
     loginWithEmail,
+    signUpStudent,
     logout,
   } = useApp();
 
-  const [authTab, setAuthTab] = useState<'token' | 'email'>('token');
+  const [authTab, setAuthTab] = useState<'token' | 'email' | 'signup'>('token');
   const [tokenInput, setTokenInput] = useState('');
   const [pinInput, setPinInput] = useState('');
   const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
+  
+  // Sign Up Form States
+  const [signUpName, setSignUpName] = useState('');
+  const [signUpEmail, setSignUpEmail] = useState('');
+  const [signUpPassword, setSignUpPassword] = useState('');
+  const [signUpRoom, setSignUpRoom] = useState('');
+
   const [authError, setAuthError] = useState('');
+  const [authNotice, setAuthNotice] = useState('');
 
   const activeTicketsCount = tickets.filter((t) => t.status !== 'closed' && t.status !== 'resolved').length;
   const awaitingCount = tickets.filter((t) => t.status === 'awaiting_verification').length;
@@ -50,6 +60,7 @@ export default function WoxsenCampusPortalPage() {
   const handleTokenSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
+    setAuthNotice('');
 
     const token = tokenInput.trim() || 'WOXSEN-8849-T';
     const pin = pinInput.trim() || '2026';
@@ -63,18 +74,33 @@ export default function WoxsenCampusPortalPage() {
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
+    setAuthNotice('');
 
     const email = emailInput.trim() || 'student@university.edu';
     const pass = passwordInput.trim() || '2026';
 
     const success = loginWithEmail(email, pass);
     if (!success) {
-      setAuthError('Invalid email or password.');
+      setAuthError('Invalid email address or password.');
     }
+  };
+
+  const handleSignUpSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+
+    if (!signUpName.trim() || !signUpEmail.trim()) {
+      setAuthError('Please enter your full name and Woxsen email.');
+      return;
+    }
+
+    signUpStudent(signUpName, signUpEmail, signUpRoom);
+    setAuthNotice('Welcome to Woxsen Portal! Registered as Student. Woxsen Admin can upgrade your role to Staff in User Management.');
   };
 
   const quickDemoLogin = (roleType: 'student' | 'worker' | 'warden' | 'admin') => {
     setAuthError('');
+    setAuthNotice('');
     if (roleType === 'student') {
       loginWithToken('WOXSEN-8849-T', '2026');
     } else if (roleType === 'worker') {
@@ -161,17 +187,17 @@ export default function WoxsenCampusPortalPage() {
           </h1>
 
           <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300 max-w-xl mx-auto font-medium">
-            Please sign in with your Temporary Student Access Token or Staff Credentials to access Woxsen campus maintenance services.
+            Sign in with your Temporary Access Token or Email to access Woxsen campus maintenance services. Role is automatically detected on sign in.
           </p>
         </div>
 
         {/* Auth Gateway Card */}
         <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-6">
-          {/* Auth Tab Selector */}
+          {/* Auth Tab Selector (3 Tabs) */}
           <div className="flex items-center p-1 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80">
             <button
-              onClick={() => setAuthTab('token')}
-              className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+              onClick={() => { setAuthTab('token'); setAuthError(''); }}
+              className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
                 authTab === 'token'
                   ? 'bg-blue-600 text-white shadow-md'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -182,15 +208,27 @@ export default function WoxsenCampusPortalPage() {
             </button>
 
             <button
-              onClick={() => setAuthTab('email')}
-              className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+              onClick={() => { setAuthTab('email'); setAuthError(''); }}
+              className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
                 authTab === 'email'
                   ? 'bg-blue-600 text-white shadow-md'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               <Mail className="w-4 h-4" />
-              <span>Staff Email Sign In</span>
+              <span>Email Login</span>
+            </button>
+
+            <button
+              onClick={() => { setAuthTab('signup'); setAuthError(''); }}
+              className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                authTab === 'signup'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Sign Up</span>
             </button>
           </div>
 
@@ -201,8 +239,8 @@ export default function WoxsenCampusPortalPage() {
             </div>
           )}
 
-          {/* TOKEN LOGIN FORM */}
-          {authTab === 'token' ? (
+          {/* TAB 1: TEMPORARY ACCESS TOKEN LOGIN */}
+          {authTab === 'token' && (
             <form onSubmit={handleTokenSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
@@ -244,12 +282,14 @@ export default function WoxsenCampusPortalPage() {
                 <ChevronRight className="w-4 h-4" />
               </button>
             </form>
-          ) : (
-            /* EMAIL LOGIN FORM */
+          )}
+
+          {/* TAB 2: EMAIL LOGIN (AUTO-DETECTS ROLE: STUDENT / WORKER / WARDEN / ADMIN) */}
+          {authTab === 'email' && (
             <form onSubmit={handleEmailSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  Staff Email Address
+                  Email Address (Role Auto-Detected)
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -257,7 +297,7 @@ export default function WoxsenCampusPortalPage() {
                     type="email"
                     value={emailInput}
                     onChange={(e) => setEmailInput(e.target.value)}
-                    placeholder="e.g. warden.hostela@woxsen.edu.in"
+                    placeholder="e.g. student@university.edu or warden.hostela@woxsen.edu.in"
                     className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -283,8 +323,77 @@ export default function WoxsenCampusPortalPage() {
                 type="submit"
                 className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs shadow-lg shadow-blue-500/25 transition-all active:scale-95 flex items-center justify-center gap-2"
               >
-                <span>Sign In to Woxsen Console</span>
+                <span>Sign In (Auto-Detect Role)</span>
                 <ChevronRight className="w-4 h-4" />
+              </button>
+            </form>
+          )}
+
+          {/* TAB 3: SIGN UP (LOGS IN AS STUDENT FIRST; ADMIN CAN CHANGE TO STAFF/WORKER) */}
+          {authTab === 'signup' && (
+            <form onSubmit={handleSignUpSubmit} className="space-y-4">
+              <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs font-medium">
+                🎓 <strong>Student Registration Notice:</strong> New accounts are registered directly into the Student Portal. Woxsen Admin can upgrade your role to Staff or Worker in User Management.
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  value={signUpName}
+                  onChange={(e) => setSignUpName(e.target.value)}
+                  placeholder="e.g. S. Bharat Reddy"
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Woxsen Email Address
+                </label>
+                <input
+                  type="email"
+                  value={signUpEmail}
+                  onChange={(e) => setSignUpEmail(e.target.value)}
+                  placeholder="e.g. bharat.reddy@woxsen.edu.in"
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Hostel Block & Room # (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={signUpRoom}
+                  onChange={(e) => setSignUpRoom(e.target.value)}
+                  placeholder="e.g. Hostel A - Room 204"
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  value={signUpPassword}
+                  onChange={(e) => setSignUpPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs shadow-lg shadow-emerald-500/25 transition-all active:scale-95 flex items-center justify-center gap-2"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>Sign Up & Open Student Portal</span>
               </button>
             </form>
           )}
@@ -292,7 +401,7 @@ export default function WoxsenCampusPortalPage() {
           {/* Quick Demo Authenticate Chips */}
           <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block text-center">
-              1-Tap Demo Authentication Preset Chips
+              1-Tap Demo Role Auto-Detect Preset Chips
             </span>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -345,6 +454,16 @@ export default function WoxsenCampusPortalPage() {
   // =======================================================================
   return (
     <div className="py-4 sm:py-8 px-3.5 sm:px-6 max-w-6xl mx-auto space-y-8 sm:space-y-10 animate-in fade-in duration-300">
+      {authNotice && (
+        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-emerald-500 shrink-0" />
+            <span>{authNotice}</span>
+          </div>
+          <button onClick={() => setAuthNotice('')} className="text-xs font-extrabold underline">Dismiss</button>
+        </div>
+      )}
+
       {/* Authenticated Brand Hero Header */}
       <div className="p-6 sm:p-8 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="space-y-3 z-10 max-w-2xl">
@@ -355,7 +474,7 @@ export default function WoxsenCampusPortalPage() {
             </div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold uppercase tracking-wider">
               <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Signed In: {currentUser?.name || 'Woxsen User'}</span>
+              <span>Role ({activeRole.toUpperCase()}): {currentUser?.name || 'Woxsen User'}</span>
             </div>
           </div>
 
