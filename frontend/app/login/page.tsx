@@ -50,31 +50,7 @@ function LoginContent() {
       admin: 'admin@woxsen.edu.in',
     },
   };
-        ['hiranandani-powai', 'HIRA'],
-        ['microsoft-idc', 'MSFT'],
-        ['infosys-ecity', 'INFY'],
-        ['apollo-main', 'APOLLO'],
-        ['fortis-fmri', 'FORTIS'],
-        ['manipal-hospital', 'MSH'],
-        ['xavier-hostel', 'XAVIER'],
-        ['scholars-nest', 'SNEST'],
-        ['doon-school', 'DOON'],
-        ['dps-intl', 'DPS'],
-        ['palm-meadows', 'PALM'],
-        ['phoenix-marketcity', 'PHOENIX'],
-      ].map(([id, prefix]) => [
-        id,
-        {
-          requesterToken: `${prefix}-8849-T`,
-          requesterPin: '2026',
-          worker: `worker@${id}.facilityos.pro`,
-          manager: `manager@${id}.facilityos.pro`,
-          admin: `admin@${id}.facilityos.pro`,
-        },
-      ]),
-    ),
-  };
-  const realOrg = REAL_ORGS[activeOrg.id];
+  const realOrg = REAL_ORGS[activeOrg.id] || REAL_ORGS['woxsen-university'];
 
   const demoTokenPresets = realOrg
     ? [

@@ -4,219 +4,219 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/context/AppContext';
-import { FacilityType } from '@/lib/types';
-import { AddFacilityModal } from '@/src/shared/components/layout/AddFacilityModal';
-import { RequestFacilityOnboardingModal } from '@/src/shared/components/layout/RequestFacilityOnboardingModal';
 import {
   GraduationCap,
-  Home,
-  Building2,
   Bed,
-  School,
-  Hospital,
-  Users,
   Building,
   ArrowRight,
   ShieldCheck,
-  Key,
   PlusCircle,
-  Send,
+  FileText,
+  Wrench,
+  Wifi,
+  Droplets,
+  Zap,
+  Activity,
+  UserCheck,
+  CheckCircle2,
+  Clock,
 } from 'lucide-react';
-
-interface FacilityCategoryCard {
-  type: FacilityType;
-  title: string;
-  subtitle: string;
-  icon: any;
-  color: string;
-  gradient: string;
-}
 
 export default function FirstScreenSelectPlace() {
   const router = useRouter();
-  const { activeRole } = useApp();
-  const [addFacilityModalOpen, setAddFacilityModalOpen] = useState(false);
-  const [requestOnboardingModalOpen, setRequestOnboardingModalOpen] = useState(false);
+  const { activeOrg, tickets, activeRole, currentUser } = useApp();
 
-  const isAdmin = activeRole === 'admin' || activeRole === 'super_admin';
+  const activeTicketsCount = tickets.filter((t) => t.status !== 'closed' && t.status !== 'resolved').length;
+  const awaitingCount = tickets.filter((t) => t.status === 'awaiting_verification').length;
 
-  const categories: FacilityCategoryCard[] = [
+  const woxsenCampusBlocks = [
     {
-      type: 'university',
-      title: 'University / College',
-      subtitle: 'Campus maintenance and support services.',
-      icon: GraduationCap,
+      id: 'hostel-a',
+      title: 'Hostel A (Boys Residence)',
+      subtitle: 'Rooms 101 to 450, Common Mess, Laundry Hub & Study Lounges.',
+      icon: Bed,
       color: 'text-blue-500',
-      gradient: 'from-blue-600/20 to-indigo-600/10 border-blue-500/30',
+      bg: 'bg-blue-500/10 border-blue-500/30',
+      activeJobs: 1,
     },
     {
-      type: 'apartment',
-      title: 'Apartment / Gated Community',
-      subtitle: 'Manage maintenance and community services.',
-      icon: Home,
-      color: 'text-emerald-500',
-      gradient: 'from-emerald-600/20 to-teal-600/10 border-emerald-500/30',
-    },
-    {
-      type: 'office',
-      title: 'Office / Corporate Campus',
-      subtitle: 'Manage workplace facilities and support.',
-      icon: Building2,
-      color: 'text-violet-500',
-      gradient: 'from-violet-600/20 to-purple-600/10 border-violet-500/30',
-    },
-    {
-      type: 'hostel',
-      title: 'Hostel',
-      subtitle: 'Report and track hostel maintenance.',
+      id: 'hostel-b',
+      title: 'Hostel B (Girls Residence)',
+      subtitle: 'Rooms 101 to 450, Visitor Lounge, Pantry & Recreation Area.',
       icon: Bed,
       color: 'text-amber-500',
-      gradient: 'from-amber-600/20 to-orange-600/10 border-amber-500/30',
+      bg: 'bg-amber-500/10 border-amber-500/30',
+      activeJobs: 1,
     },
     {
-      type: 'school',
-      title: 'School',
-      subtitle: 'Manage school facilities and maintenance.',
-      icon: School,
-      color: 'text-cyan-500',
-      gradient: 'from-cyan-600/20 to-blue-600/10 border-cyan-500/30',
-    },
-    {
-      type: 'hospital',
-      title: 'Hospital',
-      subtitle: 'Coordinate facility and maintenance operations.',
-      icon: Hospital,
-      color: 'text-rose-500',
-      gradient: 'from-rose-600/20 to-pink-600/10 border-rose-500/30',
-    },
-    {
-      type: 'residential',
-      title: 'Residential Community',
-      subtitle: 'Manage services for residents and shared spaces.',
-      icon: Users,
-      color: 'text-teal-500',
-      gradient: 'from-teal-600/20 to-emerald-600/10 border-teal-500/30',
-    },
-    {
-      type: 'commercial',
-      title: 'Commercial Building',
-      subtitle: 'Manage building maintenance and operations.',
-      icon: Building,
+      id: 'academic-1',
+      title: 'Academic Block 1 & 2',
+      subtitle: 'Lecture Theatres, Central Library, Faculty Cabins & Seminar Halls.',
+      icon: GraduationCap,
       color: 'text-indigo-500',
-      gradient: 'from-indigo-600/20 to-blue-600/10 border-indigo-500/30',
+      bg: 'bg-indigo-500/10 border-indigo-500/30',
+      activeJobs: 0,
     },
     {
-      type: 'other',
-      title: 'Other Facility',
-      subtitle: 'Use FacilityOS for your custom facility.',
-      icon: Building2,
-      color: 'text-slate-400',
-      gradient: 'from-slate-600/20 to-slate-700/10 border-slate-500/30',
+      id: 'aiml-labs',
+      title: 'Science & AI/ML Labs',
+      subtitle: 'High-Performance GPU Server Room, Robotics Lab & Analytics Bay.',
+      icon: Building,
+      color: 'text-violet-500',
+      bg: 'bg-violet-500/10 border-violet-500/30',
+      activeJobs: 0,
+    },
+    {
+      id: 'sports-complex',
+      title: 'Sports Complex & Amenities',
+      subtitle: 'Indoor Gymnasium, Swimming Pool, Tennis Courts & Cafeteria.',
+      icon: Activity,
+      color: 'text-emerald-500',
+      bg: 'bg-emerald-500/10 border-emerald-500/30',
+      activeJobs: 0,
+    },
+    {
+      id: 'admin-block',
+      title: 'Administrative Block',
+      subtitle: 'Executive Office, Dean Office, Student Affairs & Accounts Desk.',
+      icon: ShieldCheck,
+      color: 'text-teal-500',
+      bg: 'bg-teal-500/10 border-teal-500/30',
+      activeJobs: 0,
     },
   ];
 
-  const handleCategorySelect = (type: FacilityType) => {
-    router.push(`/organizations/woxsen-university`);
-  };
-
   return (
-    <div className="py-4 sm:py-8 px-3.5 sm:px-6 max-w-6xl mx-auto space-y-8 sm:space-y-12 animate-in fade-in duration-300">
+    <div className="py-4 sm:py-8 px-3.5 sm:px-6 max-w-6xl mx-auto space-y-8 sm:space-y-10 animate-in fade-in duration-300">
       {/* Brand Hero Header */}
-      <div className="text-center space-y-3 sm:space-y-4 max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-[11px] sm:text-xs font-extrabold uppercase tracking-wider shadow-xs">
-          <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-500 shrink-0" />
-          <span>Woxsen University Campus Maintenance Platform</span>
-        </div>
+      <div className="p-6 sm:p-8 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="space-y-3 z-10 max-w-2xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-extrabold uppercase tracking-wider">
+            <span>🎓</span>
+            <span>Woxsen University Campus Portal</span>
+          </div>
 
-        <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
-          Woxsen Campus Operations & Services
-        </h1>
+          <h1 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+            Woxsen Campus Operations & Maintenance System
+          </h1>
 
-        <p className="text-xs sm:text-base md:text-lg text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-          Access Woxsen hostel maintenance, academic block IT support, plumbing, electrical repairs, and track verified resolution in real-time.
-        </p>
-      </div>
-
-      {/* Premium Visual Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {categories.map((cat) => {
-          const Icon = cat.icon;
-          return (
-            <div
-              key={cat.type}
-              onClick={() => handleCategorySelect(cat.type)}
-              className={`group relative p-6 rounded-2xl border bg-white dark:bg-slate-900 hover:bg-gradient-to-br ${cat.gradient} transition-all duration-300 cursor-pointer shadow-md hover:shadow-xl hover:-translate-y-1 flex flex-col justify-between overflow-hidden`}
-            >
-              <div className="space-y-4">
-                <div className={`w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800/80 flex items-center justify-center ${cat.color} group-hover:scale-110 transition-transform`}>
-                  <Icon className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-extrabold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                    {cat.title}
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed font-medium">
-                    {cat.subtitle}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                <span>Browse Facilities</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Alternative Access & Register Facility Section */}
-      <div className="p-6 md:p-8 rounded-3xl bg-slate-900 border border-slate-800 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
-        <div className="space-y-2 text-center md:text-left">
-          <h3 className="text-xl font-extrabold">Want FacilityOS for your facility?</h3>
-          <p className="text-xs text-slate-400 max-w-md">
-            Request official onboarding for your campus, hospital, school, or corporate building.
+          <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
+            Welcome to Woxsen University Maintenance Portal. Report hostel issues, track room repairs, verify technician resolution via OTP, and monitor campus SLA compliance 24/7.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          {isAdmin ? (
-            <button
-              onClick={() => setAddFacilityModalOpen(true)}
-              className="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-xs font-extrabold text-white shadow-lg shadow-blue-600/30 transition-transform active:scale-95"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>+ Provision Facility (Admin)</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => setRequestOnboardingModalOpen(true)}
-              className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-extrabold text-white shadow-lg shadow-blue-600/30 transition-transform active:scale-95"
-            >
-              <Send className="w-4 h-4" />
-              <span>Request Facility Onboarding</span>
-            </button>
-          )}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 z-10 w-full md:w-auto shrink-0">
+          <Link
+            href="/requests/new"
+            className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs shadow-lg shadow-blue-500/30 transition-all active:scale-95"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>Raise New Request</span>
+          </Link>
 
           <Link
-            href="/organizations?action=code"
-            className="flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-100 border border-slate-700 transition-colors"
+            href="/my-requests"
+            className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700 transition-all active:scale-95"
           >
-            <Key className="w-4 h-4 text-amber-400" />
-            <span>Enter Facility Code</span>
+            <FileText className="w-4 h-4 text-blue-400" />
+            <span>Track Requests ({tickets.length})</span>
           </Link>
         </div>
       </div>
 
-      {/* Admin Provisioning Modal */}
-      {addFacilityModalOpen && (
-        <AddFacilityModal onClose={() => setAddFacilityModalOpen(false)} />
-      )}
+      {/* Real-time Status Metric Pills */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex items-center justify-between">
+          <div>
+            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Total Filed</span>
+            <p className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{tickets.length}</p>
+          </div>
+          <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold">
+            <FileText className="w-4 h-4" />
+          </div>
+        </div>
 
-      {/* User Onboarding Request Modal */}
-      {requestOnboardingModalOpen && (
-        <RequestFacilityOnboardingModal onClose={() => setRequestOnboardingModalOpen(false)} />
-      )}
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex items-center justify-between">
+          <div>
+            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Active Jobs</span>
+            <p className="text-2xl font-black text-amber-500 mt-0.5">{activeTicketsCount}</p>
+          </div>
+          <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
+            <Clock className="w-4 h-4" />
+          </div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex items-center justify-between">
+          <div>
+            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Awaiting OTP</span>
+            <p className="text-2xl font-black text-yellow-500 mt-0.5">{awaitingCount}</p>
+          </div>
+          <div className="w-9 h-9 rounded-xl bg-yellow-500/10 text-yellow-500 flex items-center justify-center font-bold">
+            <CheckCircle2 className="w-4 h-4" />
+          </div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex items-center justify-between">
+          <div>
+            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Campus Status</span>
+            <p className="text-xs font-black text-emerald-500 mt-1">100% Operational</p>
+          </div>
+          <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold">
+            <ShieldCheck className="w-4 h-4" />
+          </div>
+        </div>
+      </div>
+
+      {/* Woxsen Campus Infrastructure Blocks Grid */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+            <Building className="w-5 h-5 text-blue-500" />
+            <span>Woxsen Campus Infrastructure & Facilities</span>
+          </h2>
+          <span className="text-xs font-semibold text-slate-400">6 Campus Sectors</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {woxsenCampusBlocks.map((block) => {
+            const Icon = block.icon;
+            return (
+              <div
+                key={block.id}
+                onClick={() => router.push(`/requests/new?building=${encodeURIComponent(block.title)}`)}
+                className={`group p-5 rounded-2xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-blue-500 transition-all duration-300 cursor-pointer shadow-xs hover:shadow-md flex flex-col justify-between`}
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className={`w-10 h-10 rounded-xl ${block.bg} ${block.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    {block.activeJobs > 0 && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400">
+                        {block.activeJobs} Active Repair
+                      </span>
+                    )}
+                  </div>
+
+                  <div>
+                    <h3 className="text-base font-extrabold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      {block.title}
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed font-medium">
+                      {block.subtitle}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold text-blue-600 dark:text-blue-400">
+                  <span>Report Maintenance Issue</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
