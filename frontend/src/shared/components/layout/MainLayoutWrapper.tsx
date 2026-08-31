@@ -6,6 +6,7 @@ import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import { AssistantDrawer } from '@/src/features/assistant/components/AssistantDrawer';
 import { MobileBottomNav } from './MobileBottomNav';
+import { WoxsenWatermark } from './WoxsenWatermark';
 
 export const MainLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
@@ -21,9 +22,12 @@ export const MainLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors relative">
+      {/* Global Official Woxsen University Watermark */}
+      <WoxsenWatermark />
+
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
-      <div className="flex-1 flex w-full">
+      <div className="flex-1 flex w-full z-10 relative">
         {!isFullWidthPage && (
           <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         )}

@@ -108,6 +108,15 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
 
   return (
     <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-6 max-w-xl mx-auto">
+      {/* Official Woxsen University Logo Header */}
+      <div className="flex items-center justify-center pt-1 pb-2">
+        <img
+          src="/woxsen-logo.jpg"
+          alt="Woxsen University Logo"
+          className="h-12 w-auto object-contain dark:invert transition-all"
+        />
+      </div>
+
       {/* Primary Side-by-Side Tabs: Sign In vs Access Token */}
       <div className="flex items-center p-1 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80">
         <button
