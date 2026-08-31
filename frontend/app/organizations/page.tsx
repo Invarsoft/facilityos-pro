@@ -34,11 +34,14 @@ import { RequestFacilityOnboardingModal } from '@/src/shared/components/layout/R
 function SelectOrganizationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialTypeFilter = searchParams.get('type') as FacilityType | null;
 
   const { organizations, setActiveOrg, activeRole } = useApp();
+  
+  React.useEffect(() => {
+    router.replace('/organizations/woxsen-university');
+  }, [router]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState<string>(initialTypeFilter || 'all');
+  const [selectedType, setSelectedType] = useState<string>('all');
   const [facilityCodeInput, setFacilityCodeInput] = useState('');
   const [codeModalOpen, setCodeModalOpen] = useState(searchParams.get('action') === 'code');
   const [qrModalOpen, setQrModalOpen] = useState(searchParams.get('action') === 'qr');

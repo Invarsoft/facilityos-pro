@@ -32,38 +32,12 @@ function LoginContent() {
       ? 'Teacher / Parent'
       : 'Employee / Staff';
 
-  const requesterEmail =
-    activeOrg.id === 'woxsen-university'
-      ? 'student@university.edu'
-      : activeOrg.id === 'green-valley'
-      ? 'resident@greenvalley.com'
-      : activeOrg.id === 'invartech-solutions'
-      ? 'employee@company.com'
-      : `care@${domain}`;
+  const requesterEmail = 'student@university.edu';
+  const workerEmail = 'ravi.kumar@woxsen.edu.in';
+  const managerEmail = 'warden.hostela@woxsen.edu.in';
+  const orgAdminEmail = 'admin@woxsen.edu.in';
 
-  const workerEmail =
-    activeOrg.id === 'woxsen-university'
-      ? 'ravi.kumar@woxsen.edu.in'
-      : activeOrg.id === 'green-valley'
-      ? 'karthik@greenvalley.org'
-      : activeOrg.id === 'invartech-solutions'
-      ? 'amit.verma@invartech.com'
-      : `technician@${domain}`;
-
-  const managerEmail =
-    activeOrg.id === 'woxsen-university'
-      ? 'warden.hostela@woxsen.edu.in'
-      : activeOrg.id === 'green-valley'
-      ? 'manager@greenvalley.org'
-      : activeOrg.id === 'invartech-solutions'
-      ? 'facilities@invartech.com'
-      : `manager@${domain}`;
-
-  const orgAdminEmail = `admin@${domain}`;
-
-  // Real seeded credentials per facility (issued by the facility authority).
-  // Requesters → Access Token + PIN. Staff → Email + Password.
-  // Only credentials that actually exist in the backend are ever shown.
+  // Real seeded credentials for Woxsen University
   const REAL_ORGS: Record<
     string,
     { requesterToken: string; requesterPin: string; worker: string; manager: string; admin: string }
@@ -71,33 +45,11 @@ function LoginContent() {
     'woxsen-university': {
       requesterToken: 'WOXSEN-8849-T',
       requesterPin: '2026',
-      worker: 'worker.plumbing@woxsen.edu',
-      manager: 'manager@woxsen.edu',
-      admin: 'admin@woxsen.edu',
+      worker: 'ravi.kumar@woxsen.edu.in',
+      manager: 'warden.hostela@woxsen.edu.in',
+      admin: 'admin@woxsen.edu.in',
     },
-    'green-valley': {
-      requesterToken: 'GV-8849-T',
-      requesterPin: '2026',
-      worker: 'worker.cleaning@greenvalley.com',
-      manager: 'manager@greenvalley.com',
-      admin: 'admin@greenvalley.com',
-    },
-    'invartech-solutions': {
-      requesterToken: 'INV-8849-T',
-      requesterPin: '2026',
-      worker: 'worker.it@invartech.io',
-      manager: 'manager@invartech.io',
-      admin: 'admin@invartech.io',
-    },
-    // Standardized scheme: {PREFIX}-8849-T / 2026, staff @ {org-id}.facilityos.pro
-    ...Object.fromEntries(
-      [
-        ['iit-bombay', 'IITB'],
-        ['manipal-university', 'MAHE'],
-        ['bits-pilani', 'BITS'],
-        ['srm-ist', 'SRM'],
-        ['prestige-falcon', 'PFC'],
-        ['dlf-crest', 'DLF'],
+  };
         ['hiranandani-powai', 'HIRA'],
         ['microsoft-idc', 'MSFT'],
         ['infosys-ecity', 'INFY'],
