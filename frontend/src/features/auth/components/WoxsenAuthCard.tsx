@@ -10,22 +10,22 @@ import {
   UserPlus,
   AlertCircle,
   ChevronRight,
-  Sparkles,
+  UserCheck,
 } from 'lucide-react';
 
 export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: string }) {
   const router = useRouter();
   const { loginWithToken, loginWithEmail, signUpStudent } = useApp();
 
-  const [authTab, setAuthTab] = useState<'token' | 'email' | 'signup'>('token');
-  
+  const [authTab, setAuthTab] = useState<'signin' | 'token' | 'signup'>('signin');
+
+  // Email Sign In States
+  const [emailInput, setEmailInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
+
   // Access Token States
   const [tokenInput, setTokenInput] = useState('');
   const [pinInput, setPinInput] = useState('');
-
-  // Email States
-  const [emailInput, setEmailInput] = useState('');
-  const [passwordInput, setPasswordInput] = useState('');
 
   // Sign Up Form States
   const [signUpName, setSignUpName] = useState('');
@@ -35,24 +35,6 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
 
   const [authError, setAuthError] = useState('');
   const [authNotice, setAuthNotice] = useState('');
-
-  const handleTokenSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthError('');
-    setAuthNotice('');
-
-    const token = tokenInput.trim() || 'WOXSEN-8849-T';
-    const pin = pinInput.trim() || '2026';
-
-    const success = loginWithToken(token, pin);
-    if (success) {
-      if (onSuccessRedirect) {
-        router.push(onSuccessRedirect);
-      }
-    } else {
-      setAuthError('Invalid Access Token or PIN. Use WOXSEN-8849-T & 2026 for demo.');
-    }
-  };
 
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,6 +54,24 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
     }
   };
 
+  const handleTokenSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+    setAuthNotice('');
+
+    const token = tokenInput.trim() || 'WOXSEN-8849-T';
+    const pin = pinInput.trim() || '2026';
+
+    const success = loginWithToken(token, pin);
+    if (success) {
+      if (onSuccessRedirect) {
+        router.push(onSuccessRedirect);
+      }
+    } else {
+      setAuthError('Invalid Access Token or PIN. Use WOXSEN-8849-T & 2026 for demo.');
+    }
+  };
+
   const handleSignUpSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
@@ -82,7 +82,7 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
     }
 
     signUpStudent(signUpName, signUpEmail, signUpRoom);
-    setAuthNotice('Welcome to Woxsen Portal! Registered as Student. Woxsen Admin can upgrade your role to Staff in User Management.');
+    setAuthNotice('Welcome to Woxsen Portal! Account created as Student.');
     if (onSuccessRedirect) {
       router.push(onSuccessRedirect);
     }
@@ -92,7 +92,7 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
     setAuthError('');
     setAuthNotice('');
     if (roleType === 'student') {
-      loginWithToken('WOXSEN-8849-T', '2026');
+      loginWithEmail('student@university.edu', 'Student@123');
     } else if (roleType === 'worker') {
       loginWithEmail('ravi.kumar@woxsen.edu.in', 'Worker@123');
     } else if (roleType === 'warden') {
@@ -108,11 +108,23 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
 
   return (
     <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-6 max-w-xl mx-auto">
-      {/* Auth Tab Selector (3 Tabs: Token, Email, Sign Up) */}
+      {/* Primary Side-by-Side Tabs: Sign In vs Access Token */}
       <div className="flex items-center p-1 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80">
         <button
+          onClick={() => { setAuthTab('signin'); setAuthError(''); }}
+          className={`flex-1 py-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+            authTab === 'signin' || authTab === 'signup'
+              ? 'bg-blue-600 text-white shadow-md'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <Mail className="w-4 h-4" />
+          <span>Sign In</span>
+        </button>
+
+        <button
           onClick={() => { setAuthTab('token'); setAuthError(''); }}
-          className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+          className={`flex-1 py-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
             authTab === 'token'
               ? 'bg-blue-600 text-white shadow-md'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -120,30 +132,6 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
         >
           <Key className="w-4 h-4" />
           <span>Access Token</span>
-        </button>
-
-        <button
-          onClick={() => { setAuthTab('email'); setAuthError(''); }}
-          className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
-            authTab === 'email'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-          }`}
-        >
-          <Mail className="w-4 h-4" />
-          <span>Email Sign In</span>
-        </button>
-
-        <button
-          onClick={() => { setAuthTab('signup'); setAuthError(''); }}
-          className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
-            authTab === 'signup'
-              ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-          }`}
-        >
-          <UserPlus className="w-4 h-4" />
-          <span>Sign Up</span>
         </button>
       </div>
 
@@ -154,7 +142,64 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
         </div>
       )}
 
-      {/* TAB 1: TEMPORARY ACCESS TOKEN LOGIN */}
+      {/* FORM 1: EMAIL SIGN IN */}
+      {authTab === 'signin' && (
+        <form onSubmit={handleEmailSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+              Woxsen Email Address (Role Auto-Detected)
+            </label>
+            <div className="relative">
+              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="email"
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                placeholder="e.g. student@university.edu or warden.hostela@woxsen.edu.in"
+                className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+              Account Password
+            </label>
+            <div className="relative">
+              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="password"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                placeholder="••••••••"
+                className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs shadow-lg shadow-blue-500/25 transition-all active:scale-95 flex items-center justify-center gap-2"
+          >
+            <span>Sign In to Woxsen Portal</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+
+          {/* Under Sign In: Create Account Link */}
+          <div className="pt-2 text-center text-xs">
+            <span className="text-slate-500">Don't have an account? </span>
+            <button
+              type="button"
+              onClick={() => { setAuthTab('signup'); setAuthError(''); }}
+              className="font-extrabold text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Create One (Sign Up)
+            </button>
+          </div>
+        </form>
+      )}
+
+      {/* FORM 2: TEMPORARY ACCESS TOKEN */}
       {authTab === 'token' && (
         <form onSubmit={handleTokenSubmit} className="space-y-4">
           <div>
@@ -196,55 +241,22 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
             <span>Authenticate via Access Token</span>
             <ChevronRight className="w-4 h-4" />
           </button>
+
+          {/* Under Token: Sign In Link */}
+          <div className="pt-2 text-center text-xs">
+            <span className="text-slate-500">Have an email account? </span>
+            <button
+              type="button"
+              onClick={() => { setAuthTab('signin'); setAuthError(''); }}
+              className="font-extrabold text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Sign In with Email
+            </button>
+          </div>
         </form>
       )}
 
-      {/* TAB 2: EMAIL LOGIN (AUTO-DETECTS ROLE: STUDENT / WORKER / WARDEN / ADMIN) */}
-      {authTab === 'email' && (
-        <form onSubmit={handleEmailSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              Woxsen Email Address (Role Auto-Detected)
-            </label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="email"
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                placeholder="e.g. student@university.edu or warden.hostela@woxsen.edu.in"
-                className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-              Account Password
-            </label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="password"
-                value={passwordInput}
-                onChange={(e) => setPasswordInput(e.target.value)}
-                placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs shadow-lg shadow-blue-500/25 transition-all active:scale-95 flex items-center justify-center gap-2"
-          >
-            <span>Sign In to Woxsen Portal</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </form>
-      )}
-
-      {/* TAB 3: SIGN UP */}
+      {/* FORM 3: SIGN UP */}
       {authTab === 'signup' && (
         <form onSubmit={handleSignUpSubmit} className="space-y-4">
           <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs font-medium">
@@ -310,6 +322,18 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
             <UserPlus className="w-4 h-4" />
             <span>Sign Up & Open Student Portal</span>
           </button>
+
+          {/* Under Sign Up: Already have account link */}
+          <div className="pt-2 text-center text-xs">
+            <span className="text-slate-500">Already have an account? </span>
+            <button
+              type="button"
+              onClick={() => { setAuthTab('signin'); setAuthError(''); }}
+              className="font-extrabold text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Sign In
+            </button>
+          </div>
         </form>
       )}
 
@@ -325,7 +349,7 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
             className="p-3 rounded-2xl bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-700 dark:text-blue-300 text-xs font-extrabold transition-all text-center flex flex-col items-center gap-1"
           >
             <span>🎓 Student</span>
-            <span className="text-[10px] text-slate-500 font-normal">Token: WOXSEN-8849-T</span>
+            <span className="text-[10px] text-slate-500 font-normal">Aarav Sharma</span>
           </button>
 
           <button
