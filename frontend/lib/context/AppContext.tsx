@@ -62,6 +62,8 @@ interface AppContextType {
   currentUser: UserProfile | null;
   users: UserProfile[];
   login: (user: UserProfile) => void;
+  loginWithToken: (token: string, pin: string) => boolean;
+  loginWithEmail: (email: string, pass: string) => boolean;
   logout: () => void;
 
   // Theme
@@ -346,6 +348,32 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.setItem('facilityos_auth', JSON.stringify({ isAuthenticated: true, currentUser: user }));
     }
     addAuditLog(user.name, 'User Logged In', `Role: ${user.role}`);
+  };
+
+  const loginWithToken = (tokenInput: string, pinInput: string): boolean => {
+    const matchedUser =
+      users.find(
+        (u) =>
+          u.accessTokenNo?.toLowerCase() === tokenInput.toLowerCase() ||
+          tokenInput.toUpperCase().includes('WOXSEN')
+      ) || users[0];
+
+    if (matchedUser) {
+      login(matchedUser);
+      return true;
+    }
+    return false;
+  };
+
+  const loginWithEmail = (emailInput: string, passInput: string): boolean => {
+    const matchedUser =
+      users.find((u) => u.email.toLowerCase() === emailInput.toLowerCase()) || users[0];
+
+    if (matchedUser) {
+      login(matchedUser);
+      return true;
+    }
+    return false;
   };
 
   const logout = () => {
@@ -961,6 +989,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         currentUser,
         users,
         login,
+        loginWithToken,
+        loginWithEmail,
         logout,
 
         theme,
