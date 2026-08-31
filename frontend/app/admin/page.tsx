@@ -213,7 +213,7 @@ export default function AdminCommandCenterPage() {
             </div>
 
             <h1 className="text-2xl md:text-3xl font-black">
-              {isSuperAdmin ? 'FacilityOS System Super Admin Console' : `${activeOrg.name} Executive Operations`}
+              {`${activeOrg.name} Executive Operations Console`}
             </h1>
             <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
               {isSuperAdmin

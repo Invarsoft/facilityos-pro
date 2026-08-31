@@ -84,40 +84,17 @@ function LoginContent() {
           hint: realOrg.manager,
         },
         {
-          label: `${activeOrg.name} Admin (Organization Managed)`,
+          label: 'Woxsen University Admin (Chief Operations)',
           mode: 'email' as const,
           token: `${prefix}-ORG-ADM`,
           pin: '1010',
           role: 'org_admin',
-          email: realOrg.admin,
+          email: 'admin@woxsen.edu.in',
           password: 'Admin@123',
-          hint: realOrg.admin,
-        },
-        {
-          label: 'FacilityOS System Super Admin (Platform Control)',
-          mode: 'email' as const,
-          token: 'FOS-SUPER-01',
-          pin: '9999',
-          role: 'super_admin',
-          email: 'superadmin@facilityos.pro',
-          password: 'Super@123',
-          hint: 'superadmin@facilityos.pro',
+          hint: 'admin@woxsen.edu.in',
         },
       ]
-    : [
-        // Non-tenant orgs (e.g. FacilityOS Global Platform) have no users or
-        // tokens in the backend — only the platform super admin is real.
-        {
-          label: 'FacilityOS System Super Admin (Platform Control)',
-          mode: 'email' as const,
-          token: 'FOS-SUPER-01',
-          pin: '9999',
-          role: 'super_admin',
-          email: 'superadmin@facilityos.pro',
-          password: 'Super@123',
-          hint: 'superadmin@facilityos.pro',
-        },
-      ];
+    : [];
 
   // Facility-code entry (e.g. from "Enter Facility Code"): resolve the real
   // facility name from the backend and show it — never stale browser state.

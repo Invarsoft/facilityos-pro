@@ -98,9 +98,7 @@ export function getPriorityBadge(priority: Priority): {
 }
 
 export function getRoleDisplayName(role: string, orgType?: string, orgName?: string): string {
-  if (role === 'org_admin') return orgName ? `${orgName} Admin` : 'Organization Admin';
-  if (role === 'admin') return orgName ? `${orgName} Admin` : 'Facility Administrator';
-  if (role === 'super_admin') return 'FacilityOS System Super Admin';
+  if (role === 'org_admin' || role === 'admin' || role === 'super_admin') return orgName ? `${orgName} Admin` : 'Woxsen University Admin';
   if (role === 'warden' || (role === 'manager' && orgType === 'university')) return 'Hostel Warden';
   if (role === 'manager' && orgType === 'apartment') return 'Community Manager';
   if (role === 'manager' && orgType === 'office') return 'Facility Manager';
