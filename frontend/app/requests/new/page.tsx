@@ -320,16 +320,12 @@ function RequestWizardContent() {
                   onChange={(e) => setBuilding(e.target.value)}
                   className="w-full p-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 font-bold"
                 >
-                  <option value="Tower T1">Tower T1 (Boys Residence)</option>
+                  <option value="Tower T1">Tower T1 (Executive Boys Residence)</option>
                   <option value="Tower T2">Tower T2 (Boys Residence)</option>
                   <option value="Tower T3">Tower T3 (Boys Residence)</option>
-                  <option value="Tower T4">Tower T4 (Girls Residence)</option>
+                  <option value="Tower T4">Tower T4 (Executive Girls Residence)</option>
                   <option value="Tower T5">Tower T5 (Girls Residence)</option>
                   <option value="Tower T6">Tower T6 (Girls Residence)</option>
-                  <option value="Academic Block 1 & 2">Academic Block 1 & 2</option>
-                  <option value="Science & AI/ML Labs">Science & AI/ML Labs</option>
-                  <option value="Sports Complex">Sports Complex</option>
-                  <option value="Administrative Block">Administrative Block</option>
                 </select>
               </div>
 

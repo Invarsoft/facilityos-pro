@@ -49,34 +49,6 @@ export default function WoxsenCampusPortalPage() {
       icon: Bed,
       activeJobs: 1,
     },
-    {
-      id: 'academic-1',
-      title: 'Academic Block 1 & 2',
-      subtitle: 'Lecture Theatres, Central Library, Faculty Cabins & Seminar Halls.',
-      icon: GraduationCap,
-      activeJobs: 0,
-    },
-    {
-      id: 'aiml-labs',
-      title: 'Science & AI/ML Labs',
-      subtitle: 'High-Performance GPU Server Room, Robotics Lab & Analytics Bay.',
-      icon: Building,
-      activeJobs: 0,
-    },
-    {
-      id: 'sports-complex',
-      title: 'Sports Complex & Amenities',
-      subtitle: 'Indoor Gymnasium, Swimming Pool, Tennis Courts & Cafeteria.',
-      icon: ShieldCheck,
-      activeJobs: 0,
-    },
-    {
-      id: 'admin-block',
-      title: 'Administrative Block',
-      subtitle: 'Executive Office, Dean Office, Student Affairs & Accounts Desk.',
-      icon: ShieldCheck,
-      activeJobs: 0,
-    },
   ];
 
   // =======================================================================
@@ -220,7 +192,7 @@ export default function WoxsenCampusPortalPage() {
             <Building className="w-5 h-5 text-blue-600" />
             <span>Woxsen Campus Infrastructure & Services</span>
           </h2>
-          <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">6 Campus Sectors</span>
+          <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">2 Hostel Residential Sectors</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
