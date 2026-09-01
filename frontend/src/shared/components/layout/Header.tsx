@@ -239,21 +239,39 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar?: () => void }) {
 
                       <div className="py-2 space-y-1 text-xs">
                         <Link
-                          href="/dashboard"
+                          href="/admin"
                           onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-2 p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                          className="flex items-center gap-2 p-2 rounded-xl text-slate-800 hover:bg-blue-50 font-bold"
                         >
-                          <User className="w-4 h-4 text-blue-500" />
-                          <span>My Account Portal</span>
+                          <ShieldCheck className="w-4 h-4 text-blue-600" />
+                          <span>Woxsen Chief Admin Console</span>
                         </Link>
 
                         <Link
-                          href="/select-facility"
+                          href="/manager"
                           onClick={() => setUserMenuOpen(false)}
-                          className="flex items-center gap-2 p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                          className="flex items-center gap-2 p-2 rounded-xl text-slate-800 hover:bg-blue-50 font-bold"
                         >
-                          <Building2 className="w-4 h-4 text-indigo-500" />
-                          <span>Browse / Switch Active Facility</span>
+                          <Building2 className="w-4 h-4 text-blue-600" />
+                          <span>Hostel Area Admin Console</span>
+                        </Link>
+
+                        <Link
+                          href="/worker"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2 p-2 rounded-xl text-slate-800 hover:bg-blue-50 font-bold"
+                        >
+                          <UserCheck className="w-4 h-4 text-blue-600" />
+                          <span>Technician Repair Desk</span>
+                        </Link>
+
+                        <Link
+                          href="/"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2 p-2 rounded-xl text-slate-800 hover:bg-blue-50 font-bold"
+                        >
+                          <User className="w-4 h-4 text-blue-600" />
+                          <span>Student Campus Portal</span>
                         </Link>
                       </div>
 

@@ -14,7 +14,7 @@ import {
 
 export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: string }) {
   const router = useRouter();
-  const { loginWithToken, loginWithEmail, signUpStudent } = useApp();
+  const { loginWithToken, loginWithEmail, signUpStudent, users } = useApp();
 
   const [authTab, setAuthTab] = useState<'signin' | 'token' | 'signup'>('signin');
 
@@ -35,6 +35,18 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
   const [authError, setAuthError] = useState('');
   const [authNotice, setAuthNotice] = useState('');
 
+  const redirectByRole = (roleType?: string) => {
+    if (roleType === 'admin' || roleType === 'org_admin' || roleType === 'super_admin') {
+      router.push('/admin');
+    } else if (roleType === 'warden' || roleType === 'manager') {
+      router.push('/manager');
+    } else if (roleType === 'worker' || roleType === 'technician') {
+      router.push('/worker');
+    } else {
+      router.push(onSuccessRedirect || '/');
+    }
+  };
+
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
@@ -43,11 +55,10 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
     const email = emailInput.trim() || 'student@university.edu';
     const pass = passwordInput.trim() || '2026';
 
+    const matchedUser = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
     const success = loginWithEmail(email, pass);
     if (success) {
-      if (onSuccessRedirect) {
-        router.push(onSuccessRedirect);
-      }
+      redirectByRole(matchedUser?.role || (email.includes('admin') ? 'admin' : email.includes('warden') ? 'warden' : email.includes('ravi') ? 'worker' : 'student'));
     } else {
       setAuthError('Invalid email address or password.');
     }
@@ -61,11 +72,10 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
     const token = tokenInput.trim() || 'WOXSEN-8849-T';
     const pin = pinInput.trim() || '2026';
 
+    const matchedUser = users.find((u) => u.accessTokenNo?.toLowerCase() === token.toLowerCase());
     const success = loginWithToken(token, pin);
     if (success) {
-      if (onSuccessRedirect) {
-        router.push(onSuccessRedirect);
-      }
+      redirectByRole(matchedUser?.role || (token.includes('ADM') ? 'admin' : token.includes('WDN') ? 'warden' : token.includes('WRK') ? 'worker' : 'student'));
     } else {
       setAuthError('Invalid Access Token or PIN. Use WOXSEN-8849-T & 2026 for demo.');
     }
@@ -80,29 +90,21 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
       return;
     }
 
-    signUpStudent(signUpName, signUpEmail, signUpRoom);
+    const newStudent = signUpStudent(signUpName, signUpEmail, signUpRoom);
     setAuthNotice('Welcome to Woxsen Portal! Account created as Student.');
-    if (onSuccessRedirect) {
-      router.push(onSuccessRedirect);
-    }
+    redirectByRole(newStudent.role);
   };
 
   const quickDemoLogin = (roleType: 'student' | 'worker' | 'warden' | 'admin') => {
     setAuthError('');
     setAuthNotice('');
-    if (roleType === 'student') {
-      loginWithEmail('student@university.edu', 'Student@123');
-    } else if (roleType === 'worker') {
-      loginWithEmail('ravi.kumar@woxsen.edu.in', 'Worker@123');
-    } else if (roleType === 'warden') {
-      loginWithEmail('warden.hostela@woxsen.edu.in', 'Manager@123');
-    } else if (roleType === 'admin') {
-      loginWithEmail('admin@woxsen.edu.in', 'Admin@123');
-    }
+    let targetEmail = 'student@university.edu';
+    if (roleType === 'worker') targetEmail = 'ravi.kumar@woxsen.edu.in';
+    if (roleType === 'warden') targetEmail = 'warden.hostela@woxsen.edu.in';
+    if (roleType === 'admin') targetEmail = 'admin@woxsen.edu.in';
 
-    if (onSuccessRedirect) {
-      router.push(onSuccessRedirect);
-    }
+    loginWithEmail(targetEmail, '2026');
+    redirectByRole(roleType);
   };
 
   return (

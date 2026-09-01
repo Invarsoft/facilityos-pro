@@ -270,7 +270,7 @@ export const DEMO_USERS: UserProfile[] = [
     id: 'admin-1',
     orgId: 'woxsen-university',
     name: 'Ananya Reddy',
-    email: 'admin@facilityos.io',
+    email: 'admin@woxsen.edu.in',
     phone: '+91 90000 12345',
     role: 'admin',
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
