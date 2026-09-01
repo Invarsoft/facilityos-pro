@@ -23,7 +23,6 @@ import {
 export default function WoxsenCampusPortalPage() {
   const router = useRouter();
   const {
-    activeOrg,
     tickets,
     activeRole,
     currentUser,
@@ -41,8 +40,6 @@ export default function WoxsenCampusPortalPage() {
       title: 'Hostel A (Boys Residence)',
       subtitle: 'Rooms 101 to 450, Common Mess, Laundry Hub & Study Lounges.',
       icon: Bed,
-      color: 'text-blue-500',
-      bg: 'bg-blue-500/10 border-blue-500/30',
       activeJobs: 1,
     },
     {
@@ -50,8 +47,6 @@ export default function WoxsenCampusPortalPage() {
       title: 'Hostel B (Girls Residence)',
       subtitle: 'Rooms 101 to 450, Visitor Lounge, Pantry & Recreation Area.',
       icon: Bed,
-      color: 'text-amber-500',
-      bg: 'bg-amber-500/10 border-amber-500/30',
       activeJobs: 1,
     },
     {
@@ -59,8 +54,6 @@ export default function WoxsenCampusPortalPage() {
       title: 'Academic Block 1 & 2',
       subtitle: 'Lecture Theatres, Central Library, Faculty Cabins & Seminar Halls.',
       icon: GraduationCap,
-      color: 'text-indigo-500',
-      bg: 'bg-indigo-500/10 border-indigo-500/30',
       activeJobs: 0,
     },
     {
@@ -68,8 +61,6 @@ export default function WoxsenCampusPortalPage() {
       title: 'Science & AI/ML Labs',
       subtitle: 'High-Performance GPU Server Room, Robotics Lab & Analytics Bay.',
       icon: Building,
-      color: 'text-violet-500',
-      bg: 'bg-violet-500/10 border-violet-500/30',
       activeJobs: 0,
     },
     {
@@ -77,8 +68,6 @@ export default function WoxsenCampusPortalPage() {
       title: 'Sports Complex & Amenities',
       subtitle: 'Indoor Gymnasium, Swimming Pool, Tennis Courts & Cafeteria.',
       icon: ShieldCheck,
-      color: 'text-emerald-500',
-      bg: 'bg-emerald-500/10 border-emerald-500/30',
       activeJobs: 0,
     },
     {
@@ -86,8 +75,6 @@ export default function WoxsenCampusPortalPage() {
       title: 'Administrative Block',
       subtitle: 'Executive Office, Dean Office, Student Affairs & Accounts Desk.',
       icon: ShieldCheck,
-      color: 'text-teal-500',
-      bg: 'bg-teal-500/10 border-teal-500/30',
       activeJobs: 0,
     },
   ];
@@ -97,19 +84,19 @@ export default function WoxsenCampusPortalPage() {
   // =======================================================================
   if (!isAuthenticated) {
     return (
-      <div className="py-6 sm:py-12 px-3.5 sm:px-6 max-w-4xl mx-auto space-y-8 animate-in fade-in duration-300">
+      <div className="py-6 sm:py-12 px-3.5 sm:px-6 max-w-4xl mx-auto space-y-8 animate-in fade-in duration-300 relative z-10">
         {/* Woxsen Brand Banner */}
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-black uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-600 text-white text-xs font-black uppercase tracking-wider shadow-md">
             <span>🎓</span>
             <span>Woxsen University Campus Portal</span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight drop-shadow-xs">
             Woxsen Campus Sign In
           </h1>
 
-          <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300 max-w-xl mx-auto font-medium">
+          <p className="text-xs sm:text-base text-slate-700 max-w-xl mx-auto font-semibold">
             Sign in with your Woxsen Email Address. Your role (Student, Technician, Warden, Admin) is automatically detected on sign in.
           </p>
         </div>
@@ -118,8 +105,8 @@ export default function WoxsenCampusPortalPage() {
         <WoxsenAuthCard />
 
         {/* Security Lock Notice */}
-        <div className="p-4 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 flex items-center justify-center gap-2 max-w-xl mx-auto">
-          <Lock className="w-4 h-4 text-slate-400" />
+        <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-md border border-white/60 text-center text-xs text-slate-700 font-semibold flex items-center justify-center gap-2 max-w-xl mx-auto shadow-lg">
+          <Lock className="w-4 h-4 text-blue-600 shrink-0" />
           <span>Woxsen campus infrastructure and service request wizards are protected until authenticated.</span>
         </div>
       </div>
@@ -130,27 +117,27 @@ export default function WoxsenCampusPortalPage() {
   // VIEW 2: AUTHENTICATED VIEW (WOXSEN SERVICES DASHBOARD)
   // =======================================================================
   return (
-    <div className="py-4 sm:py-8 px-3.5 sm:px-6 max-w-6xl mx-auto space-y-8 sm:space-y-10 animate-in fade-in duration-300">
+    <div className="py-4 sm:py-8 px-3.5 sm:px-6 max-w-6xl mx-auto space-y-8 sm:space-y-10 animate-in fade-in duration-300 relative z-10">
       {authNotice && (
-        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center justify-between gap-3">
+        <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-md border border-blue-200 text-blue-900 text-xs font-bold flex items-center justify-between gap-3 shadow-lg">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-emerald-500 shrink-0" />
+            <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
             <span>{authNotice}</span>
           </div>
           <button onClick={() => setAuthNotice('')} className="text-xs font-extrabold underline">Dismiss</button>
         </div>
       )}
 
-      {/* Authenticated Brand Hero Header */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-slate-900 text-white border border-slate-800 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      {/* Authenticated Brand Hero Header - Strict Blue & White */}
+      <div className="p-6 sm:p-8 rounded-3xl bg-blue-900/90 backdrop-blur-md text-white border border-blue-800 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="space-y-3 z-10 max-w-2xl">
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-extrabold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-xs font-extrabold uppercase tracking-wider">
               <span>🎓</span>
               <span>Woxsen University Campus Portal</span>
             </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-extrabold uppercase tracking-wider">
-              <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 border border-white/30 text-white text-xs font-extrabold uppercase tracking-wider">
+              <UserCheck className="w-3.5 h-3.5 text-blue-200" />
               <span>Role ({activeRole.toUpperCase()}): {currentUser?.name || 'Woxsen User'}</span>
             </div>
           </div>
@@ -159,7 +146,7 @@ export default function WoxsenCampusPortalPage() {
             Woxsen Campus Operations & Maintenance System
           </h1>
 
-          <p className="text-xs sm:text-sm text-slate-300 font-medium leading-relaxed">
+          <p className="text-xs sm:text-sm text-blue-100 font-medium leading-relaxed">
             Welcome back, {currentUser?.name}. Report hostel issues, track room repairs, verify technician resolution via OTP, and monitor campus SLA compliance 24/7.
           </p>
         </div>
@@ -167,60 +154,60 @@ export default function WoxsenCampusPortalPage() {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 z-10 w-full md:w-auto shrink-0">
           <Link
             href="/requests/new"
-            className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs shadow-lg shadow-blue-500/30 transition-all active:scale-95"
+            className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-white text-blue-900 hover:bg-blue-50 font-black text-xs shadow-lg transition-all active:scale-95"
           >
-            <PlusCircle className="w-4 h-4" />
+            <PlusCircle className="w-4 h-4 text-blue-600" />
             <span>Raise New Request</span>
           </Link>
 
           <Link
             href="/my-requests"
-            className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700 transition-all active:scale-95"
+            className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-blue-800 hover:bg-blue-700 text-white font-bold text-xs border border-blue-700 transition-all active:scale-95"
           >
-            <FileText className="w-4 h-4 text-blue-400" />
+            <FileText className="w-4 h-4 text-blue-200" />
             <span>Track Requests ({tickets.length})</span>
           </Link>
         </div>
       </div>
 
-      {/* Real-time Status Metric Pills */}
+      {/* Real-time Status Metric Pills - Glassmorphism over Campus Background */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex items-center justify-between">
+        <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-md border border-white/60 shadow-lg flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Total Filed</span>
-            <p className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{tickets.length}</p>
+            <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">Total Filed</span>
+            <p className="text-2xl font-black text-blue-900 mt-0.5">{tickets.length}</p>
           </div>
-          <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold">
+          <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
             <FileText className="w-4 h-4" />
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex items-center justify-between">
+        <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-md border border-white/60 shadow-lg flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Active Jobs</span>
-            <p className="text-2xl font-black text-amber-500 mt-0.5">{activeTicketsCount}</p>
+            <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">Active Jobs</span>
+            <p className="text-2xl font-black text-blue-600 mt-0.5">{activeTicketsCount}</p>
           </div>
-          <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
+          <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
             <Clock className="w-4 h-4" />
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex items-center justify-between">
+        <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-md border border-white/60 shadow-lg flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Awaiting OTP</span>
-            <p className="text-2xl font-black text-yellow-500 mt-0.5">{awaitingCount}</p>
+            <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">Awaiting OTP</span>
+            <p className="text-2xl font-black text-blue-600 mt-0.5">{awaitingCount}</p>
           </div>
-          <div className="w-9 h-9 rounded-xl bg-yellow-500/10 text-yellow-500 flex items-center justify-center font-bold">
+          <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
             <CheckCircle2 className="w-4 h-4" />
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex items-center justify-between">
+        <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-md border border-white/60 shadow-lg flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Campus Status</span>
-            <p className="text-xs font-black text-emerald-500 mt-1">100% Operational</p>
+            <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block">Campus Status</span>
+            <p className="text-xs font-black text-blue-600 mt-1">100% Operational</p>
           </div>
-          <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold">
+          <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
             <ShieldCheck className="w-4 h-4" />
           </div>
         </div>
@@ -228,12 +215,12 @@ export default function WoxsenCampusPortalPage() {
 
       {/* Woxsen Campus Infrastructure Blocks Grid */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-            <Building className="w-5 h-5 text-blue-500" />
+        <div className="flex items-center justify-between bg-white/80 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/60 shadow-md">
+          <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+            <Building className="w-5 h-5 text-blue-600" />
             <span>Woxsen Campus Infrastructure & Services</span>
           </h2>
-          <span className="text-xs font-semibold text-slate-400">6 Campus Sectors</span>
+          <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">6 Campus Sectors</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -243,31 +230,31 @@ export default function WoxsenCampusPortalPage() {
               <div
                 key={block.id}
                 onClick={() => router.push(`/requests/new?building=${encodeURIComponent(block.title)}`)}
-                className={`group p-5 rounded-2xl border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-blue-500 transition-all duration-300 cursor-pointer shadow-xs hover:shadow-md flex flex-col justify-between`}
+                className={`group p-5 rounded-2xl border bg-white/90 backdrop-blur-md border-white/60 hover:border-blue-600 hover:bg-white transition-all duration-300 cursor-pointer shadow-lg hover:shadow-2xl flex flex-col justify-between`}
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className={`w-10 h-10 rounded-xl ${block.bg} ${block.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                    <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-xs">
                       <Icon className="w-5 h-5" />
                     </div>
                     {block.activeJobs > 0 && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400">
+                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700">
                         {block.activeJobs} Active Repair
                       </span>
                     )}
                   </div>
 
                   <div>
-                    <h3 className="text-base font-extrabold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    <h3 className="text-base font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors">
                       {block.title}
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed font-medium">
+                    <p className="text-xs text-slate-600 mt-1 leading-relaxed font-medium">
                       {block.subtitle}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold text-blue-600 dark:text-blue-400">
+                <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-blue-600">
                   <span>Report Maintenance Issue</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>
