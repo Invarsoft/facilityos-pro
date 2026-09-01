@@ -6,9 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/context/AppContext';
 import { WoxsenAuthCard } from '@/src/features/auth/components/WoxsenAuthCard';
 import {
-  GraduationCap,
   Bed,
-  Building,
+  Building2,
   ArrowRight,
   ShieldCheck,
   PlusCircle,
@@ -35,20 +34,22 @@ export default function WoxsenCampusPortalPage() {
   const awaitingCount = tickets.filter((t) => t.status === 'awaiting_verification').length;
 
   const woxsenCampusBlocks = [
-    {
-      id: 'hostel-towers',
-      title: 'Hostel Towers T1 to T6',
-      subtitle: 'Executive Residential Towers T1, T2, T3, T4, T5, T6 — Air Conditioned Student Suites.',
-      icon: Bed,
-      activeJobs: 2,
-    },
-    {
-      id: 'hostel-blocks',
-      title: 'Hostel Blocks A to G',
-      subtitle: 'Student Residential Blocks A, B, C, D, E, F, G — Rooms 101 to 450, Mess & Lounges.',
-      icon: Bed,
-      activeJobs: 1,
-    },
+    // 6 Separate Towers T1 to T6
+    { id: 'tower-t1', title: 'Tower T1', subtitle: 'Executive Boys Residence — Air Conditioned Student Suites', icon: Building2, activeJobs: 1 },
+    { id: 'tower-t2', title: 'Tower T2', subtitle: 'Boys Residence — Rooms 101 to 400', icon: Building2, activeJobs: 0 },
+    { id: 'tower-t3', title: 'Tower T3', subtitle: 'Boys Residence — Rooms 101 to 400', icon: Building2, activeJobs: 0 },
+    { id: 'tower-t4', title: 'Tower T4', subtitle: 'Executive Girls Residence — Air Conditioned Student Suites', icon: Building2, activeJobs: 1 },
+    { id: 'tower-t5', title: 'Tower T5', subtitle: 'Girls Residence — Rooms 101 to 400', icon: Building2, activeJobs: 0 },
+    { id: 'tower-t6', title: 'Tower T6', subtitle: 'Girls Residence — Rooms 101 to 400', icon: Building2, activeJobs: 0 },
+
+    // 7 Separate Blocks A to G
+    { id: 'block-a', title: 'Block A', subtitle: 'Hostel Block A — Rooms 101 to 350 & Common Mess', icon: Bed, activeJobs: 1 },
+    { id: 'block-b', title: 'Block B', subtitle: 'Hostel Block B — Rooms 101 to 350 & Laundry Hub', icon: Bed, activeJobs: 0 },
+    { id: 'block-c', title: 'Block C', subtitle: 'Hostel Block C — Rooms 101 to 350 & Study Lounge', icon: Bed, activeJobs: 0 },
+    { id: 'block-d', title: 'Block D', subtitle: 'Hostel Block D — Rooms 101 to 350 & Recreation Room', icon: Bed, activeJobs: 0 },
+    { id: 'block-e', title: 'Block E', subtitle: 'Hostel Block E — Rooms 101 to 350 & Student Mess', icon: Bed, activeJobs: 0 },
+    { id: 'block-f', title: 'Block F', subtitle: 'Hostel Block F — Rooms 101 to 350 & Common Lounge', icon: Bed, activeJobs: 0 },
+    { id: 'block-g', title: 'Block G', subtitle: 'Hostel Block G — Rooms 101 to 350 & Pantry Desk', icon: Bed, activeJobs: 0 },
   ];
 
   // =======================================================================
@@ -185,17 +186,19 @@ export default function WoxsenCampusPortalPage() {
         </div>
       </div>
 
-      {/* Woxsen Campus Infrastructure Blocks Grid */}
+      {/* Woxsen Campus Infrastructure Blocks Grid - 13 Individual Towers T1-T6 & Blocks A-G */}
       <div className="space-y-4">
         <div className="flex items-center justify-between bg-white/80 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/60 shadow-md">
           <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
-            <Building className="w-5 h-5 text-blue-600" />
-            <span>Woxsen Campus Infrastructure & Services</span>
+            <Building2 className="w-5 h-5 text-blue-600" />
+            <span>Woxsen Hostel Residential Infrastructure</span>
           </h2>
-          <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">2 Hostel Residential Sectors</span>
+          <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
+            13 Individual Sectors (Towers T1–T6 & Blocks A–G)
+          </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {woxsenCampusBlocks.map((block) => {
             const Icon = block.icon;
             return (
@@ -210,8 +213,8 @@ export default function WoxsenCampusPortalPage() {
                       <Icon className="w-5 h-5" />
                     </div>
                     {block.activeJobs > 0 && (
-                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700">
-                        {block.activeJobs} Active Repair
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-700">
+                        {block.activeJobs} Active
                       </span>
                     )}
                   </div>
@@ -226,8 +229,8 @@ export default function WoxsenCampusPortalPage() {
                   </div>
                 </div>
 
-                <div className="mt-5 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-blue-600">
-                  <span>Report Maintenance Issue</span>
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-blue-600">
+                  <span>Report Maintenance</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
