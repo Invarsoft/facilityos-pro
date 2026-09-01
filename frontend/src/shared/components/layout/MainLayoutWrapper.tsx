@@ -2,17 +2,14 @@
 
 import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { useApp } from '@/lib/context/AppContext';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import { AssistantDrawer } from '@/src/features/assistant/components/AssistantDrawer';
 import { MobileBottomNav } from './MobileBottomNav';
 import { WoxsenWatermark } from './WoxsenWatermark';
-import { WoxsenCampusBackground } from './WoxsenCampusBackground';
 
 export const MainLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
-  const { isAuthenticated } = useApp();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Pages where full landing or login view is rendered without sidebar:
@@ -24,9 +21,9 @@ export const MainLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
     pathname === '/login';
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors relative">
-      {/* Dynamic Background: Campus Photo when Logged In, Logo Watermark when Logged Out */}
-      {isAuthenticated ? <WoxsenCampusBackground /> : <WoxsenWatermark />}
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 transition-colors relative">
+      {/* Slightly Visible Woxsen University Logo Watermark */}
+      <WoxsenWatermark />
 
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 

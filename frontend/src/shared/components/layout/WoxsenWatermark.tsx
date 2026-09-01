@@ -8,7 +8,7 @@ export function WoxsenWatermark() {
       <img
         src="/woxsen-logo.jpg"
         alt="Woxsen University Watermark"
-        className="w-[45rem] max-w-[85vw] opacity-[0.06] dark:opacity-[0.08] dark:invert mix-blend-multiply dark:mix-blend-screen object-contain transition-opacity duration-500"
+        className="w-[48rem] max-w-[85vw] opacity-[0.07] mix-blend-multiply object-contain transition-opacity duration-500"
       />
     </div>
   );
