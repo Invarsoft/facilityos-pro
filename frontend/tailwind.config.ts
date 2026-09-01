@@ -9,7 +9,22 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: [
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "\"SF Pro Display\"",
+          "\"SF Pro Text\"",
+          "\"SF Pro\"",
+          "\"San Francisco\"",
+          "\"Helvetica Neue\"",
+          "Helvetica",
+          "Arial",
+          "sans-serif",
+        ],
+      },
+    },
   },
   plugins: [],
 } satisfies Config;
