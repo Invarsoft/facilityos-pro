@@ -36,16 +36,16 @@ export default function WoxsenCampusPortalPage() {
 
   const woxsenCampusBlocks = [
     {
-      id: 'hostel-a',
-      title: 'Hostel A (Boys Residence)',
-      subtitle: 'Rooms 101 to 450, Common Mess, Laundry Hub & Study Lounges.',
+      id: 'hostel-towers',
+      title: 'Hostel Towers T1 to T6',
+      subtitle: 'Executive Residential Towers T1, T2, T3, T4, T5, T6 — Air Conditioned Student Suites.',
       icon: Bed,
-      activeJobs: 1,
+      activeJobs: 2,
     },
     {
-      id: 'hostel-b',
-      title: 'Hostel B (Girls Residence)',
-      subtitle: 'Rooms 101 to 450, Visitor Lounge, Pantry & Recreation Area.',
+      id: 'hostel-blocks',
+      title: 'Hostel Blocks A to G',
+      subtitle: 'Student Residential Blocks A, B, C, D, E, F, G — Rooms 101 to 450, Mess & Lounges.',
       icon: Bed,
       activeJobs: 1,
     },

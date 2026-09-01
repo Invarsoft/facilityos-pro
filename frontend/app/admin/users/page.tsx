@@ -94,9 +94,8 @@ export default function UserManagementPage() {
                   >
                     <option value="student">Student / Requester</option>
                     <option value="worker">Worker / Technician</option>
-                    <option value="warden">Hostel Warden / Manager</option>
-                    <option value="admin">Woxsen Admin</option>
-                    <option value="super_admin">Super Admin</option>
+                    <option value="warden">Hostel Area Admin (Towers T1–T6 & Blocks A–G)</option>
+                    <option value="admin">Woxsen Chief Admin</option>
                   </select>
                 </td>
 

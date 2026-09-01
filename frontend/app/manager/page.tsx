@@ -14,16 +14,31 @@ import {
   CheckCircle2,
   ArrowRight,
   ShieldCheck,
+  Building2,
+  Bed,
   Search,
 } from 'lucide-react';
 
 export default function ManagerDashboardPage() {
   const { getFilteredTickets, activeOrg, activeRole, currentUser } = useApp();
-  const tickets = getFilteredTickets();
+  const allTickets = getFilteredTickets();
 
   const [selectedTicketForAssign, setSelectedTicketForAssign] = useState<Ticket | null>(null);
+  const [selectedHostelSector, setSelectedHostelSector] = useState<string>('all');
 
   const managerRoleName = getRoleDisplayName(activeRole, activeOrg.type);
+
+  // Filter tickets for Hostel Area Admin
+  const tickets = allTickets.filter((t) => {
+    if (selectedHostelSector === 'all') return true;
+    if (selectedHostelSector === 'towers') {
+      return t.building?.toLowerCase().includes('tower') || t.building?.toLowerCase().includes('t1') || t.building?.toLowerCase().includes('t2') || t.building?.toLowerCase().includes('t3') || t.building?.toLowerCase().includes('t4') || t.building?.toLowerCase().includes('t5') || t.building?.toLowerCase().includes('t6');
+    }
+    if (selectedHostelSector === 'blocks') {
+      return t.block?.toLowerCase().includes('block') || t.building?.toLowerCase().includes('block');
+    }
+    return true;
+  });
 
   const metrics = {
     newRequests: tickets.filter((t) => t.status === 'new' || t.status === 'under_review').length,
@@ -38,46 +53,87 @@ export default function ManagerDashboardPage() {
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto animate-in fade-in duration-300">
-      {/* Manager Header */}
-      <div className="p-6 md:p-8 rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-blue-950 text-white shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
+      {/* Manager Header - Dedicated Hostel Area Admin Scope */}
+      <div className="p-6 md:p-8 rounded-3xl bg-blue-900 text-white shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-blue-800">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-2xl">{activeOrg.logo}</span>
-            <span className="text-xs uppercase font-extrabold tracking-widest text-indigo-300">
-              {managerRoleName} Console
+            <span className="text-xs uppercase font-extrabold tracking-widest px-2.5 py-0.5 rounded-full bg-white/20 text-white border border-white/30">
+              Hostel Area Admin & Warden Console
             </span>
           </div>
 
-          <h1 className="text-2xl md:text-3xl font-black">{activeOrg.name} Maintenance Operations</h1>
-          <p className="text-xs text-slate-300">
-            Real-time request dispatching, technician workload balancing, and SLA intervention.
+          <h1 className="text-2xl md:text-3xl font-black">
+            Woxsen Hostel Residential Operations (Towers T1–T6 & Blocks A–G)
+          </h1>
+          <p className="text-xs text-blue-100 font-medium">
+            Dedicated administrative control over Hostel Towers T1 to T6 and Residential Blocks A to G. Real-time technician dispatching & OTP resolution.
           </p>
         </div>
 
         <Link
           href="/manager/assignments"
-          className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-extrabold text-xs shadow-lg shadow-violet-600/30"
+          className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-white text-blue-900 hover:bg-blue-50 font-black text-xs shadow-lg transition-all active:scale-95 shrink-0"
         >
-          <UserCheck className="w-4 h-4" />
+          <UserCheck className="w-4 h-4 text-blue-600" />
           <span>Worker Match Center</span>
         </Link>
       </div>
 
+      {/* Hostel Area Scope Selector (All Hostels vs Towers T1-T6 vs Blocks A-G) */}
+      <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white border border-slate-200 shadow-xs">
+        <button
+          onClick={() => setSelectedHostelSector('all')}
+          className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+            selectedHostelSector === 'all'
+              ? 'bg-blue-600 text-white shadow-md'
+              : 'text-slate-600 hover:text-blue-600'
+          }`}
+        >
+          <Bed className="w-4 h-4" />
+          <span>All Hostel Areas (T1–T6 & Blocks A–G)</span>
+        </button>
+
+        <button
+          onClick={() => setSelectedHostelSector('towers')}
+          className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+            selectedHostelSector === 'towers'
+              ? 'bg-blue-600 text-white shadow-md'
+              : 'text-slate-600 hover:text-blue-600'
+          }`}
+        >
+          <Building2 className="w-4 h-4" />
+          <span>Hostel Towers T1 – T6</span>
+        </button>
+
+        <button
+          onClick={() => setSelectedHostelSector('blocks')}
+          className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+            selectedHostelSector === 'blocks'
+              ? 'bg-blue-600 text-white shadow-md'
+              : 'text-slate-600 hover:text-blue-600'
+          }`}
+        >
+          <Bed className="w-4 h-4" />
+          <span>Hostel Blocks A – G</span>
+        </button>
+      </div>
+
       {/* Reopened Alert Banner if any! */}
       {metrics.reopened > 0 && (
-        <div className="p-4 rounded-2xl bg-rose-500/10 border-2 border-rose-500/40 text-rose-900 dark:text-rose-200 flex items-center justify-between gap-3 shadow-md animate-pulse">
+        <div className="p-4 rounded-2xl bg-blue-50 border-2 border-blue-200 text-blue-900 flex items-center justify-between gap-3 shadow-md">
           <div className="flex items-center gap-3">
-            <AlertTriangle className="w-6 h-6 text-rose-500 shrink-0" />
+            <AlertTriangle className="w-6 h-6 text-blue-600 shrink-0" />
             <div>
-              <h3 className="text-sm font-extrabold">Priority Intervention: Reopened Tickets</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-300">
-                Requesters reported unresolved issues on {metrics.reopened} ticket(s). Reassignment required.
+              <h3 className="text-sm font-extrabold">Hostel Room Intervention Required: Reopened Tickets</h3>
+              <p className="text-xs text-blue-800 font-medium">
+                Hostel residents reported unresolved issues on {metrics.reopened} room ticket(s). Reassignment required.
               </p>
             </div>
           </div>
           <Link
             href="/requests?status=reopened"
-            className="px-4 py-2 rounded-xl bg-rose-600 text-white font-bold text-xs hover:bg-rose-700 shrink-0"
+            className="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs hover:bg-blue-700 shrink-0"
           >
             Review Reopened →
           </Link>
@@ -87,92 +143,86 @@ export default function ManagerDashboardPage() {
       {/* Metric Grid Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
         {[
-          { label: 'Pending Review', count: metrics.newRequests, color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-50/50 dark:bg-purple-950/40' },
-          { label: 'Assigned', count: metrics.assigned, color: 'text-indigo-600 dark:text-indigo-400', bg: 'bg-indigo-50/50 dark:bg-indigo-950/40' },
-          { label: 'In Progress', count: metrics.inProgress, color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50/50 dark:bg-amber-950/40' },
-          { label: 'Reopened', count: metrics.reopened, color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-50/50 dark:bg-rose-950/40' },
-          { label: 'Overdue SLA', count: metrics.overdue, color: 'text-red-600 dark:text-red-400', bg: 'bg-red-50/50 dark:bg-red-950/40' },
-          { label: 'Escalated', count: metrics.escalated, color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50/50 dark:bg-orange-950/40' },
-          { label: 'Verification', count: metrics.awaitingVerification, color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-50/50 dark:bg-yellow-950/40' },
-          { label: 'Closed', count: metrics.closed, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50/50 dark:bg-emerald-950/40' },
+          { label: 'Pending Review', count: metrics.newRequests },
+          { label: 'Assigned', count: metrics.assigned },
+          { label: 'In Progress', count: metrics.inProgress },
+          { label: 'Reopened', count: metrics.reopened },
+          { label: 'Overdue SLA', count: metrics.overdue },
+          { label: 'Escalated', count: metrics.escalated },
+          { label: 'Verification', count: metrics.awaitingVerification },
+          { label: 'Closed', count: metrics.closed },
         ].map((m, i) => (
-          <div key={i} className={`p-3 rounded-2xl border border-slate-200 dark:border-slate-800 ${m.bg} flex flex-col justify-between`}>
-            <span className="text-[10px] font-semibold text-slate-500">{m.label}</span>
-            <span className={`text-xl font-black ${m.color} mt-1`}>{m.count}</span>
+          <div key={i} className="p-3 rounded-2xl border border-slate-200 bg-white shadow-xs flex flex-col justify-between">
+            <span className="text-[10px] font-bold text-slate-500">{m.label}</span>
+            <span className="text-xl font-black text-blue-600 mt-1">{m.count}</span>
           </div>
         ))}
       </div>
 
       {/* Unassigned / Pending Review Tickets Section */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-            <Clock className="w-5 h-5 text-purple-500" />
-            <span>Requests Awaiting Assignment & Review</span>
+        <div className="flex items-center justify-between bg-white px-4 py-3 rounded-2xl border border-slate-200 shadow-xs">
+          <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+            <Clock className="w-5 h-5 text-blue-600" />
+            <span>Hostel Maintenance Requests ({tickets.length})</span>
           </h2>
-          <Link href="/requests" className="text-xs font-bold text-blue-500 hover:underline">
-            View All Directory →
-          </Link>
+          <span className="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+            Hostel Area Scope Active
+          </span>
         </div>
 
-        <div className="space-y-3">
-          {tickets
-            .filter((t) => t.status === 'new' || t.status === 'under_review' || t.status === 'reopened')
-            .map((ticket) => {
-              const statusStyle = getStatusColorClass(ticket.status);
-              const priorityBadge = getPriorityBadge(ticket.priority);
+        <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xl">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
+              <tr>
+                <th className="p-4">Ticket #</th>
+                <th className="p-4">Hostel Location</th>
+                <th className="p-4">Issue Category</th>
+                <th className="p-4">Priority</th>
+                <th className="p-4">Status</th>
+                <th className="p-4">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {tickets.map((t) => {
+                const priorityBadge = getPriorityBadge(t.priority);
+                const isUnassigned = !t.assignedWorkerId;
 
-              return (
-                <div
-                  key={ticket.id}
-                  className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
-                >
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400">
-                        {ticket.id}
-                      </span>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${priorityBadge.bg} ${priorityBadge.text}`}>
+                return (
+                  <tr key={t.id} className="hover:bg-blue-50/50 transition-colors">
+                    <td className="p-4 font-mono font-bold text-blue-600">{t.id}</td>
+                    <td className="p-4">
+                      <span className="font-extrabold text-slate-900 block">{t.building || 'Hostel Tower'}</span>
+                      <span className="text-[10px] text-slate-500 font-semibold">{t.block || 'Block A'} • {t.room || 'Room 204'}</span>
+                    </td>
+                    <td className="p-4 font-bold text-slate-800">{t.serviceCategory}</td>
+                    <td className="p-4">
+                      <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${priorityBadge.bg} ${priorityBadge.text}`}>
                         {priorityBadge.label}
                       </span>
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}
+                    </td>
+                    <td className="p-4 font-extrabold text-blue-700">{formatStatusLabel(t.status)}</td>
+                    <td className="p-4">
+                      <button
+                        onClick={() => setSelectedTicketForAssign(t)}
+                        className={`px-3 py-1.5 rounded-xl font-extrabold text-xs transition-all ${
+                          isUnassigned
+                            ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-md'
+                            : 'bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100'
+                        }`}
                       >
-                        {formatStatusLabel(ticket.status)}
-                      </span>
-                    </div>
-
-                    <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">
-                      {ticket.title}
-                    </h3>
-
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Category: <strong>{ticket.serviceCategory}</strong> • Location: <strong>{ticket.building} ({ticket.room})</strong> • Requester: {ticket.requesterName}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-                    <button
-                      onClick={() => setSelectedTicketForAssign(ticket)}
-                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-extrabold text-xs shadow-md flex items-center gap-1.5"
-                    >
-                      <UserCheck className="w-3.5 h-3.5" />
-                      <span>Assign Technician</span>
-                    </button>
-                    <Link
-                      href={`/requests/${ticket.id}`}
-                      className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200"
-                    >
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
+                        {isUnassigned ? 'Assign Worker' : 'Reassign'}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
 
-      {/* AI Worker Assignment Modal */}
+      {/* AI Worker Recommend & Auto-Match Modal */}
       {selectedTicketForAssign && (
         <WorkerRecommendModal
           ticket={selectedTicketForAssign}

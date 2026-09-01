@@ -314,42 +314,62 @@ function RequestWizardContent() {
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Building</label>
-                <input
-                  type="text"
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">Hostel Tower / Building</label>
+                <select
                   value={building}
                   onChange={(e) => setBuilding(e.target.value)}
-                  className="w-full p-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100"
-                />
+                  className="w-full p-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 font-bold"
+                >
+                  <option value="Tower T1">Tower T1 (Boys Residence)</option>
+                  <option value="Tower T2">Tower T2 (Boys Residence)</option>
+                  <option value="Tower T3">Tower T3 (Boys Residence)</option>
+                  <option value="Tower T4">Tower T4 (Girls Residence)</option>
+                  <option value="Tower T5">Tower T5 (Girls Residence)</option>
+                  <option value="Tower T6">Tower T6 (Girls Residence)</option>
+                  <option value="Academic Block 1 & 2">Academic Block 1 & 2</option>
+                  <option value="Science & AI/ML Labs">Science & AI/ML Labs</option>
+                  <option value="Sports Complex">Sports Complex</option>
+                  <option value="Administrative Block">Administrative Block</option>
+                </select>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Block / Wing</label>
-                <input
-                  type="text"
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">Hostel Block / Wing</label>
+                <select
                   value={block}
                   onChange={(e) => setBlock(e.target.value)}
-                  className="w-full p-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100"
-                />
+                  className="w-full p-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 font-bold"
+                >
+                  <option value="Block A">Block A</option>
+                  <option value="Block B">Block B</option>
+                  <option value="Block C">Block C</option>
+                  <option value="Block D">Block D</option>
+                  <option value="Block E">Block E</option>
+                  <option value="Block F">Block F</option>
+                  <option value="Block G">Block G</option>
+                  <option value="Main Wing">Main Wing</option>
+                </select>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Floor</label>
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">Floor</label>
                 <input
                   type="text"
                   value={floor}
                   onChange={(e) => setFloor(e.target.value)}
-                  className="w-full p-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100"
+                  placeholder="e.g. Floor 2"
+                  className="w-full p-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 font-bold"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">Room / Unit</label>
+                <label className="block text-[11px] font-semibold text-slate-700 mb-1">Room / Unit</label>
                 <input
                   type="text"
                   value={room}
                   onChange={(e) => setRoom(e.target.value)}
-                  className="w-full p-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-slate-100 font-bold"
+                  placeholder="e.g. Room 204"
+                  className="w-full p-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 font-bold"
                 />
               </div>
             </div>
