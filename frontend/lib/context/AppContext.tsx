@@ -65,6 +65,9 @@ interface AppContextType {
   loginWithToken: (token: string, pin: string) => boolean;
   loginWithEmail: (email: string, pass: string) => boolean;
   signUpStudent: (name: string, email: string, room?: string) => UserProfile;
+  addUser: (user: UserProfile) => void;
+  updateUser: (userId: string, updates: Partial<UserProfile>) => void;
+  deleteUser: (userId: string) => void;
   updateUserRole: (userId: string, newRole: Role) => void;
   logout: () => void;
 
@@ -392,6 +395,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setUsers((prev) => [...prev, newStudent]);
     login(newStudent);
     return newStudent;
+  };
+
+  const addUser = (user: UserProfile) => {
+    setUsers((prev) => [user, ...prev]);
+  };
+
+  const updateUser = (userId: string, updates: Partial<UserProfile>) => {
+    setUsers((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, ...updates } : u))
+    );
+    if (currentUser?.id === userId) {
+      setCurrentUser((prev) => (prev ? { ...prev, ...updates } : null));
+    }
+  };
+
+  const deleteUser = (userId: string) => {
+    setUsers((prev) => prev.filter((u) => u.id !== userId));
   };
 
   const updateUserRole = (userId: string, newRole: Role) => {
@@ -1020,6 +1040,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         loginWithToken,
         loginWithEmail,
         signUpStudent,
+        addUser,
+        updateUser,
+        deleteUser,
         updateUserRole,
         logout,
 
