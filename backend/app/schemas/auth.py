@@ -28,6 +28,7 @@ class UserCreate(BaseModel):
     role: UserRole = UserRole.REQUESTER
     org_id: str | None = None  # super_admin only; defaults to creator's org
     skills: list[str] = []
+    assigned_blocks: list[str] = []
     experience_years: int = 0
     avatar_url: str | None = None
 
@@ -37,6 +38,7 @@ class UserUpdate(BaseModel):
     phone: str | None = None
     role: UserRole | None = None
     skills: list[str] | None = None
+    assigned_blocks: list[str] | None = None
     experience_years: int | None = None
     is_available: bool | None = None
     is_active: bool | None = None
@@ -53,6 +55,7 @@ class UserOut(BaseModel):
     phone: str | None
     role: UserRole
     skills: list[str]
+    assigned_blocks: list[str] = []
     experience_years: int | None
     is_available: bool
     active_load: int | None

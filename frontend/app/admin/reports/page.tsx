@@ -11,7 +11,6 @@ export default function ExportReportsPage() {
     { title: 'Monthly Operations & Request Report', desc: 'Full log of created, resolved, and reopened tickets.' },
     { title: 'SLA Compliance & Breach Analysis', desc: 'Detailed SLA response timings and breach audit log.' },
     { title: 'Technician Performance & Rating Audit', desc: 'Individual worker completion rates and average satisfaction ratings.' },
-    { title: 'Asset Maintenance & Warranty Log', desc: 'Asset condition, repair history, and scheduled preventive maintenance.' },
   ];
 
   const handleExport = (title: string, format: string) => {

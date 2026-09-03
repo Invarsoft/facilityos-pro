@@ -2,7 +2,9 @@
 
 import React, { useState } from 'react';
 import { useApp } from '@/lib/context/AppContext';
-import { Building, Building2, Bed, Layers, ChevronRight, PlusCircle, Trash2, Edit2, Sparkles } from 'lucide-react';
+import { HostelSector } from '@/lib/types';
+import { Building, Building2, Bed, Layers, ChevronRight, PlusCircle, Trash2, Edit2, Search } from 'lucide-react';
+import { ConfirmationModal } from '@/src/shared/components/ui/ConfirmationModal';
 
 interface SectorItem {
   id: string;
@@ -13,94 +15,152 @@ interface SectorItem {
   assignedWarden: string;
 }
 
+import { sortSectorsSequentially } from '@/lib/utils/sortingUtils';
+
 export default function FacilityHierarchyPage() {
-  const { activeOrg } = useApp();
+  const { activeOrg, activeRole, currentUser, users, sectors, addSector, updateSector, deleteSector } = useApp();
   const [notice, setNotice] = useState('');
+  const [search, setSearch] = useState('');
+  const [filterType, setFilterType] = useState<'all' | 'tower' | 'block'>('all');
 
-  const [sectors, setSectors] = useState<SectorItem[]>([
-    // Towers T1 to T6
-    { id: 't1', name: 'Tower T1 (Executive Boys Residence)', type: 'tower', capacity: 'Air Conditioned Student Suites', roomsCount: 400, assignedWarden: 'Dr. Rajesh Verma' },
-    { id: 't2', name: 'Tower T2 (Boys Residence)', type: 'tower', capacity: 'Standard Student Rooms', roomsCount: 400, assignedWarden: 'Dr. Rajesh Verma' },
-    { id: 't3', name: 'Tower T3 (Boys Residence)', type: 'tower', capacity: 'Standard Student Rooms', roomsCount: 400, assignedWarden: 'Unassigned' },
-    { id: 't4', name: 'Tower T4 (Executive Girls Residence)', type: 'tower', capacity: 'Air Conditioned Student Suites', roomsCount: 400, assignedWarden: 'Dr. Ananya Sharma' },
-    { id: 't5', name: 'Tower T5 (Girls Residence)', type: 'tower', capacity: 'Standard Student Rooms', roomsCount: 400, assignedWarden: 'Dr. Ananya Sharma' },
-    { id: 't6', name: 'Tower T6 (Girls Residence)', type: 'tower', capacity: 'Standard Student Rooms', roomsCount: 400, assignedWarden: 'Unassigned' },
+  const isChiefAdmin = activeRole === 'admin' || activeRole === 'super_admin' || activeRole === 'org_admin';
 
-    // Blocks A to G
-    { id: 'blk-a', name: 'Block A (Student Residence & Mess)', type: 'block', capacity: 'Rooms 101-350 & Dining Hall', roomsCount: 350, assignedWarden: 'Dr. Rajesh Verma' },
-    { id: 'blk-b', name: 'Block B (Student Residence & Laundry)', type: 'block', capacity: 'Rooms 101-350 & Laundry Hub', roomsCount: 350, assignedWarden: 'Unassigned' },
-    { id: 'blk-c', name: 'Block C (Student Residence & Study Lounge)', type: 'block', capacity: 'Rooms 101-350 & Lounge', roomsCount: 350, assignedWarden: 'Unassigned' },
-    { id: 'blk-d', name: 'Block D (Student Residence)', type: 'block', capacity: 'Rooms 101-350', roomsCount: 350, assignedWarden: 'Unassigned' },
-    { id: 'blk-e', name: 'Block E (Student Residence)', type: 'block', capacity: 'Rooms 101-350', roomsCount: 350, assignedWarden: 'Unassigned' },
-    { id: 'blk-f', name: 'Block F (Student Residence)', type: 'block', capacity: 'Rooms 101-350', roomsCount: 350, assignedWarden: 'Unassigned' },
-    { id: 'blk-g', name: 'Block G (Student Residence)', type: 'block', capacity: 'Rooms 101-350', roomsCount: 350, assignedWarden: 'Unassigned' },
-  ]);
+  // Delete Confirmation Modal State
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+
+  const filteredSectors = sortSectorsSequentially(
+    sectors.filter((sec) => {
+      // If Warden / Manager, ONLY show towers/blocks allocated to him!
+      if (!isChiefAdmin) {
+        const liveUser = users.find((u) => u.id === currentUser?.id || u.email === currentUser?.email) || currentUser;
+        const wardenName = liveUser?.name || currentUser?.name || '';
+        const assignedBlocks = liveUser?.assignedBlocks || currentUser?.assignedBlocks || [];
+        const isAssignedWarden = sec.assignedWarden && wardenName && sec.assignedWarden.toLowerCase().includes(wardenName.toLowerCase());
+        const isAssignedInBlocks = assignedBlocks.some((b) => b.toLowerCase() === sec.name.toLowerCase());
+        if (!isAssignedWarden && !isAssignedInBlocks) {
+          return false;
+        }
+      }
+
+      const matchesType = filterType === 'all' || sec.type === filterType;
+      const matchesSearch =
+        sec.name.toLowerCase().includes(search.toLowerCase()) ||
+        sec.capacity.toLowerCase().includes(search.toLowerCase()) ||
+        (sec.assignedWarden && sec.assignedWarden.toLowerCase().includes(search.toLowerCase()));
+      return matchesType && matchesSearch;
+    })
+  );
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingSector, setEditingSector] = useState<SectorItem | null>(null);
+  const [editingSector, setEditingSector] = useState<HostelSector | null>(null);
 
   // Form Fields
   const [sectorName, setSectorName] = useState('');
   const [sectorType, setSectorType] = useState<'tower' | 'block'>('tower');
-  const [capacity, setCapacity] = useState('Standard Rooms (400 Capacity)');
-  const [roomsCount, setRoomsCount] = useState(400);
+  const [floorsCount, setFloorsCount] = useState(14);
+  const [roomsPerFloor, setRoomsPerFloor] = useState(24);
+  const [occupantsPerRoom, setOccupantsPerRoom] = useState(3);
+  const [capacity, setCapacity] = useState('14 Floors • 24 Rooms/Floor • 3 Members/Room (1,008 Student Capacity)');
+  const [roomsCount, setRoomsCount] = useState(336);
   const [assignedWarden, setAssignedWarden] = useState('Dr. Rajesh Verma');
 
   const handleOpenAddModal = () => {
     setEditingSector(null);
     setSectorName('');
     setSectorType('tower');
-    setCapacity('Standard Rooms (400 Capacity)');
-    setRoomsCount(400);
+    setFloorsCount(14);
+    setRoomsPerFloor(24);
+    setOccupantsPerRoom(3);
+    setRoomsCount(336);
+    setCapacity('14 Floors • 24 Rooms/Floor • 3 Members/Room (1,008 Student Capacity)');
     setAssignedWarden('Dr. Rajesh Verma');
     setIsModalOpen(true);
   };
 
-  const handleOpenEditModal = (sec: SectorItem) => {
+  const handleOpenEditModal = (sec: HostelSector) => {
     setEditingSector(sec);
     setSectorName(sec.name);
     setSectorType(sec.type);
+    const defFloors = sec.floorsCount || (sec.name.includes('T1') ? 12 : sec.type === 'tower' ? 14 : 5);
+    const defRooms = sec.roomsPerFloor || (sec.type === 'tower' ? 24 : 20);
+    const defOccupants = sec.occupantsPerRoom || 3;
+    setFloorsCount(defFloors);
+    setRoomsPerFloor(defRooms);
+    setOccupantsPerRoom(defOccupants);
     setCapacity(sec.capacity);
-    setRoomsCount(sec.roomsCount);
-    setAssignedWarden(sec.assignedWarden);
+    setRoomsCount(sec.roomsCount || defFloors * defRooms);
+    setAssignedWarden(sec.assignedWarden || 'Unassigned');
     setIsModalOpen(true);
   };
 
   const handleDeleteSector = (id: string, name: string) => {
-    if (window.confirm(`Are you sure you want to delete ${name}? This will remove it from the hostel infrastructure grid.`)) {
-      setSectors((prev) => prev.filter((s) => s.id !== id));
-      setNotice(`Deleted ${name} from hostel infrastructure list.`);
+    setDeleteTarget({ id, name });
+  };
+
+  const handleConfirmDeleteSector = () => {
+    if (!deleteTarget) return;
+    deleteSector(deleteTarget.id);
+    setNotice(`Deleted ${deleteTarget.name} from hostel infrastructure list.`);
+    setDeleteTarget(null);
+  };
+
+  const getSectorPrefix = (name: string): string => {
+    const clean = name.trim();
+    if (clean.toLowerCase().startsWith('block ')) {
+      return clean.replace(/block\s+/i, '').trim().charAt(0).toUpperCase();
     }
+    if (clean.toLowerCase().startsWith('tower ')) {
+      const towerPart = clean.replace(/tower\s+/i, '').trim();
+      if (towerPart.toUpperCase().startsWith('T')) {
+        return towerPart.toUpperCase();
+      }
+      return `T${towerPart}`;
+    }
+    return clean.split(' ')[0] || 'T1';
   };
 
   const handleSaveSector = (e: React.FormEvent) => {
     e.preventDefault();
     if (!sectorName.trim()) {
-      alert('Please enter a sector name (e.g. Tower T7 or Block H).');
+      alert('Please enter a sector name (e.g. Tower 7 or Block H).');
       return;
     }
 
+    const calculatedRooms = floorsCount * roomsPerFloor;
+    const totalStudentCapacity = calculatedRooms * occupantsPerRoom;
+    const prefix = getSectorPrefix(sectorName);
+    const generatedFormat = `${prefix}-001 to ${prefix}-${floorsCount}${roomsPerFloor.toString().padStart(2, '0')}`;
+    const generatedCapacity = `${floorsCount} Floors • ${roomsPerFloor} Rooms/Floor • ${occupantsPerRoom} Members/Room (${totalStudentCapacity.toLocaleString()} Student Capacity | Rooms ${generatedFormat})`;
+
     if (editingSector) {
-      setSectors((prev) =>
-        prev.map((s) =>
-          s.id === editingSector.id
-            ? { ...s, name: sectorName, type: sectorType, capacity, roomsCount, assignedWarden }
-            : s
-        )
-      );
-      setNotice(`Updated hostel sector details for ${sectorName}.`);
+      updateSector(editingSector.id, {
+        name: sectorName,
+        type: sectorType,
+        capacity: generatedCapacity,
+        roomsCount: calculatedRooms,
+        floorsCount,
+        roomsPerFloor,
+        occupantsPerRoom,
+        roomFormat: generatedFormat,
+        assignedWarden,
+      });
+      setNotice(`Updated ${sectorName}: ${floorsCount} Floors x ${roomsPerFloor} Rooms x ${occupantsPerRoom} Members/Room = ${totalStudentCapacity.toLocaleString()} Student Capacity.`);
     } else {
-      const newSec: SectorItem = {
+      const newSec: HostelSector = {
         id: 'sec-' + Date.now(),
         name: sectorName,
         type: sectorType,
-        capacity,
-        roomsCount,
+        capacity: generatedCapacity,
+        roomsCount: calculatedRooms,
+        floorsCount,
+        roomsPerFloor,
+        occupantsPerRoom,
+        roomFormat: generatedFormat,
         assignedWarden,
       };
-      setSectors((prev) => [...prev, newSec]);
-      setNotice(`Added new hostel sector: ${sectorName}.`);
+      addSector(newSec);
+      setNotice(`Added new sector ${sectorName}: ${floorsCount} Floors x ${roomsPerFloor} Rooms x ${occupantsPerRoom} Members/Room = ${totalStudentCapacity.toLocaleString()} Student Capacity.`);
     }
 
     setIsModalOpen(false);
@@ -111,46 +171,91 @@ export default function FacilityHierarchyPage() {
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-            <Building2 className="w-6 h-6 text-blue-600" />
+            <Building2 className="w-6 h-6 text-red-600" />
             <span>Woxsen Hostel Sectors & Towers Management</span>
           </h1>
           <p className="text-xs text-slate-500 font-medium mt-0.5">
-            Add, edit, or delete Hostel Towers (T1–T6) & Residential Blocks (A–G) for {activeOrg.name}.
+            {isChiefAdmin
+              ? `Manage, add, edit, or remove Hostel Towers & Residential Blocks for ${activeOrg.name}.`
+              : `View your assigned Hostel Towers & Residential Blocks for ${activeOrg.name}.`}
           </p>
         </div>
 
-        <button
-          onClick={handleOpenAddModal}
-          className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs shadow-lg shadow-blue-600/30 transition-all active:scale-95"
-        >
-          <PlusCircle className="w-4 h-4" />
-          <span>Add New Tower / Block</span>
-        </button>
+        {isChiefAdmin && (
+          <button
+            onClick={handleOpenAddModal}
+            className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-lg shadow-red-600/30 transition-all active:scale-95 cursor-pointer"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>Add New Tower / Block</span>
+          </button>
+        )}
       </div>
 
       {notice && (
         <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 text-blue-900 text-xs font-bold flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-blue-600 shrink-0" />
+            <Building2 className="w-4 h-4 text-blue-600 shrink-0" />
             <span>{notice}</span>
           </div>
           <button onClick={() => setNotice('')} className="text-xs underline font-extrabold">Dismiss</button>
         </div>
       )}
 
+      {/* Search & Sector Type Filter Bar */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-xs">
+        <div className="flex items-center gap-3 w-full sm:w-auto flex-1 max-w-md">
+          <Search className="w-4 h-4 text-red-600 shrink-0" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search tower or block name (e.g. Tower 7)..."
+            className="w-full bg-transparent text-xs text-slate-900 focus:outline-none font-bold"
+          />
+        </div>
+
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-red-50 border border-red-200 w-full sm:w-auto">
+          <button
+            onClick={() => setFilterType('all')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer ${
+              filterType === 'all' ? 'bg-red-600 text-white shadow-xs' : 'text-red-900 hover:text-red-700'
+            }`}
+          >
+            All ({sectors.length})
+          </button>
+          <button
+            onClick={() => setFilterType('tower')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer ${
+              filterType === 'tower' ? 'bg-red-600 text-white shadow-xs' : 'text-red-900 hover:text-red-700'
+            }`}
+          >
+            Towers ({sectors.filter((s) => s.type === 'tower').length})
+          </button>
+          <button
+            onClick={() => setFilterType('block')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-black transition-all cursor-pointer ${
+              filterType === 'block' ? 'bg-red-600 text-white shadow-xs' : 'text-red-900 hover:text-red-700'
+            }`}
+          >
+            Blocks ({sectors.filter((s) => s.type === 'block').length})
+          </button>
+        </div>
+      </div>
+
       {/* Grid of Hostel Sectors */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {sectors.map((sec) => (
+        {filteredSectors.map((sec) => (
           <div
             key={sec.id}
-            className="p-5 rounded-3xl bg-white border border-slate-200 shadow-md flex flex-col justify-between space-y-4 hover:border-blue-500 transition-all"
+            className="p-5 rounded-3xl bg-white border border-slate-200 shadow-md flex flex-col justify-between space-y-4 hover:border-red-500 transition-all"
           >
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center font-bold">
                   {sec.type === 'tower' ? <Building2 className="w-5 h-5" /> : <Bed className="w-5 h-5" />}
                 </div>
-                <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-red-50 text-red-900 border border-red-200">
                   {sec.type === 'tower' ? 'Hostel Tower' : 'Hostel Block'}
                 </span>
               </div>
@@ -169,26 +274,34 @@ export default function FacilityHierarchyPage() {
 
               <div className="flex items-center justify-between text-slate-600 font-semibold">
                 <span>Assigned Warden:</span>
-                <span className="font-bold text-blue-600">{sec.assignedWarden}</span>
+                <span className="font-bold text-red-600">{sec.assignedWarden}</span>
               </div>
             </div>
 
             <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-              <button
-                onClick={() => handleOpenEditModal(sec)}
-                className="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs border border-blue-200 transition-all flex items-center gap-1"
-              >
-                <Edit2 className="w-3.5 h-3.5" />
-                <span>Edit</span>
-              </button>
+              {isChiefAdmin ? (
+                <>
+                  <button
+                    onClick={() => handleOpenEditModal(sec)}
+                    className="px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-700 font-bold text-xs border border-red-200 transition-all flex items-center gap-1 cursor-pointer"
+                  >
+                    <Edit2 className="w-3.5 h-3.5" />
+                    <span>Edit</span>
+                  </button>
 
-              <button
-                onClick={() => handleDeleteSector(sec.id, sec.name)}
-                className="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs border border-blue-200 transition-all flex items-center gap-1"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>Delete</span>
-              </button>
+                  <button
+                    onClick={() => handleDeleteSector(sec.id, sec.name)}
+                    className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-red-50 text-slate-600 hover:text-red-700 font-bold text-xs border border-slate-200 transition-all flex items-center gap-1 cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete</span>
+                  </button>
+                </>
+              ) : (
+                <span className="px-3 py-1 rounded-xl bg-emerald-50 text-emerald-800 font-extrabold text-xs border border-emerald-200 shadow-2xs">
+                  🛡️ Allocated Warden Scope
+                </span>
+              )}
             </div>
           </div>
         ))}
@@ -224,33 +337,77 @@ export default function FacilityHierarchyPage() {
                 <label className="block text-xs font-bold text-slate-700 mb-1">Sector Type</label>
                 <select
                   value={sectorType}
-                  onChange={(e) => setSectorType(e.target.value as 'tower' | 'block')}
+                  onChange={(e) => {
+                    const newType = e.target.value as 'tower' | 'block';
+                    setSectorType(newType);
+                    if (newType === 'tower') {
+                      setFloorsCount(14);
+                      setRoomsPerFloor(24);
+                    } else {
+                      setFloorsCount(5);
+                      setRoomsPerFloor(20);
+                    }
+                  }}
                   className="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-blue-600"
                 >
-                  <option value="tower">Hostel Tower (T1 – T12)</option>
-                  <option value="block">Residential Block (A – Z)</option>
+                  <option value="tower">Hostel Tower (T1: 12 Floors, T2+: 14 Floors)</option>
+                  <option value="block">Residential Block (5 Floors)</option>
                 </select>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Capacity & Subtitle</label>
-                <input
-                  type="text"
-                  value={capacity}
-                  onChange={(e) => setCapacity(e.target.value)}
-                  placeholder="e.g. Air Conditioned Student Suites (400 Rooms)"
-                  className="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-blue-600"
-                />
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Floors</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="50"
+                    value={floorsCount}
+                    onChange={(e) => setFloorsCount(parseInt(e.target.value) || 1)}
+                    className="w-full px-3 py-2 rounded-2xl bg-white border border-slate-300 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-blue-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Rooms/Floor</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={roomsPerFloor}
+                    onChange={(e) => setRoomsPerFloor(parseInt(e.target.value) || 1)}
+                    className="w-full px-3 py-2 rounded-2xl bg-white border border-slate-300 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-blue-600"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">Members/Room</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={occupantsPerRoom}
+                    onChange={(e) => setOccupantsPerRoom(parseInt(e.target.value) || 3)}
+                    className="w-full px-3 py-2 rounded-2xl bg-white border border-slate-300 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-blue-600"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Total Room Count</label>
-                <input
-                  type="number"
-                  value={roomsCount}
-                  onChange={(e) => setRoomsCount(parseInt(e.target.value) || 100)}
-                  className="w-full px-4 py-2.5 rounded-2xl bg-white border border-slate-300 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-blue-600"
-                />
+              <div className="p-3 rounded-2xl bg-blue-50 border border-blue-200 text-xs text-blue-900 font-bold space-y-1">
+                <div className="flex items-center justify-between">
+                  <span>Total Rooms:</span>
+                  <span className="font-extrabold text-blue-700">{floorsCount * roomsPerFloor} Rooms</span>
+                </div>
+                <div className="flex items-center justify-between text-emerald-800">
+                  <span>Total Student Capacity:</span>
+                  <span className="font-extrabold text-emerald-700">{(floorsCount * roomsPerFloor * occupantsPerRoom).toLocaleString()} Students</span>
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-blue-700 font-medium">
+                  <span>Room Range:</span>
+                  <span className="font-mono font-bold">
+                    {getSectorPrefix(sectorName)}-001 to {getSectorPrefix(sectorName)}-{floorsCount}{roomsPerFloor.toString().padStart(2, '0')}
+                  </span>
+                </div>
               </div>
 
               <div>
@@ -285,6 +442,18 @@ export default function FacilityHierarchyPage() {
           </div>
         </div>
       )}
+
+      {/* Custom Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={Boolean(deleteTarget)}
+        title="Delete Sector & Facility"
+        message={`Are you sure you want to delete ${deleteTarget?.name || 'this sector'}? This will remove it from the hostel infrastructure grid.`}
+        confirmLabel="Yes, Delete Sector"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={handleConfirmDeleteSector}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

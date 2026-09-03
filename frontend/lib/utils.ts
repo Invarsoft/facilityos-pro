@@ -98,11 +98,15 @@ export function getPriorityBadge(priority: Priority): {
 }
 
 export function getRoleDisplayName(role: string, orgType?: string, orgName?: string): string {
-  if (role === 'org_admin' || role === 'admin' || role === 'super_admin') return orgName ? `${orgName} Admin` : 'Woxsen University Admin';
+  if (role === 'org_admin' || role === 'admin' || role === 'super_admin') return orgName ? `${orgName} Chief Operations Admin` : 'Chief Operations Admin';
+  if (role === 'courier_manager') return 'Courier Desk Manager';
+  if (role === 'sports_manager') return 'Sports Area Operations Manager';
+  if (role === 'laundry_manager') return 'Hostel Laundry Operations Manager';
+  if (role === 'food_manager') return 'Canteen & Food Court Manager';
   if (role === 'warden' || (role === 'manager' && orgType === 'university')) return 'Hostel Warden';
   if (role === 'manager' && orgType === 'apartment') return 'Community Manager';
   if (role === 'manager' && orgType === 'office') return 'Facility Manager';
-  if (role === 'student') return 'Student';
+  if (role === 'student') return 'Student Resident';
   if (role === 'resident') return 'Resident';
   if (role === 'worker' || role === 'technician') return 'Technician';
   return role.charAt(0).toUpperCase() + role.slice(1);

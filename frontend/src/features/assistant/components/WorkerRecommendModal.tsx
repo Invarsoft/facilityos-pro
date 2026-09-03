@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useApp } from '@/lib/context/AppContext';
 import { Ticket, UserProfile } from '@/lib/types';
 import { UserCheck, Star, Shield, Clock, CheckCircle2, AlertCircle, X, Wrench, AlertTriangle } from 'lucide-react';
+import { ConfirmationModal } from '@/src/shared/components/ui/ConfirmationModal';
 
 interface WorkerRecommendModalProps {
   ticket: Ticket;
@@ -166,10 +167,19 @@ export const WorkerRecommendModal: React.FC<WorkerRecommendModalProps> = ({ tick
     sortedWorkers[0]?.worker.id || ''
   );
   const [assignmentNotes, setAssignmentNotes] = useState<string>('');
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  const assignedWorkerObj = rawWorkers.find((w) => w.id === selectedWorkerId);
 
   const handleAssign = () => {
     if (!selectedWorkerId) return;
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmAssignment = () => {
+    if (!selectedWorkerId) return;
     assignWorker(ticket.id, selectedWorkerId, assignmentNotes);
+    setShowConfirmModal(false);
     onClose();
   };
 
@@ -325,13 +335,25 @@ export const WorkerRecommendModal: React.FC<WorkerRecommendModalProps> = ({ tick
           <button
             onClick={handleAssign}
             disabled={!selectedWorkerId}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 disabled:opacity-50 text-white font-extrabold text-xs shadow-md flex items-center gap-1.5"
+            className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-extrabold text-xs shadow-md shadow-red-600/30 flex items-center gap-1.5 cursor-pointer"
           >
             <UserCheck className="w-4 h-4" />
             <span>Confirm Worker Assignment</span>
           </button>
         </div>
       </div>
+
+      {/* Confirmation Modal for Worker Assignment / Reassignment */}
+      <ConfirmationModal
+        isOpen={showConfirmModal}
+        title={ticket.assignedWorkerId ? "Reassign Technician to Ticket" : "Confirm Technician Assignment"}
+        message={`Are you sure you want to ${ticket.assignedWorkerId ? 'reassign' : 'assign'} ${assignedWorkerObj?.name || 'this technician'} to ticket #${ticket.id} (${ticket.title})?`}
+        confirmLabel={ticket.assignedWorkerId ? "Yes, Reassign Technician" : "Yes, Assign Technician"}
+        cancelLabel="Cancel"
+        variant="warning"
+        onConfirm={handleConfirmAssignment}
+        onCancel={() => setShowConfirmModal(false)}
+      />
     </div>
   );
 };

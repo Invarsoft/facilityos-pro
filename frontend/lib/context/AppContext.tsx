@@ -13,6 +13,7 @@ import {
   AuditLogItem,
   PreventiveMaintenanceSchedule,
   SLARule,
+  HostelSector,
 } from '../types';
 import {
   DEMO_ORGANIZATIONS,
@@ -25,7 +26,9 @@ import {
   DEMO_PREVENTIVE_SCHEDULES,
   INITIAL_NOTIFICATIONS,
   INITIAL_AUDIT_LOGS,
+  INITIAL_SECTORS,
 } from '../mockData';
+import { sortSectorsSequentially } from '../utils/sortingUtils';
 import { useAuthStore } from '@/src/features/auth/store';
 import { api } from '@/src/shared/api/client';
 import {
@@ -64,7 +67,12 @@ interface AppContextType {
   login: (user: UserProfile) => void;
   loginWithToken: (token: string, pin: string) => boolean;
   loginWithEmail: (email: string, pass: string) => boolean;
-  signUpStudent: (name: string, email: string, room?: string) => UserProfile;
+  signUpStudent: (
+    name: string,
+    email: string,
+    room?: string,
+    extraData?: Partial<UserProfile>
+  ) => UserProfile;
   addUser: (user: UserProfile) => void;
   updateUser: (userId: string, updates: Partial<UserProfile>) => void;
   deleteUser: (userId: string) => void;
@@ -105,6 +113,10 @@ interface AppContextType {
   // Facilities & Assets
   assets: Asset[];
   addAsset: (asset: Asset) => void;
+  sectors: HostelSector[];
+  addSector: (sector: HostelSector) => void;
+  updateSector: (id: string, updates: Partial<HostelSector>) => void;
+  deleteSector: (id: string) => void;
 
   // Preventive Maintenance & SLA
   preventiveSchedules: PreventiveMaintenanceSchedule[];
@@ -114,6 +126,9 @@ interface AppContextType {
   // Notifications & Audit Logs
   notifications: AppNotification[];
   markNotificationRead: (id: string) => void;
+  markAllNotificationsRead: () => void;
+  clearNotification: (id: string) => void;
+  clearAllNotifications: () => void;
   auditLogs: AuditLogItem[];
   
   // AI Assistant drawer
@@ -138,6 +153,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   
   const [tickets, setTickets] = useState<Ticket[]>(DEMO_TICKETS);
   const [assets, setAssets] = useState<Asset[]>(DEMO_ASSETS);
+  const [sectors, setSectors] = useState<HostelSector[]>(() => sortSectorsSequentially(INITIAL_SECTORS));
   const [preventiveSchedules, setPreventiveSchedules] = useState<PreventiveMaintenanceSchedule[]>(DEMO_PREVENTIVE_SCHEDULES);
   const [slaRules, setSlaRules] = useState<SLARule[]>(DEMO_SLA_RULES);
   const [notifications, setNotifications] = useState<AppNotification[]>(INITIAL_NOTIFICATIONS);
@@ -219,6 +235,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      let loadedUsers = DEMO_USERS;
+      const savedUsers = localStorage.getItem('facilityos_users');
+      if (savedUsers) {
+        try {
+          loadedUsers = JSON.parse(savedUsers);
+          setUsers(loadedUsers);
+        } catch (e) {
+          console.error('Failed to parse saved users', e);
+        }
+      }
+
+      const savedSectors = localStorage.getItem('facilityos_sectors');
+      if (savedSectors) {
+        try {
+          setSectors(sortSectorsSequentially(JSON.parse(savedSectors)));
+        } catch (e) {
+          console.error('Failed to parse saved sectors', e);
+        }
+      }
+
       const savedTickets = localStorage.getItem('facilityos_tickets');
       if (savedTickets) {
         try {
@@ -227,13 +263,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           console.error('Failed to parse saved tickets', e);
         }
       }
+
       const savedAuth = localStorage.getItem('facilityos_auth');
       if (savedAuth) {
         try {
           const authData = JSON.parse(savedAuth);
           setIsAuthenticated(authData.isAuthenticated);
-          setCurrentUser(authData.currentUser);
-          if (authData.currentUser) setActiveRoleState(authData.currentUser.role);
+          let userObj = authData.currentUser;
+          if (userObj) {
+            // Live sync userObj with the updated user record from loadedUsers!
+            const matchedLiveUser = loadedUsers.find((u) => u.id === userObj.id || u.email === userObj.email);
+            if (matchedLiveUser) {
+              userObj = matchedLiveUser;
+            }
+          }
+          setCurrentUser(userObj);
+          if (userObj) setActiveRoleState(userObj.role);
         } catch (e) {
           console.error('Failed to parse auth state', e);
         }
@@ -367,27 +412,47 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const loginWithEmail = (emailInput: string, passInput: string): boolean => {
-    const matchedUser =
-      users.find((u) => u.email.toLowerCase() === emailInput.toLowerCase()) || users[0];
+    const cleanEmail = emailInput.trim().toLowerCase();
+    
+    // Strict @woxsen.edu.in domain enforcement
+    const isValidDomain = cleanEmail.endsWith('@woxsen.edu.in') || cleanEmail.endsWith('@university.edu');
+    if (!isValidDomain) {
+      return false;
+    }
 
+    const matchedUser = users.find((u) => u.email.toLowerCase() === cleanEmail);
     if (matchedUser) {
       login(matchedUser);
       return true;
     }
-    return false;
+
+    // Auto-register student if domain is valid @woxsen.edu.in
+    const studentName = cleanEmail.split('@')[0].replace(/\./g, ' ');
+    const newStudent = signUpStudent(studentName, cleanEmail);
+    return true;
   };
 
-  const signUpStudent = (name: string, email: string, room?: string): UserProfile => {
+  const signUpStudent = (
+    name: string,
+    email: string,
+    room?: string,
+    extraData?: Partial<UserProfile>
+  ): UserProfile => {
     const newStudent: UserProfile = {
       id: 'user-student-' + Date.now(),
       orgId: 'woxsen-university',
       name: name.trim() || 'New Woxsen Student',
       email: email.trim() || 'student@woxsen.edu.in',
-      phone: '+91 98000 ' + Math.floor(10005 + Math.random() * 89999),
+      phone: extraData?.phone || '+91 98000 ' + Math.floor(10005 + Math.random() * 89999),
       role: 'student',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      department: 'Woxsen Student',
-      roomOrUnit: room?.trim() || 'Hostel A - Room 101',
+      department: extraData?.courseSection || 'Woxsen Student',
+      building: extraData?.building || 'Hostel B',
+      roomOrUnit: room?.trim() || extraData?.roomOrUnit || 'Hostel B - Room 204',
+      rollNo: extraData?.rollNo || 'WOX-2026-84920',
+      admissionNo: extraData?.admissionNo || '58492',
+      courseSection: extraData?.courseSection || 'B.Tech CSE - Sec A',
+      approvalStatus: 'PENDING_WARDEN_APPROVAL',
       accessTokenNo: `WOX-${Math.floor(1000 + Math.random() * 9000)}-T`,
       accessPin: '2026',
     };
@@ -402,11 +467,57 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const updateUser = (userId: string, updates: Partial<UserProfile>) => {
-    setUsers((prev) =>
-      prev.map((u) => (u.id === userId ? { ...u, ...updates } : u))
-    );
-    if (currentUser?.id === userId) {
-      setCurrentUser((prev) => (prev ? { ...prev, ...updates } : null));
+    const targetUser = users.find((u) => u.id === userId || u.email === userId);
+    const targetId = targetUser?.id || userId;
+
+    let updatedUserObj: UserProfile | null = null;
+
+    setUsers((prevUsers) => {
+      const nextUsers = prevUsers.map((u) => {
+        if (u.id === targetId || u.id === userId || (targetUser && u.email === targetUser.email)) {
+          const updated = { ...u, ...updates };
+          updatedUserObj = updated;
+          return updated;
+        }
+        return u;
+      });
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('facilityos_users', JSON.stringify(nextUsers));
+      }
+      return nextUsers;
+    });
+
+    if (currentUser?.id === targetId || currentUser?.id === userId || (targetUser && currentUser?.email === targetUser.email)) {
+      setCurrentUser((prev) => {
+        const nextUser = prev ? { ...prev, ...updates } : updatedUserObj;
+        if (typeof window !== 'undefined' && nextUser) {
+          const authData = { isAuthenticated: true, currentUser: nextUser };
+          localStorage.setItem('facilityos_auth', JSON.stringify(authData));
+        }
+        return nextUser;
+      });
+    }
+
+    // Two-Way Sync: If a Warden's assignedBlocks is updated, sync sectors state!
+    if (updates.assignedBlocks !== undefined) {
+      const wardenName = updates.name || targetUser?.name || currentUser?.name || '';
+      const newBlocks = updates.assignedBlocks;
+
+      setSectors((prevSectors) => {
+        const updatedSectors = prevSectors.map((sec) => {
+          const isAssignedToThisWarden = newBlocks.includes(sec.name);
+          if (isAssignedToThisWarden) {
+            return { ...sec, assignedWarden: wardenName };
+          } else if (sec.assignedWarden === wardenName || (wardenName && sec.assignedWarden?.toLowerCase().includes(wardenName.toLowerCase()))) {
+            return { ...sec, assignedWarden: 'Unassigned' };
+          }
+          return sec;
+        });
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('facilityos_sectors', JSON.stringify(updatedSectors));
+        }
+        return sortSectorsSequentially(updatedSectors);
+      });
     }
   };
 
@@ -505,7 +616,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (activeOrg.id === 'global-facilityos-all' || (activeRole === 'super_admin' && activeOrg.id === 'global-facilityos-all')) {
       return tickets;
     }
-    return tickets.filter((t) => t.orgId === activeOrg.id);
+
+    const orgTickets = tickets.filter((t) => t.orgId === activeOrg.id);
+
+    // Student / Resident Scope: ONLY return complaints filed by this specific student!
+    const isStudent = activeRole === 'student' || activeRole === 'resident';
+    if (isStudent && currentUser) {
+      const studentName = currentUser.name.toLowerCase();
+      const studentEmail = (currentUser.email || '').toLowerCase();
+      const studentId = currentUser.id;
+
+      return orgTickets.filter(
+        (t) =>
+          t.requesterId === studentId ||
+          (t.requesterName && t.requesterName.toLowerCase() === studentName) ||
+          (t.requesterContact && studentEmail && t.requesterContact.toLowerCase().includes(studentEmail))
+      );
+    }
+
+    return orgTickets;
   };
 
   const getTicketById = (id: string) => {
@@ -532,6 +661,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const ticketId = `FOS-2026-${ticketSeq}`;
     
     const categoryObj = ALL_SERVICE_CATEGORIES.find((s) => s.id === data.serviceId);
+    const reqBlock = data.block || 'Block A';
+    const reqBuilding = data.building || 'Main Building';
+
+    // Automatic Block Warden Routing: find warden whose assignedBlocks includes the requested block or building
+    const matchedWarden = users.find(
+      (u) =>
+        u.role === 'warden' &&
+        u.assignedBlocks &&
+        u.assignedBlocks.some(
+          (b) =>
+            b.toLowerCase().includes(reqBlock.toLowerCase()) ||
+            b.toLowerCase().includes(reqBuilding.toLowerCase()) ||
+            reqBlock.toLowerCase().includes(b.toLowerCase()) ||
+            reqBuilding.toLowerCase().includes(b.toLowerCase())
+        )
+    ) || users.find((u) => u.role === 'warden');
 
     const newTicket: Ticket = {
       id: ticketId,
@@ -543,8 +688,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       priority: data.priority || 'normal',
       status: 'new',
       location: data.location || 'Main Campus',
-      building: data.building || 'Main Building',
-      block: data.block || 'Block A',
+      building: reqBuilding,
+      block: reqBlock,
       floor: data.floor || 'Floor 1',
       room: data.room || 'Room 101',
       assetId: data.assetId,
@@ -554,6 +699,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       requesterName: currentUser?.name || 'Aarav Sharma',
       requesterRole: currentUser?.role || 'student',
       requesterContact: currentUser?.phone || currentUser?.email || '+91 98765 43210',
+
+      studentRollNo: currentUser?.rollNo || 'WOX-2026-84920',
+      studentAdmissionNo: currentUser?.admissionNo || '58492',
+      studentCourseSection: currentUser?.courseSection || 'B.Tech CSE - Sec A',
+
+      assignedWardenId: matchedWarden?.id,
+      assignedWardenName: matchedWarden?.name,
 
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -575,7 +727,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           actorRole: currentUser?.role || 'student',
           actorAvatar: currentUser?.avatar,
           action: 'Service Request Created',
-          notes: 'Ticket submitted via FacilityOS Wizard',
+          notes: matchedWarden 
+            ? `Ticket submitted & automatically dispatched to Block Warden ${matchedWarden.name} for ${reqBlock} / ${reqBuilding}` 
+            : 'Ticket submitted via FacilityOS Wizard',
           newStatus: 'new',
         },
       ],
@@ -584,13 +738,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
 
     saveTickets([newTicket, ...tickets]);
-    addAuditLog(currentUser?.name || 'Requester', 'Created Ticket ' + ticketId, `Service: ${newTicket.serviceCategory}`, ticketId);
+    addAuditLog(
+      currentUser?.name || 'Requester',
+      'Created Ticket ' + ticketId,
+      `Service: ${newTicket.serviceCategory} | Location: ${reqBuilding} (${reqBlock}) | Warden: ${matchedWarden?.name || 'Unassigned'}`,
+      ticketId
+    );
     addNotification(
-      'Service Request Created',
-      `Your request ${ticketId} has been created and is under manager review.`,
+      'Service Request Created & Dispatched',
+      `Your request ${ticketId} in ${reqBlock} has been registered and routed to Block Warden ${matchedWarden?.name || 'Woxsen Ops'}.`,
       'ticket',
       ticketId
     );
+
+    if (matchedWarden) {
+      addNotification(
+        `New Complaint Registered in ${reqBlock}`,
+        `Complaint #${ticketId} (${newTicket.title}) was registered in your assigned sector [${reqBlock}]. Please assign to a worker.`,
+        'ticket',
+        ticketId
+      );
+    }
 
     return newTicket;
   };
@@ -994,6 +1162,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const markAllNotificationsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
+
+  const clearNotification = (id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  };
+
+  const clearAllNotifications = () => {
+    setNotifications([]);
+  };
+
   // Fetch immutable timeline events + comments for the ticket detail page
   const loadTicketDetail = async (id: string) => {
     if (!serverMode) return;
@@ -1010,10 +1190,65 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch { /* non-fatal — page still renders base ticket */ }
   };
 
+  const saveSectors = (updated: HostelSector[]) => {
+    const sorted = sortSectorsSequentially(updated);
+    setSectors(sorted);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('facilityos_sectors', JSON.stringify(sorted));
+    }
+  };
+
+  const addSector = (sec: HostelSector) => {
+    saveSectors([...sectors, sec]);
+  };
+
+  const updateSector = (id: string, updates: Partial<HostelSector>) => {
+    const targetSector = sectors.find((s) => s.id === id);
+    const updatedSectors = sectors.map((s) => (s.id === id ? { ...s, ...updates } : s));
+    saveSectors(updatedSectors);
+
+    // Two-Way Sync: If assignedWarden changed, update the Warden's assignedBlocks array in users!
+    if (targetSector && updates.assignedWarden !== undefined && updates.assignedWarden !== targetSector.assignedWarden) {
+      const newWardenName = updates.assignedWarden;
+      const oldWardenName = targetSector.assignedWarden;
+      const sectorName = updates.name || targetSector.name;
+
+      setUsers((prevUsers) =>
+        prevUsers.map((u) => {
+          if (newWardenName !== 'Unassigned' && (u.name === newWardenName || newWardenName.includes(u.name))) {
+            const currentBlocks = u.assignedBlocks || [];
+            const newBlocks = Array.from(new Set([...currentBlocks, sectorName]));
+            return {
+              ...u,
+              assignedBlocks: newBlocks,
+              department: `Assigned: ${newBlocks.join(', ')}`,
+            };
+          }
+          if (oldWardenName && oldWardenName !== 'Unassigned' && (u.name === oldWardenName || oldWardenName.includes(u.name))) {
+            const currentBlocks = u.assignedBlocks || [];
+            const newBlocks = currentBlocks.filter((b) => b !== sectorName);
+            return {
+              ...u,
+              assignedBlocks: newBlocks,
+              department: newBlocks.length > 0 ? `Assigned: ${newBlocks.join(', ')}` : 'Hostel Operations',
+            };
+          }
+          return u;
+        })
+      );
+    }
+  };
+
+  const deleteSector = (id: string) => {
+    saveSectors(sectors.filter((s) => s.id !== id));
+  };
+
   const resetDemoData = () => {
     setTickets(DEMO_TICKETS);
+    setSectors(INITIAL_SECTORS);
     if (typeof window !== 'undefined') {
       localStorage.removeItem('facilityos_tickets');
+      localStorage.removeItem('facilityos_sectors');
       localStorage.removeItem('facilityos_auth');
     }
   };
@@ -1064,6 +1299,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         assets,
         addAsset,
+        sectors,
+        addSector,
+        updateSector,
+        deleteSector,
 
         preventiveSchedules,
         addPreventiveSchedule,
@@ -1071,6 +1310,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         notifications,
         markNotificationRead,
+        markAllNotificationsRead,
+        clearNotification,
+        clearAllNotifications,
         auditLogs,
 
         aiDrawerOpen,

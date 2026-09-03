@@ -51,6 +51,7 @@ async def create_user(db: DB, org_id: OrgId, body: UserCreate, actor: CurrentUse
         phone=body.phone,
         role=body.role.value,
         skills=body.skills,
+        assigned_blocks=body.assigned_blocks,
         experience_years=body.experience_years,
         avatar_url=body.avatar_url,
         org_id=None if body.role == UserRole.SUPER_ADMIN else target_org,

@@ -24,8 +24,9 @@ class User(Base):
     phone: Mapped[str | None] = mapped_column(String(50))
     role: Mapped[str] = mapped_column(String(30), nullable=False, default=UserRole.REQUESTER)
 
-    # worker-specific fields (Facos Match skill scoring)
+    # worker & warden fields
     skills: Mapped[list] = mapped_column(JSON, default=list)
+    assigned_blocks: Mapped[list] = mapped_column(JSON, default=list)
     experience_years: Mapped[int | None] = mapped_column(default=0)
     is_available: Mapped[bool] = mapped_column(Boolean, default=True)
     active_load: Mapped[int | None] = mapped_column(default=0)  # open assigned tickets

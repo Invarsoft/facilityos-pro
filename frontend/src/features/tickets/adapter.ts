@@ -164,6 +164,7 @@ export interface ApiUser {
   full_name: string;
   role: string;
   skills: string[] | null;
+  assigned_blocks?: string[] | null;
   rating: number | null;
   active_load: number | null;
   completed_jobs: number | null;
@@ -180,6 +181,7 @@ export function mapApiUser(u: ApiUser) {
     role: (ROLE_BY_APP_ROLE[u.role] ?? "student") as Role,
     avatar: u.avatar_url || "",
     skills: u.skills ?? [],
+    assignedBlocks: u.assigned_blocks ?? [],
     rating: u.rating ?? undefined,
     totalJobsCompleted: u.completed_jobs ?? 0,
     currentWorkload: u.active_load ?? 0,

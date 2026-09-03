@@ -7,6 +7,10 @@ export type Role =
   | 'technician'
   | 'warden'
   | 'manager'
+  | 'courier_manager'
+  | 'sports_manager'
+  | 'laundry_manager'
+  | 'food_manager'
   | 'org_admin'
   | 'admin'
   | 'super_admin';
@@ -66,6 +70,8 @@ export interface Organization {
   enabledServiceIds: string[];
 }
 
+export type AccessTokenType = 'permanent' | 'temporary';
+
 export interface UserProfile {
   id: string;
   orgId: string;
@@ -77,13 +83,108 @@ export interface UserProfile {
   department?: string;
   building?: string;
   roomOrUnit?: string;
+  assignedBlocks?: string[]; // Multiple assigned hostel blocks / towers
   accessTokenNo?: string;
   accessPin?: string;
+  tokenType?: AccessTokenType; // 'permanent' | 'temporary'
+  tokenExpiresAt?: string; // ISO string e.g. "2026-09-08T15:48:00.000Z"
+  isContractor?: boolean;
   skills?: string[]; // for workers
   rating?: number; // for workers
   totalJobsCompleted?: number;
   currentWorkload?: number;
   isAvailable?: boolean;
+
+  // Student Specific & Warden Approval Fields
+  rollNo?: string;        // e.g. "WOX-2026-84920"
+  admissionNo?: string;   // 5-digit e.g. "58492"
+  courseSection?: string; // e.g. "B.Tech CSE - Sec A"
+  approvalStatus?: 'PENDING_WARDEN_APPROVAL' | 'ACTIVE' | 'REJECTED';
+}
+
+export interface RoomChangeRequest {
+  id: string;
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  currentRoom: string;
+  requestedTower: string;
+  requestedFloor: number;
+  requestedRoom: string;
+  reason: string;
+  status: 'PENDING_WARDEN_APPROVAL' | 'APPROVED' | 'REJECTED';
+  rejectionReason?: string;
+  createdAt: string;
+  approvedBy?: string;
+}
+
+export interface RoomTransferHistory {
+  id: string;
+  studentId: string;
+  studentName: string;
+  previousRoom: string;
+  newRoom: string;
+  reason: string;
+  approvedBy: string;
+  timestamp: string;
+}
+
+export interface MasterIncident {
+  id: string;
+  title: string;
+  category: string;
+  building: string;
+  floor: string;
+  affectedRooms: string[];
+  complaintCount: number;
+  status: 'active' | 'resolved';
+  possibleRootCause: string;
+  recommendedAction: string;
+}
+
+export interface FoodOrder {
+  id: string;
+  studentName: string;
+  studentRoom: string;
+  items: string[];
+  totalAmount: number;
+  outletId: string;
+  outletName: string;
+  tokenCode: string;
+  status: 'ordered' | 'preparing' | 'ready' | 'collected';
+  orderedAt: string;
+  paymentStatus?: 'PAID_ONLINE' | 'PAY_AT_COUNTER';
+}
+
+export interface LaundryBooking {
+  id: string;
+  studentName: string;
+  studentRoom: string;
+  clothesCount: number;
+  weightKg?: number;
+  washType?: 'Express Wash' | 'Heavy Wash' | 'Dry Cleaning' | 'Steam Ironing';
+  washerBay: string;
+  laundryBarcode?: string;
+  status: 'scheduled' | 'in_wash' | 'drying' | 'ready_for_pickup' | 'collected';
+  scheduledTime: string;
+}
+
+export interface HostelGateMovement {
+  id: string;
+  studentId: string;
+  studentName: string;
+  studentRollNo: string;
+  studentPhone: string;
+  studentRoom: string;
+  outingType: 'Day Outing' | 'Night Outing' | 'Home Leave';
+  destination: string;
+  reason: string;
+  exitTime: string;
+  expectedReturnTime: string;
+  actualReturnTime?: string;
+  passcode: string;
+  status: 'inside_campus' | 'checked_out' | 'checked_in' | 'overdue_breach';
+  approvedByWarden?: string;
 }
 
 export interface TicketTimelineItem {
@@ -135,6 +236,14 @@ export interface Ticket {
   requesterRole: Role;
   requesterContact: string;
 
+  // Student Details
+  studentRollNo?: string;
+  studentAdmissionNo?: string; // 5-digit
+  studentCourseSection?: string;
+
+  assignedWardenId?: string;
+  assignedWardenName?: string;
+
   assignedWorkerId?: string;
   assignedWorkerName?: string;
   assignedWorkerAvatar?: string;
@@ -172,6 +281,19 @@ export interface Ticket {
   timeline: TicketTimelineItem[];
   comments: TicketComment[];
   isEmergency?: boolean;
+}
+
+export interface HostelSector {
+  id: string;
+  name: string;
+  type: 'tower' | 'block';
+  capacity: string;
+  roomsCount: number;
+  floorsCount?: number;
+  roomsPerFloor?: number;
+  occupantsPerRoom?: number;
+  roomFormat?: string;
+  assignedWarden?: string;
 }
 
 export interface Asset {

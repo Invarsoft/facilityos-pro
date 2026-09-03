@@ -66,7 +66,9 @@ export default function TicketDetailsPage() {
 
   const isRequester = activeRole === 'student' || activeRole === 'resident' || activeRole === 'employee' || activeRole === 'staff';
   const isAssignedWorker = activeRole === 'worker' || activeRole === 'technician';
-  const isManager = activeRole === 'warden' || activeRole === 'manager' || activeRole === 'admin';
+  const isAdmin = activeRole === 'admin' || activeRole === 'org_admin' || activeRole === 'super_admin';
+  const isWarden = activeRole === 'warden' || activeRole === 'manager';
+  const isManager = isWarden || isAdmin;
 
   const handleSendComment = (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,9 +83,7 @@ export default function TicketDetailsPage() {
 
   const timelineSteps = [
     { label: 'Request Created', status: 'new' },
-    { label: 'Under Review', status: 'under_review' },
     { label: 'Worker Assigned', status: 'assigned' },
-    { label: 'Job Accepted', status: 'accepted' },
     { label: 'Work In Progress', status: 'in_progress' },
     { label: 'Work Completed', status: 'completed' },
     { label: 'Awaiting Verification', status: 'awaiting_verification' },
@@ -91,13 +91,11 @@ export default function TicketDetailsPage() {
   ];
 
   const getStepIndex = (status: string) => {
-    if (status === 'closed' || status === 'resolved') return 7;
-    if (status === 'awaiting_verification') return 6;
-    if (status === 'completed') return 5;
-    if (status === 'in_progress') return 4;
-    if (status === 'accepted') return 3;
-    if (status === 'assigned') return 2;
-    if (status === 'under_review') return 1;
+    if (status === 'closed' || status === 'resolved') return 5;
+    if (status === 'awaiting_verification') return 4;
+    if (status === 'completed') return 3;
+    if (status === 'in_progress' || status === 'accepted') return 2;
+    if (status === 'assigned') return 1;
     return 0;
   };
 
@@ -170,44 +168,45 @@ export default function TicketDetailsPage() {
               </p>
             </div>
 
-            {isRequester ? (
+            {isRequester && (
               <button
                 onClick={() => setVerificationModalOpen(true)}
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-slate-950 font-black text-xs shadow-md shrink-0 animate-pulse"
+                className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-md shadow-red-600/30 shrink-0 cursor-pointer"
               >
                 Verify Resolution Now (YES / NO)
-              </button>
-            ) : (
-              <button
-                onClick={handleSwitchToStudentRole}
-                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shrink-0 flex items-center gap-1.5"
-              >
-                <User className="w-3.5 h-3.5" />
-                <span>Switch to Student Role to Approve (YES/NO)</span>
               </button>
             )}
           </div>
         )}
 
-        {/* Manager Action Bar */}
+        {/* Manager & Admin Action Bar */}
         {isManager && ticket.status !== 'closed' && (
           <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center gap-3 flex-wrap">
             <button
               onClick={() => setAssignmentModalOpen(true)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-bold text-xs shadow-md shadow-violet-600/20"
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-md shadow-red-600/30 cursor-pointer"
             >
               <UserCheck className="w-4 h-4" />
               <span>Assign / Reassign Worker (AI Match)</span>
             </button>
 
-            {ticket.status !== 'escalated' && (
+            {/* Warden Escalation Button: Only Wardens/Managers can escalate to Chief Admin */}
+            {!isAdmin && ticket.status !== 'escalated' && (
               <button
                 onClick={() => escalateTicket(ticket.id, 2)}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md shadow-rose-600/20"
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs shadow-md cursor-pointer border border-slate-800"
               >
-                <AlertTriangle className="w-4 h-4" />
-                <span>Escalate to Admin</span>
+                <AlertTriangle className="w-4 h-4 text-red-500" />
+                <span>Escalate to Chief Admin</span>
               </button>
+            )}
+
+            {/* Escalated Status Indicator: Chief Admin is the final authority tier */}
+            {ticket.status === 'escalated' && (
+              <span className="px-3 py-1.5 rounded-xl bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-200 font-extrabold text-xs border border-rose-200 dark:border-rose-800 flex items-center gap-1.5">
+                <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
+                <span>Escalated to Chief Admin — Final Tier Review</span>
+              </span>
             )}
           </div>
         )}
@@ -241,7 +240,7 @@ export default function TicketDetailsPage() {
           Visual Service Lifecycle
         </h2>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
           {timelineSteps.map((stepItem, idx) => {
             const isCompleted = idx <= currentStepIdx;
             const isCurrent = idx === currentStepIdx;
