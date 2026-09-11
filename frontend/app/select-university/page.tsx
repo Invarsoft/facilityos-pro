@@ -8,9 +8,7 @@ import {
   Search,
   X,
   ChevronRight,
-  Moon,
   LogIn,
-  GraduationCap,
 } from 'lucide-react';
 
 export default function SelectUniversityGatewayPage() {
@@ -92,16 +90,8 @@ export default function SelectUniversityGatewayPage() {
           </div>
         </Link>
 
-        {/* RIGHT CONTROLS */}
+        {/* RIGHT CONTROLS: SIGN IN ONLY (MOON SYMBOL REMOVED) */}
         <div className="flex items-center gap-4">
-          <button
-            type="button"
-            className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white hover:border-slate-700 transition-all cursor-pointer"
-            title="Toggle theme"
-          >
-            <Moon className="w-4 h-4" />
-          </button>
-
           <Link
             href="/login"
             className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs shadow-lg shadow-blue-600/30 flex items-center gap-2 transition-all cursor-pointer active:scale-95"
