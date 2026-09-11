@@ -24,6 +24,8 @@ import {
   MapPin,
   Truck,
   AlertTriangle,
+  ChevronRight,
+  Search,
 } from 'lucide-react';
 
 export default function WoxsenCampusPortalPage() {
@@ -55,10 +57,22 @@ export default function WoxsenCampusPortalPage() {
   const awaitingCount = tickets.filter((t) => t.status === 'awaiting_verification').length;
 
   const [subCategoryModalOpen, setSubCategoryModalOpen] = useState(false);
+  const [selectedAmenityFilter, setSelectedAmenityFilter] = useState('all');
 
   // Demo Courier & Sports Data for Student Dashboard
   const demoCourierCount = 2;
   const demoSportsBookingsCount = 2;
+
+  // Amenity Quick Select Data
+  const campusAmenities = [
+    { id: 'maintenance', title: 'Hostel Maintenance', category: 'Maintenance', icon: '🛠️', bg: 'bg-red-50 text-red-600 border-red-200', href: '/requests/new', badge: `${activeTicketsCount} Active`, desc: 'Plumbing, Electrical, AC, Carpentry & Housekeeping' },
+    { id: 'food', title: 'Food Court & Canteen', category: 'Dining', icon: '🍔', bg: 'bg-amber-50 text-amber-600 border-amber-200', href: '/food', badge: 'Live Kitchen Tokens', desc: 'Order from Rise Live, Rise Ready, Blue Embers & Night Canteen' },
+    { id: 'laundry', title: 'Hostel Laundry Hub', category: 'Laundry', icon: '🧺', bg: 'bg-blue-50 text-blue-600 border-blue-200', href: '/laundry', badge: 'Washer Bays', desc: 'Book washer slots, steam pressing & dry cleaning status' },
+    { id: 'sports', title: 'Sports Arena Court Booking', category: 'Sports', icon: '⚽', bg: 'bg-emerald-50 text-emerald-600 border-emerald-200', href: '/sports', badge: 'Floodlit Arena', desc: 'Book Badminton, Tennis, Football Turf & Basketball courts' },
+    { id: 'courier', title: 'Courier Mailroom', category: 'Mailroom', icon: '📦', bg: 'bg-indigo-50 text-indigo-600 border-indigo-200', href: '/courier', badge: `${demoCourierCount} Arrived`, desc: 'Amazon, Flipkart packages & 4-digit pickup OTPs' },
+    { id: 'study', title: 'Quiet Study Pods & Suites', category: 'Study', icon: '📖', bg: 'bg-violet-50 text-violet-600 border-violet-200', href: '/amenities', badge: 'Silent Pods', desc: 'Reserve quiet study pods, discussion suites & music studio' },
+    { id: 'outing', title: 'Outing & Gate Pass', category: 'Gate Pass', icon: '🚪', bg: 'bg-rose-50 text-rose-600 border-rose-200', href: '/outing', badge: 'QR Gate Pass', desc: 'Generate campus exit/entry passcodes & digital QR passes' },
+  ];
 
   // =======================================================================
   // VIEW 1: UNAUTHENTICATED VIEW (UNIFIED WOXSEN AUTH CARD)
@@ -95,13 +109,13 @@ export default function WoxsenCampusPortalPage() {
   }
 
   // =======================================================================
-  // VIEW 2: AUTHENTICATED MODERN STUDENT/USER DASHBOARD
+  // VIEW 2: AUTHENTICATED STUDENT DASHBOARD WITH AMENITY SELECTION
   // =======================================================================
   return (
     <div className="py-4 sm:py-6 px-3.5 sm:px-6 max-w-5xl mx-auto space-y-6 animate-in fade-in duration-300 relative z-10">
       
       {/* 1. COMPACT ELEGANT USER GREETING HEADER */}
-      <div className="p-5 sm:p-6 rounded-3xl bg-white border border-slate-200 shadow-xl space-y-1">
+      <div className="p-5 sm:p-6 rounded-3xl bg-white border border-slate-200 shadow-xl space-y-2">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="px-3 py-0.5 rounded-full bg-red-100 text-red-800 text-[10px] font-black uppercase tracking-wider">
             {activeRole.toUpperCase()} PORTAL
@@ -114,12 +128,24 @@ export default function WoxsenCampusPortalPage() {
           )}
         </div>
 
-        <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-          Welcome back, {currentUser?.name?.split(' ')[0] || 'Aarav'} 👋
-        </h1>
-        <p className="text-xs text-slate-500 font-semibold">
-          Campus service desk, arrived courier packages & sports court bookings.
-        </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              Welcome back, {currentUser?.name?.split(' ')[0] || 'Aarav'} 👋
+            </h1>
+            <p className="text-xs text-slate-500 font-semibold">
+              Select any campus amenity below to raise requests, order food, or reserve court slots.
+            </p>
+          </div>
+
+          <button
+            onClick={() => router.push('/select-facility')}
+            className="px-4 py-2 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-xs font-black shadow-md flex items-center gap-2 shrink-0 transition-all cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>Select Campus Amenity</span>
+          </button>
+        </div>
       </div>
 
       {/* 2. ALERT BANNER: AWAITING OTP VERIFICATION */}
@@ -148,223 +174,56 @@ export default function WoxsenCampusPortalPage() {
         </div>
       )}
 
-      {/* 2. CAMPUS SERVICE & BOOKING DESKS HEADER */}
-      <div className="space-y-3">
+      {/* 3. INTERACTIVE "SELECT AMENITY" SECTION (RIGHT ON FIRST PAGE) */}
+      <div className="space-y-4">
         <div className="flex items-center justify-between px-1">
           <h2 className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
             <Sparkles className="w-4 h-4 text-red-600" />
-            <span>Campus Service & Booking Desks</span>
+            <span>Select Campus Amenity / Service Desk</span>
           </h2>
           <span className="text-[10px] font-bold text-red-700 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-200">
-            7 Service Desks
+            7 Campus Desks Available
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
-          
-          {/* BOX 1: HOSTEL ROOM MAINTENANCE */}
-          <div
-            onClick={() => setSubCategoryModalOpen(true)}
-            className="aspect-square p-4 sm:p-5 rounded-3xl bg-white border-2 border-slate-200 hover:border-red-600 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group cursor-pointer"
-          >
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center font-black text-xl sm:text-2xl group-hover:scale-110 transition-transform shadow-xs">
-                🛠️
+        {/* QUICK AMENITY SELECTION GRID */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          {campusAmenities.map((item) => (
+            <div
+              key={item.id}
+              onClick={() => {
+                if (item.id === 'maintenance') {
+                  setSubCategoryModalOpen(true);
+                } else {
+                  router.push(item.href);
+                }
+              }}
+              className="p-4 rounded-3xl bg-white border-2 border-slate-200 hover:border-red-600 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group cursor-pointer space-y-3"
+            >
+              <div className="flex items-center justify-between">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-2xl group-hover:scale-110 transition-transform shadow-xs border ${item.bg}`}>
+                  {item.icon}
+                </div>
+                <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                  {item.badge}
+                </span>
               </div>
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-red-100 text-red-800 border border-red-200 hidden sm:inline">
-                {activeTicketsCount} Active
-              </span>
-            </div>
 
-            <div className="space-y-0.5 my-1">
-              <h3 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-red-600 transition-colors leading-tight">
-                Hostel Maintenance
-              </h3>
-              <p className="text-[10px] sm:text-xs text-slate-500 font-semibold line-clamp-2 leading-snug">
-                Plumbing, Electrical, AC, Carpentry, Housekeeping
-              </p>
-            </div>
-
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px] font-black text-red-600">
-              <span>7 Sub-Categories</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </div>
-          </div>
-
-          {/* BOX 2: COURIER & MAILROOM DESK */}
-          <Link
-            href="/courier"
-            className="aspect-square p-4 sm:p-5 rounded-3xl bg-white border-2 border-slate-200 hover:border-blue-600 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group cursor-pointer"
-          >
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-black text-xl sm:text-2xl group-hover:scale-110 transition-transform shadow-xs">
-                📦
+              <div>
+                <h3 className="text-sm font-black text-slate-900 group-hover:text-red-600 transition-colors leading-tight">
+                  {item.title}
+                </h3>
+                <p className="text-xs text-slate-500 font-semibold line-clamp-2 mt-0.5 leading-snug">
+                  {item.desc}
+                </p>
               </div>
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 animate-pulse hidden sm:inline">
-                {demoCourierCount} Arrived
-              </span>
-            </div>
 
-            <div className="space-y-0.5 my-1">
-              <h3 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-blue-600 transition-colors leading-tight">
-                Courier Mailroom
-              </h3>
-              <p className="text-[10px] sm:text-xs text-slate-500 font-semibold line-clamp-2 leading-snug">
-                Amazon, Flipkart packages & 4-digit pickup OTPs
-              </p>
-            </div>
-
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px] font-black text-blue-600">
-              <span>Open Mailroom</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </div>
-          </Link>
-
-          {/* BOX 3: SPORTS ARENA BOOKING */}
-          <Link
-            href="/sports"
-            className="aspect-square p-4 sm:p-5 rounded-3xl bg-white border-2 border-slate-200 hover:border-amber-500 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group cursor-pointer"
-          >
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-black text-xl sm:text-2xl group-hover:scale-110 transition-transform shadow-xs">
-                ⚽
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-black text-red-600">
+                <span>Select & Open Desk</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 hidden sm:inline">
-                Floodlit Arena
-              </span>
             </div>
-
-            <div className="space-y-0.5 my-1">
-              <h3 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-amber-700 transition-colors leading-tight">
-                Sports Arena
-              </h3>
-              <p className="text-[10px] sm:text-xs text-slate-500 font-semibold line-clamp-2 leading-snug">
-                Badminton, Tennis, Football Turf & Basketball
-              </p>
-            </div>
-
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px] font-black text-amber-700">
-              <span>Book Court Slot</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </div>
-          </Link>
-
-          {/* BOX 4: SPACE & STUDY LOUNGES */}
-          <Link
-            href="/amenities"
-            className="aspect-square p-4 sm:p-5 rounded-3xl bg-white border-2 border-slate-200 hover:border-violet-600 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group cursor-pointer"
-          >
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center font-black text-xl sm:text-2xl group-hover:scale-110 transition-transform shadow-xs">
-                📖
-              </div>
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-violet-100 text-violet-900 border border-violet-200 hidden sm:inline">
-                Silent Pods
-              </span>
-            </div>
-
-            <div className="space-y-0.5 my-1">
-              <h3 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-violet-600 transition-colors leading-tight">
-                Study & Amenities
-              </h3>
-              <p className="text-[10px] sm:text-xs text-slate-500 font-semibold line-clamp-2 leading-snug">
-                Quiet Study Pods, Discussion & Music Studio
-              </p>
-            </div>
-
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px] font-black text-violet-600">
-              <span>Reserve Study Suite</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </div>
-          </Link>
-
-          {/* BOX 5: CANTEEN & FOOD COURT */}
-          <Link
-            href="/food"
-            className="aspect-square p-4 sm:p-5 rounded-3xl bg-white border-2 border-slate-200 hover:border-amber-600 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group cursor-pointer"
-          >
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-black text-xl sm:text-2xl group-hover:scale-110 transition-transform shadow-xs">
-                🍔
-              </div>
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 hidden sm:inline">
-                Mess & Food Court
-              </span>
-            </div>
-
-            <div className="space-y-0.5 my-1">
-              <h3 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-amber-600 transition-colors leading-tight">
-                Food Court & Canteen
-              </h3>
-              <p className="text-[10px] sm:text-xs text-slate-500 font-semibold line-clamp-2 leading-snug">
-                Order meals from Woxsen Food Court, Fuel Zone & Night Canteen
-              </p>
-            </div>
-
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px] font-black text-amber-600">
-              <span>Order Meals & Tokens</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </div>
-          </Link>
-
-          {/* BOX 6: HOSTEL LAUNDRY SERVICES */}
-          <Link
-            href="/laundry"
-            className="aspect-square p-4 sm:p-5 rounded-3xl bg-white border-2 border-slate-200 hover:border-blue-600 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group cursor-pointer"
-          >
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-black text-xl sm:text-2xl group-hover:scale-110 transition-transform shadow-xs">
-                🧺
-              </div>
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-blue-100 text-blue-900 border border-blue-200 hidden sm:inline">
-                Washer Bays
-              </span>
-            </div>
-
-            <div className="space-y-0.5 my-1">
-              <h3 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-blue-600 transition-colors leading-tight">
-                Hostel Laundry Tracker
-              </h3>
-              <p className="text-[10px] sm:text-xs text-slate-500 font-semibold line-clamp-2 leading-snug">
-                Reserve washer slots & track wash/dry pickup status
-              </p>
-            </div>
-
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px] font-black text-blue-600">
-              <span>Book Washer Slot</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </div>
-          </Link>
-
-          {/* BOX 7: HOSTEL OUTING & GATE PASS */}
-          <Link
-            href="/outing"
-            className="aspect-square p-4 sm:p-5 rounded-3xl bg-white border-2 border-slate-200 hover:border-red-600 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group cursor-pointer"
-          >
-            <div className="flex items-center justify-between">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center font-black text-xl sm:text-2xl group-hover:scale-110 transition-transform shadow-xs">
-                🚪
-              </div>
-              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-red-100 text-red-900 border border-red-200 hidden sm:inline">
-                Gate Pass
-              </span>
-            </div>
-
-            <div className="space-y-0.5 my-1">
-              <h3 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-red-600 transition-colors leading-tight">
-                Outing & Gate Pass
-              </h3>
-              <p className="text-[10px] sm:text-xs text-slate-500 font-semibold line-clamp-2 leading-snug">
-                Generate campus exit/entry gate passcodes & QR codes
-              </p>
-            </div>
-
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px] font-black text-red-600">
-              <span>Request Gate Pass</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </div>
-          </Link>
-
+          ))}
         </div>
       </div>
 
@@ -393,13 +252,13 @@ export default function WoxsenCampusPortalPage() {
 
             <div className="grid grid-cols-2 gap-2.5">
               {[
-                { id: 'plumbing', name: 'Plumbing', icon: '💧', desc: 'Tap leakages, pipe blockages, flush', href: '/requests/new?serviceId=plumbing', bg: 'bg-blue-50 border-blue-200 text-blue-700' },
-                { id: 'electrical', name: 'Electrical', icon: '⚡', desc: 'Lights, switches, sockets, fans', href: '/requests/new?serviceId=electrical', bg: 'bg-amber-50 border-amber-200 text-amber-700' },
-                { id: 'ac_hvac', name: 'AC & HVAC', icon: '❄️', desc: 'AC cooling issues, noise, remote', href: '/requests/new?serviceId=ac_hvac', bg: 'bg-cyan-50 border-cyan-200 text-cyan-700' },
-                { id: 'carpentry', name: 'Carpentry', icon: '🪚', desc: 'Doors, windows, study tables, locks', href: '/requests/new?serviceId=carpentry', bg: 'bg-orange-50 border-orange-200 text-orange-700' },
-                { id: 'cleaning', name: 'Housekeeping', icon: '🧹', desc: 'Deep room cleaning, garbage', href: '/requests/new?serviceId=cleaning', bg: 'bg-emerald-50 border-emerald-200 text-emerald-700' },
-                { id: 'civil', name: 'Civil Work', icon: '🧱', desc: 'Wall dampness, paint peeling, tiles', href: '/requests/new?serviceId=civil', bg: 'bg-purple-50 border-purple-200 text-purple-700' },
-                { id: 'wifi', name: 'Wi-Fi & LAN', icon: '📶', desc: 'LAN port repair, slow internet', href: '/requests/new?serviceId=wifi', bg: 'bg-teal-50 border-teal-200 text-teal-700' },
+                { id: 'plumbing', name: 'Plumbing', icon: '💧', desc: 'Tap leakages, pipe blockages, flush', href: '/requests/new?serviceId=plumbing' },
+                { id: 'electrical', name: 'Electrical', icon: '⚡', desc: 'Lights, switches, sockets, fans', href: '/requests/new?serviceId=electrical' },
+                { id: 'ac_hvac', name: 'AC & HVAC', icon: '❄️', desc: 'AC cooling issues, noise, remote', href: '/requests/new?serviceId=ac_hvac' },
+                { id: 'carpentry', name: 'Carpentry', icon: '🪚', desc: 'Doors, windows, study tables, locks', href: '/requests/new?serviceId=carpentry' },
+                { id: 'cleaning', name: 'Housekeeping', icon: '🧹', desc: 'Deep room cleaning, garbage', href: '/requests/new?serviceId=cleaning' },
+                { id: 'civil', name: 'Civil Work', icon: '🧱', desc: 'Wall dampness, paint peeling, tiles', href: '/requests/new?serviceId=civil' },
+                { id: 'wifi', name: 'Wi-Fi & LAN', icon: '📶', desc: 'LAN port repair, slow internet', href: '/requests/new?serviceId=wifi' },
               ].map((sub) => (
                 <Link
                   key={sub.id}
