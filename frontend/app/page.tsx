@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/context/AppContext';
-import { WoxsenAuthCard } from '@/src/features/auth/components/WoxsenAuthCard';
 import SelectUniversityGatewayPage from './select-university/page';
+import LoginPage from './login/page';
 import {
   Building2,
   ArrowRight,
@@ -42,6 +42,7 @@ export default function WoxsenCampusPortalPage() {
   } = useApp();
 
   const [universitySelected, setUniversitySelected] = useState<boolean>(false);
+  const [activeUniversityName, setActiveUniversityName] = useState('Woxsen University');
   const [subCategoryModalOpen, setSubCategoryModalOpen] = useState(false);
 
   useEffect(() => {
@@ -49,6 +50,7 @@ export default function WoxsenCampusPortalPage() {
       const stored = localStorage.getItem('selected_university_name');
       if (stored) {
         setUniversitySelected(true);
+        setActiveUniversityName(stored);
       }
     }
   }, []);
@@ -94,34 +96,10 @@ export default function WoxsenCampusPortalPage() {
   }
 
   // =======================================================================
-  // STEP 2: UNAUTHENTICATED VIEW (UNIFIED WOXSEN AUTH CARD)
+  // STEP 2: UNAUTHENTICATED VIEW (RENDER DARK NEON LOGIN PAGE)
   // =======================================================================
   if (!isAuthenticated) {
-    return (
-      <div className="py-6 sm:py-12 px-3.5 sm:px-6 max-w-4xl mx-auto space-y-8 animate-in fade-in duration-300 relative z-10">
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-600 text-white text-xs font-black uppercase tracking-wider shadow-md">
-            <span>🎓</span>
-            <span>Woxsen University Campus Portal</span>
-          </div>
-
-          <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight drop-shadow-xs">
-            Woxsen Campus Sign In
-          </h1>
-
-          <p className="text-xs sm:text-base text-slate-700 max-w-xl mx-auto font-semibold">
-            Sign in with your Woxsen Email Address. Your role is automatically detected on sign in.
-          </p>
-        </div>
-
-        <WoxsenAuthCard />
-
-        <div className="p-4 rounded-2xl bg-white/90 backdrop-blur-md border border-white/60 text-center text-xs text-slate-700 font-semibold flex items-center justify-center gap-2 max-w-xl mx-auto shadow-lg">
-          <Lock className="w-4 h-4 text-red-600 shrink-0" />
-          <span>Woxsen campus infrastructure and service request wizards are protected until authenticated.</span>
-        </div>
-      </div>
-    );
+    return <LoginPage />;
   }
 
   // =======================================================================
@@ -139,7 +117,7 @@ export default function WoxsenCampusPortalPage() {
               <span>Campus Active</span>
             </span>
             <h2 className="text-sm sm:text-base font-black tracking-tight text-white flex items-center gap-2">
-              <span>Woxsen University Campus Portal</span>
+              <span>{activeUniversityName} Campus Portal</span>
             </h2>
           </div>
 
@@ -149,6 +127,7 @@ export default function WoxsenCampusPortalPage() {
                 localStorage.removeItem('selected_university_name');
               }
               setUniversitySelected(false);
+              router.push('/select-university');
             }}
             className="px-4 py-2 rounded-2xl bg-white text-slate-900 font-black text-xs shadow-xl hover:bg-rose-50 flex items-center gap-2 transition-all cursor-pointer shrink-0"
           >

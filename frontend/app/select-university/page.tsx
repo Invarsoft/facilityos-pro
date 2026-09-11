@@ -8,7 +8,6 @@ import {
   Search,
   X,
   ChevronRight,
-  LogIn,
   Settings,
   ShieldCheck,
   Users,
@@ -61,8 +60,8 @@ export default function SelectUniversityGatewayPage() {
       localStorage.setItem('selected_university_id', uni.id);
     }
 
-    // Redirect to main campus portal
-    router.push('/');
+    // Redirect to Login page ONLY after selecting a university
+    router.push('/login');
   };
 
   return (
@@ -73,10 +72,10 @@ export default function SelectUniversityGatewayPage() {
       <div className="absolute top-1/3 right-0 w-[450px] h-[450px] bg-blue-600/25 blur-[140px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-80 bg-gradient-to-t from-[#04060c] via-[#070b14]/90 to-transparent pointer-events-none" />
 
-      {/* 1. TOP HEADER NAVIGATION BAR */}
+      {/* 1. TOP HEADER NAVIGATION BAR (SIGN IN BUTTON REMOVED) */}
       <header className="w-full px-4 sm:px-12 py-4 sm:py-5 flex items-center justify-between border-b border-slate-800/40 relative z-20 backdrop-blur-md bg-[#070b14]/70">
         
-        {/* LOGO */}
+        {/* LOGO ONLY */}
         <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 text-white font-black text-lg sm:text-xl flex items-center justify-center shadow-lg shadow-red-600/30 group-hover:scale-105 transition-transform">
             F
@@ -94,17 +93,6 @@ export default function SelectUniversityGatewayPage() {
             </p>
           </div>
         </Link>
-
-        {/* RIGHT CONTROLS: SIGN IN BUTTON ONLY */}
-        <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs shadow-lg shadow-blue-600/30 flex items-center gap-1.5 sm:gap-2 transition-all cursor-pointer active:scale-95"
-          >
-            <LogIn className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span>Sign In</span>
-          </Link>
-        </div>
 
       </header>
 
@@ -126,7 +114,7 @@ export default function SelectUniversityGatewayPage() {
           </p>
         </div>
 
-        {/* SMALLER, SLEEKER NEON SEARCH BAR (max-w-md with compact padding) */}
+        {/* SMALLER, SLEEKER NEON SEARCH BAR */}
         <div className="w-full max-w-md mx-auto space-y-2.5">
           <div className="relative group">
             
@@ -157,7 +145,7 @@ export default function SelectUniversityGatewayPage() {
             </div>
           </div>
 
-          {/* SEARCH RESULTS CARD CONTAINER (COMPACT SLIM WIDTH) */}
+          {/* SEARCH RESULTS CARD CONTAINER */}
           {hasMinQueryLength && (
             <div className="w-full rounded-2xl bg-[#0b1120]/95 border border-slate-800/90 p-4 shadow-2xl backdrop-blur-xl text-left space-y-2.5 animate-in fade-in zoom-in-95 duration-200">
               
@@ -212,7 +200,6 @@ export default function SelectUniversityGatewayPage() {
         {/* 3. FOUR FEATURE HIGHLIGHT BADGES */}
         <div className="w-full pt-5 border-t border-slate-800/40 grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-5 max-w-3xl mx-auto">
           
-          {/* BADGE 1: STREAMLINE OPERATIONS */}
           <div className="flex flex-col items-center text-center space-y-1.5 group">
             <div className="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 flex items-center justify-center shadow-lg shadow-red-500/10 group-hover:scale-110 transition-transform">
               <Settings className="w-4 h-4" />
@@ -222,7 +209,6 @@ export default function SelectUniversityGatewayPage() {
             </p>
           </div>
 
-          {/* BADGE 2: SAFETY & COMPLIANCE */}
           <div className="flex flex-col items-center text-center space-y-1.5 group">
             <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 flex items-center justify-center shadow-lg shadow-blue-500/10 group-hover:scale-110 transition-transform">
               <ShieldCheck className="w-4 h-4" />
@@ -232,7 +218,6 @@ export default function SelectUniversityGatewayPage() {
             </p>
           </div>
 
-          {/* BADGE 3: BETTER CAMPUS EXPERIENCE */}
           <div className="flex flex-col items-center text-center space-y-1.5 group">
             <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 flex items-center justify-center shadow-lg shadow-purple-500/10 group-hover:scale-110 transition-transform">
               <Users className="w-4 h-4" />
@@ -242,7 +227,6 @@ export default function SelectUniversityGatewayPage() {
             </p>
           </div>
 
-          {/* BADGE 4: DATA-DRIVEN DECISIONS */}
           <div className="flex flex-col items-center text-center space-y-1.5 group">
             <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/10 group-hover:scale-110 transition-transform">
               <BarChart3 className="w-4 h-4" />
