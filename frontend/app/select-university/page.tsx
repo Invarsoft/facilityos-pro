@@ -67,13 +67,13 @@ export default function SelectUniversityGatewayPage() {
   return (
     <div className="fixed inset-0 z-50 bg-[#060913] text-white flex flex-col justify-between overflow-y-auto font-sans select-none">
       
-      {/* 1. DUAL RED/BLUE GLOW LIGHTING BACKGROUND (EXACT MATCH FOR media_1789128543330.jpg) */}
+      {/* 1. DUAL RED/BLUE GLOW LIGHTING BACKGROUND (EXACT MATCH FOR media_1789129602015.jpg) */}
       <div className="absolute top-0 left-0 w-[550px] h-[550px] bg-red-600/25 blur-[160px] rounded-full pointer-events-none" />
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/30 blur-[160px] rounded-full pointer-events-none" />
 
       {/* 2. CAMPUS ARCHITECTURE WATERMARK OVERLAY */}
       <div
-        className="absolute inset-0 bg-cover bg-bottom opacity-15 pointer-events-none mix-blend-luminosity"
+        className="absolute inset-0 bg-cover bg-bottom opacity-20 pointer-events-none mix-blend-luminosity"
         style={{ backgroundImage: `url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1920&auto=format&fit=crop')` }}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-[#04060d] via-[#060913]/70 to-transparent pointer-events-none" />
@@ -119,7 +119,7 @@ export default function SelectUniversityGatewayPage() {
             </p>
           </div>
 
-          {/* NEON SEARCH BAR (EXACT MATCH FOR media_1789128543330.jpg) */}
+          {/* NEON SEARCH BAR (EXACT MATCH FOR media_1789129602015.jpg) */}
           <div className="w-full max-w-md mx-auto space-y-2.5">
             <div className="relative group">
               <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-red-500 via-blue-500 to-purple-500 opacity-80 blur-sm group-hover:opacity-100 transition-opacity" />
@@ -191,7 +191,7 @@ export default function SelectUniversityGatewayPage() {
 
         </div>
 
-        {/* 5. FOUR FEATURE BADGES WITH VERTICAL DIVIDERS & TAGLINE (EXACT MATCH FOR media_1789128543330.jpg) */}
+        {/* 5. FOUR FEATURE BADGES WITH VERTICAL DIVIDERS & TAGLINE (EXACT MATCH FOR media_1789129602015.jpg) */}
         <div className="w-full space-y-8 pt-4">
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-0 max-w-4xl mx-auto divide-y md:divide-y-0 md:divide-x divide-slate-800/60">
@@ -238,7 +238,7 @@ export default function SelectUniversityGatewayPage() {
 
           </div>
 
-          {/* TAGLINE BANNER (EXACT MATCH FOR media_1789128543330.jpg) */}
+          {/* TAGLINE BANNER (EXACT MATCH FOR media_1789129602015.jpg) */}
           <div className="text-[10px] sm:text-[11px] font-black tracking-[0.25em] text-slate-500 uppercase flex items-center justify-center gap-3 sm:gap-6 flex-wrap pt-2">
             <span>PEOPLE</span>
             <span className="text-slate-800">|</span>
@@ -253,7 +253,7 @@ export default function SelectUniversityGatewayPage() {
 
       </main>
 
-      {/* 6. FOOTER BAR (EXACT MATCH FOR media_1789128543330.jpg) */}
+      {/* 6. FOOTER BAR (EXACT MATCH FOR media_1789129602015.jpg) */}
       <footer className="w-full px-6 sm:px-12 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-semibold text-slate-500 relative z-20 border-t border-slate-800/40 bg-[#04060d]/90 backdrop-blur-md">
         <div className="flex items-center gap-2">
           <span className="font-black text-white">Facility<span className="text-red-500">OS</span></span>
