@@ -14,7 +14,7 @@ function LoginContent() {
   return (
     <div className="fixed inset-0 z-50 bg-[#060913] text-white flex flex-col justify-between overflow-y-auto font-sans select-none">
       
-      {/* 1. DUAL RED/BLUE GLOW LIGHTING BACKGROUND (EXACT MATCH FOR media_1789128936888.jpg) */}
+      {/* 1. DUAL RED/BLUE GLOW LIGHTING BACKGROUND (EXACT MATCH FOR media_1789129357501.jpg) */}
       <div className="absolute top-0 left-0 w-[550px] h-[550px] bg-red-600/25 blur-[160px] rounded-full pointer-events-none" />
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/30 blur-[160px] rounded-full pointer-events-none" />
 
@@ -50,7 +50,7 @@ function LoginContent() {
         </p>
       </header>
 
-      {/* 4. MAIN LOGIN CONTENT CONTAINER */}
+      {/* 4. MAIN LOGIN CONTENT CONTAINER (EXACT MATCH FOR media_1789129357501.jpg) */}
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:py-12 relative z-10 max-w-4xl mx-auto w-full space-y-6 text-center">
         
         {/* HERO TITLE */}

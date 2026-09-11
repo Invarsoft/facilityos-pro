@@ -7,9 +7,7 @@ import {
   Mail,
   Lock,
   Key,
-  UserPlus,
   CheckCircle2,
-  ShieldCheck,
   AlertCircle,
   ChevronRight,
   Eye,
@@ -23,9 +21,8 @@ import {
   GraduationCap,
   Crown,
   Home,
-  Sparkles,
+  ArrowRight,
 } from 'lucide-react';
-import { RoomSearchSelector } from '@/src/shared/components/ui/RoomSearchSelector';
 
 export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: string }) {
   const router = useRouter();
@@ -34,34 +31,24 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
   const [authTab, setAuthTab] = useState<'signin' | 'token' | 'signup'>('signin');
 
   // Email Sign In States & Password Visibility
-  const [emailInput, setEmailInput] = useState('');
-  const [passwordInput, setPasswordInput] = useState('');
+  const [emailInput, setEmailInput] = useState('student@woxsen.edu.in');
+  const [passwordInput, setPasswordInput] = useState('20262026');
   const [showPassword, setShowPassword] = useState(false);
-  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
-  const [showSignUpConfirmPassword, setShowSignUpConfirmPassword] = useState(false);
 
   // OTP Verification States
   const [authStep, setAuthStep] = useState<'credentials' | 'otp'>('credentials');
   const [otpCode, setOtpCode] = useState('');
   const [generatedOtp, setGeneratedOtp] = useState('202601');
-  const [timerSeconds, setTimerSeconds] = useState(120);
 
   // Access Token States
   const [tokenInput, setTokenInput] = useState('');
   const [pinInput, setPinInput] = useState('');
 
   // Sign Up Form States
-  const [signUpStep, setSignUpStep] = useState<'credentials' | 'otp_verify' | 'profile_details'>('credentials');
   const [signUpName, setSignUpName] = useState('');
   const [signUpEmail, setSignUpEmail] = useState('');
   const [signUpPassword, setSignUpPassword] = useState('');
   const [signUpConfirmPassword, setSignUpConfirmPassword] = useState('');
-  const [signUpPhone, setSignUpPhone] = useState('');
-  const [signUpTower, setSignUpTower] = useState('');
-  const [signUpRoomNo, setSignUpRoomNo] = useState('');
-  const [signUpRollNo, setSignUpRollNo] = useState('');
-  const [signUpAdmissionNo, setSignUpAdmissionNo] = useState('');
-  const [signUpCourseSection, setSignUpCourseSection] = useState('');
 
   const [authError, setAuthError] = useState('');
   const [authNotice, setAuthNotice] = useState('');
@@ -101,7 +88,7 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
     const email = emailInput.trim();
 
     if (!email || !passwordInput.trim()) {
-      setAuthError('Please enter both your official Woxsen email address and account password.');
+      setAuthError('Please enter your email and password.');
       return;
     }
 
@@ -115,7 +102,6 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
     const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
     setGeneratedOtp(newOtp);
     setAuthStep('otp');
-    setTimerSeconds(120);
     setAuthNotice(`🔑 Verification OTP sent to ${email}. Demo Code: ${newOtp}`);
   };
 
@@ -176,32 +162,37 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
   };
 
   return (
-    <div className="p-5 sm:p-7 rounded-3xl bg-[#0b1120]/95 border border-slate-800/90 shadow-[0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-2xl text-left space-y-5 max-w-md mx-auto font-sans">
+    <div className="p-6 sm:p-7 rounded-[28px] bg-[#0b1120]/90 border border-slate-700/50 shadow-[0_0_50px_rgba(0,0,0,0.85)] backdrop-blur-2xl text-left space-y-5 max-w-[440px] mx-auto font-sans relative z-20">
       
-      {/* WOXSEN UNIVERSITY EMBLEM (EXACT MATCH FOR media_1789128661707.jpg) */}
-      <div className="flex flex-col items-center justify-center pt-1 pb-2">
-        <div className="flex items-center gap-2">
+      {/* WOXSEN UNIVERSITY EMBLEM (EXACT MATCH FOR media_1789129357501.jpg) */}
+      <div className="flex flex-col items-center justify-center pt-2 pb-1">
+        <div className="flex items-center justify-center gap-1.5">
           <span className="text-2xl font-black text-red-500 tracking-tighter">W</span>
-          <span className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center text-[10px] text-white font-bold">🌐</span>
-          <span className="text-xl font-black text-white tracking-tighter">U</span>
+          <span className="text-lg">🌐</span>
+          <span className="text-2xl font-black text-red-500 tracking-tighter">U</span>
         </div>
-        <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 mt-1">
-          WOXSEN UNIVERSITY
-        </p>
+        <div className="text-center mt-0.5">
+          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white leading-none">
+            WOXSEN
+          </p>
+          <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400 leading-tight">
+            UNIVERSITY
+          </p>
+        </div>
       </div>
 
-      {/* SIDE-BY-SIDE TABS: UNIVERSITY EMAIL vs ACCESS TOKEN */}
-      <div className="flex items-center p-1 rounded-2xl bg-[#070b16] border border-slate-800">
+      {/* TABS: UNIVERSITY EMAIL vs ACCESS TOKEN */}
+      <div className="flex items-center p-1 rounded-2xl bg-[#080d1a] border border-slate-800">
         <button
           type="button"
           onClick={() => { setAuthTab('signin'); setAuthStep('credentials'); setAuthError(''); }}
           className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
             authTab === 'signin'
-              ? 'bg-slate-800 text-white shadow-md border-b-2 border-red-500'
+              ? 'bg-[#101728] text-white shadow-md border-b-2 border-red-500'
               : 'text-slate-400 hover:text-white'
           }`}
         >
-          <Mail className="w-3.5 h-3.5 text-red-500" />
+          <Mail className="w-3.5 h-3.5 text-slate-300" />
           <span>University Email</span>
         </button>
 
@@ -210,11 +201,11 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
           onClick={() => { setAuthTab('token'); setAuthError(''); }}
           className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
             authTab === 'token'
-              ? 'bg-slate-800 text-white shadow-md border-b-2 border-red-500'
+              ? 'bg-[#101728] text-white shadow-md border-b-2 border-red-500'
               : 'text-slate-400 hover:text-white'
           }`}
         >
-          <Key className="w-3.5 h-3.5 text-blue-500" />
+          <Key className="w-3.5 h-3.5 text-slate-400" />
           <span>Access Token</span>
         </button>
       </div>
@@ -233,7 +224,7 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
         </div>
       )}
 
-      {/* FORM 1: EMAIL SIGN IN (EXACT MATCH FOR media_1789128661707.jpg) */}
+      {/* FORM 1: EMAIL SIGN IN (EXACT MATCH FOR media_1789129357501.jpg) */}
       {authTab === 'signin' && authStep === 'credentials' && (
         <form onSubmit={handleSendOtp} className="space-y-4">
           <div className="space-y-1">
@@ -248,10 +239,10 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
                 placeholder="student@woxsen.edu.in"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#070b16] border border-slate-800 text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#090e1c] border border-slate-800 text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
               />
             </div>
-            <p className="text-[10px] text-slate-500 font-medium">
+            <p className="text-[10px] text-slate-400 font-medium">
               Use your official <strong>@woxsen.edu.in</strong> email address
             </p>
           </div>
@@ -268,7 +259,7 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-[#070b16] border border-slate-800 text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
+                className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-[#090e1c] border border-slate-800 text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
               />
               <button
                 type="button"
@@ -280,20 +271,21 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
             </div>
           </div>
 
+          {/* RED GLOW SUBMIT BUTTON */}
           <button
             type="submit"
-            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-red-600 via-red-500 to-rose-600 hover:from-red-500 hover:to-red-600 text-white font-black text-xs shadow-[0_0_25px_rgba(239,68,68,0.4)] flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
+            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-red-600 via-red-500 to-rose-600 hover:from-red-500 hover:to-red-600 text-white font-black text-xs sm:text-sm shadow-[0_0_25px_rgba(239,68,68,0.4)] flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer mt-2"
           >
             <span>Send 6-Digit Verification OTP</span>
             <ChevronRight className="w-4 h-4" />
           </button>
 
-          <p className="text-center text-xs text-slate-400 font-medium">
+          <p className="text-center text-xs text-slate-400 font-medium pt-1">
             Don't have an account?{' '}
             <button
               type="button"
               onClick={() => setAuthTab('signup')}
-              className="text-red-400 font-bold hover:underline cursor-pointer"
+              className="text-red-500 font-bold hover:underline cursor-pointer"
             >
               Create One
             </button>
@@ -314,8 +306,8 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
               maxLength={6}
               value={otpCode}
               onChange={(e) => setOtpCode(e.target.value)}
-              placeholder="e.g. 202601"
-              className="w-full px-4 py-3 text-center tracking-[0.5em] text-lg font-black rounded-xl bg-[#070b16] border border-red-500/50 text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+              placeholder="202601"
+              className="w-full px-4 py-3 text-center tracking-[0.5em] text-lg font-black rounded-xl bg-[#090e1c] border border-red-500/50 text-white focus:outline-none focus:ring-2 focus:ring-red-500"
             />
             <p className="text-[10px] text-slate-400 font-medium text-center pt-1">
               Demo Code: <strong className="text-red-400">{generatedOtp}</strong>
@@ -324,7 +316,7 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
 
           <button
             type="submit"
-            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-red-600 to-red-500 text-white font-black text-xs shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-red-600 to-red-500 text-white font-black text-xs shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
           >
             <span>Verify OTP & Sign In</span>
             <ChevronRight className="w-4 h-4" />
@@ -347,7 +339,7 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
                 value={tokenInput}
                 onChange={(e) => setTokenInput(e.target.value)}
                 placeholder="e.g. WDN-A-101 or WRK-ELE-01"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#070b16] border border-slate-800 text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#090e1c] border border-slate-800 text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
               />
             </div>
           </div>
@@ -362,27 +354,31 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
               value={pinInput}
               onChange={(e) => setPinInput(e.target.value)}
               placeholder="••••"
-              className="w-full px-4 py-2.5 rounded-xl bg-[#070b16] border border-slate-800 text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+              className="w-full px-4 py-2.5 rounded-xl bg-[#090e1c] border border-slate-800 text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+            className="w-full py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
           >
             <span>Authenticate Token →</span>
           </button>
         </form>
       )}
 
-      {/* 9 DEMO ROLE QUICK ACCESS CARDS (EXACT MATCH FOR media_1789128661707.jpg) */}
+      {/* 9 DEMO ROLE QUICK ACCESS CARDS (EXACT MATCH FOR media_1789129357501.jpg) */}
       <div className="pt-4 border-t border-slate-800/80 space-y-3">
         <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-400">
           <span>QUICK ACCESS (DEMO)</span>
-          <span className="text-blue-400 flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => quickDemoLogin('student')}
+            className="text-blue-400 hover:text-blue-300 font-bold flex items-center gap-1 cursor-pointer"
+          >
             <span>Explore System</span>
             <ChevronRight className="w-3 h-3" />
-          </span>
+          </button>
         </div>
 
         <div className="grid grid-cols-3 gap-2">
