@@ -11,48 +11,57 @@ import { MobileBottomNav } from './MobileBottomNav';
 export const MainLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { aiDrawerOpen, setAiDrawerOpen } = useApp();
+  const { aiDrawerOpen, setAiDrawerOpen, isAuthenticated } = useApp();
 
-  // Standalone Sub-Apps (Laundry & Food) render full-screen isolated interfaces:
-  const isStandaloneSubApp = pathname === '/laundry' || pathname === '/food';
+  // Standalone Full-Screen Pages (University Selector, Standalone Food/Laundry apps):
+  const isStandalonePage =
+    pathname === '/select-university' ||
+    pathname === '/select-facility' ||
+    pathname === '/laundry' ||
+    pathname === '/food';
 
-  if (isStandaloneSubApp) {
+  if (isStandalonePage) {
     return (
-      <div className="min-h-screen bg-slate-100 text-slate-900 transition-colors relative">
+      <div className="min-h-screen bg-[#070b14] text-white transition-colors relative">
         <main className="w-full min-h-screen p-0 m-0">
           {children}
         </main>
-        <AssistantDrawer isOpen={aiDrawerOpen} onClose={() => setAiDrawerOpen(false)} />
+        {isAuthenticated && (
+          <AssistantDrawer isOpen={aiDrawerOpen} onClose={() => setAiDrawerOpen(false)} />
+        )}
       </div>
     );
   }
 
-  // Pages where full width view is rendered without sidebar:
+  // Full-width pages without sidebar (Login, Organizations):
   const isFullWidthPage =
-    pathname === '/select-facility' ||
     pathname === '/organizations' ||
     pathname.startsWith('/organizations/') ||
-    pathname === '/login';
+    pathname === '/login' ||
+    !isAuthenticated;
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 transition-colors relative">
       <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
       <div className="flex-1 flex w-full z-10 relative">
-        {(!isFullWidthPage || sidebarOpen) && (
+        {/* Sidebar ONLY rendered when user IS AUTHENTICATED */}
+        {isAuthenticated && !isFullWidthPage && (
           <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         )}
 
-        <main className={`flex-1 p-3.5 sm:p-5 md:p-6 pb-20 md:pb-6 overflow-x-hidden ${isFullWidthPage ? 'w-full max-w-7xl mx-auto' : ''}`}>
+        <main className={`flex-1 p-3.5 sm:p-5 md:p-6 pb-20 md:pb-6 overflow-x-hidden ${isFullWidthPage || !isAuthenticated ? 'w-full max-w-7xl mx-auto' : ''}`}>
           {children}
         </main>
       </div>
 
       {/* AI Dispatch Desk Slide-Over Drawer */}
-      <AssistantDrawer isOpen={aiDrawerOpen} onClose={() => setAiDrawerOpen(false)} />
+      {isAuthenticated && (
+        <AssistantDrawer isOpen={aiDrawerOpen} onClose={() => setAiDrawerOpen(false)} />
+      )}
 
-      {/* Mobile Fixed Bottom Navigation Bar */}
-      <MobileBottomNav />
+      {/* Mobile Fixed Bottom Navigation Bar - ONLY WHEN AUTHENTICATED */}
+      {isAuthenticated && <MobileBottomNav />}
     </div>
   );
 };
