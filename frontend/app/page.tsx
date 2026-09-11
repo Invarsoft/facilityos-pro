@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/context/AppContext';
 import { WoxsenAuthCard } from '@/src/features/auth/components/WoxsenAuthCard';
+import SelectUniversityGatewayPage from './select-university/page';
 import {
   Building2,
   ArrowRight,
@@ -40,6 +41,18 @@ export default function WoxsenCampusPortalPage() {
     isAuthenticated,
   } = useApp();
 
+  const [universitySelected, setUniversitySelected] = useState<boolean>(false);
+  const [subCategoryModalOpen, setSubCategoryModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('selected_university_name');
+      if (stored) {
+        setUniversitySelected(true);
+      }
+    }
+  }, []);
+
   React.useEffect(() => {
     if (isAuthenticated) {
       if (activeRole === 'courier_manager') {
@@ -59,21 +72,7 @@ export default function WoxsenCampusPortalPage() {
   const activeTicketsCount = tickets.filter((t) => t.status !== 'closed' && t.status !== 'resolved').length;
   const awaitingCount = tickets.filter((t) => t.status === 'awaiting_verification').length;
 
-  const [subCategoryModalOpen, setSubCategoryModalOpen] = useState(false);
-  const [universityModalOpen, setUniversityModalOpen] = useState(false);
-
-  // Available Universities / Colleges List
-  const universitiesList = [
-    { id: 'woxsen_main', name: 'Woxsen University', campus: 'Main Residential Campus (Sangareddy)', code: 'WOX-HYD', badge: 'Active Campus', icon: '🏛️' },
-    { id: 'woxsen_tech', name: 'Woxsen School of Technology', campus: 'AI & Engineering Hub', code: 'SOT-WOX', badge: 'Tech Center', icon: '💻' },
-    { id: 'woxsen_biz', name: 'Woxsen School of Business', campus: 'MBA & Leadership Hub', code: 'SOB-WOX', badge: 'Business Center', icon: '📈' },
-    { id: 'woxsen_design', name: 'Woxsen School of Art & Design', campus: 'Design & Architecture Hub', code: 'SOA-WOX', badge: 'Design Studio', icon: '🎨' },
-    { id: 'woxsen_law', name: 'Woxsen School of Law', campus: 'Legal Studies Block', code: 'SOL-WOX', badge: 'Law Center', icon: '⚖️' },
-  ];
-
-  const [selectedUniversity, setSelectedUniversity] = useState(universitiesList[0]);
-
-  // Demo Courier & Sports Data
+  // Demo Courier Data
   const demoCourierCount = 2;
 
   // Amenity Desks
@@ -88,7 +87,14 @@ export default function WoxsenCampusPortalPage() {
   ];
 
   // =======================================================================
-  // VIEW 1: UNAUTHENTICATED VIEW (UNIFIED WOXSEN AUTH CARD)
+  // STEP 1: INITIAL LANDING — SELECT UNIVERSITY BEFORE ENTERING WEBSITE
+  // =======================================================================
+  if (!universitySelected) {
+    return <SelectUniversityGatewayPage />;
+  }
+
+  // =======================================================================
+  // STEP 2: UNAUTHENTICATED VIEW (UNIFIED WOXSEN AUTH CARD)
   // =======================================================================
   if (!isAuthenticated) {
     return (
@@ -104,7 +110,7 @@ export default function WoxsenCampusPortalPage() {
           </h1>
 
           <p className="text-xs sm:text-base text-slate-700 max-w-xl mx-auto font-semibold">
-            Sign in with your Woxsen Email Address. Your role (Student, Technician, Warden, Admin) is automatically detected on sign in.
+            Sign in with your Woxsen Email Address. Your role is automatically detected on sign in.
           </p>
         </div>
 
@@ -119,54 +125,40 @@ export default function WoxsenCampusPortalPage() {
   }
 
   // =======================================================================
-  // VIEW 2: AUTHENTICATED HOMEPAGE WITH UNIVERSITY / COLLEGE SELECTOR
+  // STEP 3: AUTHENTICATED HOMEPAGE
   // =======================================================================
   return (
     <div className="py-4 sm:py-6 px-3.5 sm:px-6 max-w-5xl mx-auto space-y-6 animate-in fade-in duration-300 relative z-10">
       
-      {/* 1. SELECT UNIVERSITY / COLLEGE BANNER BAR (TOP OF HOMEPAGE) */}
-      <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-red-700 via-rose-800 to-slate-900 text-white shadow-2xl space-y-3 relative overflow-hidden">
+      {/* 1. SELECT UNIVERSITY BAR */}
+      <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-red-700 via-rose-800 to-slate-900 text-white shadow-2xl space-y-2 relative overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-10">
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             <span className="text-[10px] font-black uppercase tracking-wider text-rose-200 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/20 inline-flex items-center gap-1">
               <GraduationCap className="w-3.5 h-3.5 text-rose-300" />
-              <span>Campus & Institution Selection</span>
+              <span>Campus Active</span>
             </span>
             <h2 className="text-sm sm:text-base font-black tracking-tight text-white flex items-center gap-2">
-              <span>Selected University / College:</span>
+              <span>Woxsen University Campus Portal</span>
             </h2>
           </div>
 
-          {/* INTERACTIVE UNIVERSITY SELECTOR BUTTON */}
           <button
-            onClick={() => setUniversityModalOpen(true)}
-            className="px-4 py-2.5 rounded-2xl bg-white text-slate-900 font-black text-xs sm:text-sm shadow-xl hover:bg-rose-50 flex items-center justify-between gap-3 transition-all cursor-pointer border border-white/80 active:scale-95 shrink-0"
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                localStorage.removeItem('selected_university_name');
+              }
+              setUniversitySelected(false);
+            }}
+            className="px-4 py-2 rounded-2xl bg-white text-slate-900 font-black text-xs shadow-xl hover:bg-rose-50 flex items-center gap-2 transition-all cursor-pointer shrink-0"
           >
-            <div className="flex items-center gap-2 text-left min-w-0">
-              <span className="text-lg shrink-0">{selectedUniversity.icon}</span>
-              <div className="min-w-0">
-                <p className="font-black text-slate-900 leading-tight truncate">{selectedUniversity.name}</p>
-                <p className="text-[10px] text-slate-500 font-semibold truncate">{selectedUniversity.campus}</p>
-              </div>
-            </div>
-
-            <ChevronDown className="w-4 h-4 text-red-600 shrink-0" />
-          </button>
-        </div>
-
-        <div className="flex items-center justify-between text-[11px] font-bold text-rose-100/90 pt-1 border-t border-white/10">
-          <span>Active Institution Code: <strong className="text-white">{selectedUniversity.code}</strong></span>
-          <button
-            onClick={() => setUniversityModalOpen(true)}
-            className="hover:underline flex items-center gap-1 text-white font-extrabold cursor-pointer"
-          >
-            <span>Change College / Campus</span>
-            <ChevronRight className="w-3.5 h-3.5" />
+            <span>Switch University / College</span>
+            <ArrowRight className="w-3.5 h-3.5 text-red-600" />
           </button>
         </div>
       </div>
 
-      {/* 2. COMPACT ELEGANT USER GREETING HEADER */}
+      {/* 2. USER GREETING HEADER */}
       <div className="p-5 sm:p-6 rounded-3xl bg-white border border-slate-200 shadow-xl space-y-2">
         <div className="flex items-center gap-2 flex-wrap">
           <span className="px-3 py-0.5 rounded-full bg-red-100 text-red-800 text-[10px] font-black uppercase tracking-wider">
@@ -176,16 +168,13 @@ export default function WoxsenCampusPortalPage() {
             <MapPin className="w-3 h-3 text-red-600" />
             <span>{currentUser?.roomOrUnit || 'Hostel B - Room 204'}</span>
           </span>
-          <span className="px-3 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[10px] font-bold border border-rose-200">
-            {selectedUniversity.name}
-          </span>
         </div>
 
         <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
           Welcome back, {currentUser?.name?.split(' ')[0] || 'Aarav'} 👋
         </h1>
         <p className="text-xs text-slate-500 font-semibold">
-          Access campus service desks, food court ordering, laundry slots & gate passes for {selectedUniversity.name}.
+          Access campus service desks, food court ordering, laundry slots & gate passes.
         </p>
       </div>
 
@@ -220,7 +209,7 @@ export default function WoxsenCampusPortalPage() {
         <div className="flex items-center justify-between px-1">
           <h2 className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
             <Sparkles className="w-4 h-4 text-red-600" />
-            <span>{selectedUniversity.name} Service & Booking Desks</span>
+            <span>Campus Service & Booking Desks</span>
           </h2>
           <span className="text-[10px] font-bold text-red-700 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-200">
             7 Service Desks
@@ -267,81 +256,7 @@ export default function WoxsenCampusPortalPage() {
         </div>
       </div>
 
-      {/* MODAL 1: SELECT UNIVERSITY / COLLEGE MODAL */}
-      {universityModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-red-600 text-white flex items-center justify-center font-black text-xl shadow-md">
-                  🎓
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-slate-900">Select University / College</h3>
-                  <p className="text-[11px] text-slate-500 font-semibold">Choose your active campus & academic school</p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setUniversityModalOpen(false)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1">
-              {universitiesList.map((uni) => {
-                const isSelected = selectedUniversity.id === uni.id;
-                return (
-                  <div
-                    key={uni.id}
-                    onClick={() => {
-                      setSelectedUniversity(uni);
-                      setUniversityModalOpen(false);
-                    }}
-                    className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between gap-3 ${
-                      isSelected
-                        ? 'bg-red-50/80 border-red-600 shadow-md'
-                        : 'bg-white border-slate-200 hover:border-slate-300 shadow-2xs'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span className="text-2xl shrink-0">{uni.icon}</span>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-xs sm:text-sm font-black text-slate-900 truncate">{uni.name}</h4>
-                          <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 shrink-0">
-                            {uni.badge}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-slate-500 font-semibold truncate">{uni.campus}</p>
-                      </div>
-                    </div>
-
-                    {isSelected && (
-                      <div className="w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center shrink-0">
-                        <Check className="w-3.5 h-3.5" />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="pt-2 border-t border-slate-100 text-center">
-              <button
-                onClick={() => setUniversityModalOpen(false)}
-                className="w-full py-2.5 rounded-2xl bg-slate-900 text-white font-black text-xs shadow-md uppercase tracking-wider cursor-pointer"
-              >
-                Confirm University Selection
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL 2: HOSTEL MAINTENANCE SUB-CATEGORIES MODAL */}
+      {/* HOSTEL MAINTENANCE SUB-CATEGORIES MODAL */}
       {subCategoryModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl animate-in fade-in zoom-in-95">

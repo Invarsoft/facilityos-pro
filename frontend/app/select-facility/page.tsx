@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import FirstScreenSelectPlace from '../page';
+import SelectUniversityGatewayPage from '../select-university/page';
 
 export default function SelectFacilityPage() {
-  return <FirstScreenSelectPlace />;
+  return <SelectUniversityGatewayPage />;
 }
