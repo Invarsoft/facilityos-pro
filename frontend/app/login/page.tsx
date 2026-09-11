@@ -14,13 +14,13 @@ function LoginContent() {
   return (
     <div className="fixed inset-0 z-50 bg-[#060913] text-white flex flex-col justify-between overflow-y-auto font-sans select-none">
       
-      {/* 1. DUAL RED/BLUE GLOW LIGHTING BACKGROUND (EXACT MATCH FOR media_1789128661707.jpg) */}
+      {/* 1. DUAL RED/BLUE GLOW LIGHTING BACKGROUND (EXACT MATCH FOR media_1789128936888.jpg) */}
       <div className="absolute top-0 left-0 w-[550px] h-[550px] bg-red-600/25 blur-[160px] rounded-full pointer-events-none" />
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/30 blur-[160px] rounded-full pointer-events-none" />
 
       {/* 2. CAMPUS ARCHITECTURE WATERMARK OVERLAY */}
       <div
-        className="absolute inset-0 bg-cover bg-bottom opacity-15 pointer-events-none mix-blend-luminosity"
+        className="absolute inset-0 bg-cover bg-bottom opacity-20 pointer-events-none mix-blend-luminosity"
         style={{ backgroundImage: `url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1920&auto=format&fit=crop')` }}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-[#04060d] via-[#060913]/70 to-transparent pointer-events-none" />
@@ -50,7 +50,7 @@ function LoginContent() {
         </p>
       </header>
 
-      {/* 4. MAIN LOGIN CONTENT CONTAINER (EXACT MATCH FOR media_1789128661707.jpg) */}
+      {/* 4. MAIN LOGIN CONTENT CONTAINER */}
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:py-12 relative z-10 max-w-4xl mx-auto w-full space-y-6 text-center">
         
         {/* HERO TITLE */}
@@ -69,11 +69,11 @@ function LoginContent() {
         </div>
 
         {/* 5. FOUR FEATURE BADGES WITH VERTICAL DIVIDERS */}
-        <div className="w-full pt-4">
+        <div className="w-full pt-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-0 max-w-3xl mx-auto divide-y md:divide-y-0 md:divide-x divide-slate-800/60">
             
             {/* BADGE 1 */}
-            <div className="flex flex-col items-center text-center space-y-1.5 p-2 group">
+            <div className="flex flex-col items-center text-center space-y-2 p-2 group">
               <div className="w-10 h-10 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 flex items-center justify-center shadow-lg shadow-red-500/10 group-hover:scale-110 transition-transform">
                 <Zap className="w-4 h-4 fill-red-400" />
               </div>
@@ -83,7 +83,7 @@ function LoginContent() {
             </div>
 
             {/* BADGE 2 */}
-            <div className="flex flex-col items-center text-center space-y-1.5 p-2 group">
+            <div className="flex flex-col items-center text-center space-y-2 p-2 group">
               <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-blue-400 flex items-center justify-center shadow-lg shadow-blue-500/10 group-hover:scale-110 transition-transform">
                 <ShieldCheck className="w-4 h-4" />
               </div>
@@ -93,7 +93,7 @@ function LoginContent() {
             </div>
 
             {/* BADGE 3 */}
-            <div className="flex flex-col items-center text-center space-y-1.5 p-2 group">
+            <div className="flex flex-col items-center text-center space-y-2 p-2 group">
               <div className="w-10 h-10 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-purple-400 flex items-center justify-center shadow-lg shadow-purple-500/10 group-hover:scale-110 transition-transform">
                 <Users className="w-4 h-4" />
               </div>
@@ -103,7 +103,7 @@ function LoginContent() {
             </div>
 
             {/* BADGE 4 */}
-            <div className="flex flex-col items-center text-center space-y-1.5 p-2 group">
+            <div className="flex flex-col items-center text-center space-y-2 p-2 group">
               <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/10 group-hover:scale-110 transition-transform">
                 <BarChart3 className="w-4 h-4" />
               </div>

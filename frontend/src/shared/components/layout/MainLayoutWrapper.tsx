@@ -13,16 +13,17 @@ export const MainLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { aiDrawerOpen, setAiDrawerOpen, isAuthenticated } = useApp();
 
-  // Standalone Full-Screen Pages (University Selector, Standalone Food/Laundry apps):
+  // Standalone Full-Screen Pages (University Selector, Login, Standalone Food/Laundry apps):
   const isStandalonePage =
     pathname === '/select-university' ||
     pathname === '/select-facility' ||
+    pathname === '/login' ||
     pathname === '/laundry' ||
     pathname === '/food';
 
   if (isStandalonePage) {
     return (
-      <div className="min-h-screen bg-[#070b14] text-white transition-colors relative">
+      <div className="min-h-screen bg-[#060913] text-white transition-colors relative">
         <main className="w-full min-h-screen p-0 m-0">
           {children}
         </main>
@@ -33,11 +34,10 @@ export const MainLayoutWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
     );
   }
 
-  // Full-width pages without sidebar (Login, Organizations):
+  // Full-width pages without sidebar (Organizations):
   const isFullWidthPage =
     pathname === '/organizations' ||
     pathname.startsWith('/organizations/') ||
-    pathname === '/login' ||
     !isAuthenticated;
 
   return (
