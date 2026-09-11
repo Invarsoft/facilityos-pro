@@ -8,10 +8,6 @@ import {
   Search,
   X,
   ChevronRight,
-  Settings,
-  ShieldCheck,
-  Users,
-  BarChart3,
 } from 'lucide-react';
 
 export default function SelectUniversityGatewayPage() {
@@ -72,10 +68,10 @@ export default function SelectUniversityGatewayPage() {
       <div className="absolute top-1/3 right-0 w-[450px] h-[450px] bg-blue-600/25 blur-[140px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-80 bg-gradient-to-t from-[#04060c] via-[#070b14]/90 to-transparent pointer-events-none" />
 
-      {/* 1. TOP HEADER NAVIGATION BAR (SIGN IN BUTTON REMOVED) */}
+      {/* 1. TOP HEADER NAVIGATION BAR */}
       <header className="w-full px-4 sm:px-12 py-4 sm:py-5 flex items-center justify-between border-b border-slate-800/40 relative z-20 backdrop-blur-md bg-[#070b14]/70">
         
-        {/* LOGO ONLY */}
+        {/* LOGO */}
         <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 text-white font-black text-lg sm:text-xl flex items-center justify-center shadow-lg shadow-red-600/30 group-hover:scale-105 transition-transform">
             F
@@ -197,50 +193,9 @@ export default function SelectUniversityGatewayPage() {
           </p>
         </div>
 
-        {/* 3. FOUR FEATURE HIGHLIGHT BADGES */}
-        <div className="w-full pt-5 border-t border-slate-800/40 grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-5 max-w-3xl mx-auto">
-          
-          <div className="flex flex-col items-center text-center space-y-1.5 group">
-            <div className="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 flex items-center justify-center shadow-lg shadow-red-500/10 group-hover:scale-110 transition-transform">
-              <Settings className="w-4 h-4" />
-            </div>
-            <p className="text-[11px] font-bold text-slate-300 group-hover:text-white transition-colors">
-              Streamline Operations
-            </p>
-          </div>
-
-          <div className="flex flex-col items-center text-center space-y-1.5 group">
-            <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 flex items-center justify-center shadow-lg shadow-blue-500/10 group-hover:scale-110 transition-transform">
-              <ShieldCheck className="w-4 h-4" />
-            </div>
-            <p className="text-[11px] font-bold text-slate-300 group-hover:text-white transition-colors">
-              Ensure Safety & Compliance
-            </p>
-          </div>
-
-          <div className="flex flex-col items-center text-center space-y-1.5 group">
-            <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 flex items-center justify-center shadow-lg shadow-purple-500/10 group-hover:scale-110 transition-transform">
-              <Users className="w-4 h-4" />
-            </div>
-            <p className="text-[11px] font-bold text-slate-300 group-hover:text-white transition-colors">
-              Better Campus Experience
-            </p>
-          </div>
-
-          <div className="flex flex-col items-center text-center space-y-1.5 group">
-            <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/10 group-hover:scale-110 transition-transform">
-              <BarChart3 className="w-4 h-4" />
-            </div>
-            <p className="text-[11px] font-bold text-slate-300 group-hover:text-white transition-colors">
-              Data-Driven Decisions
-            </p>
-          </div>
-
-        </div>
-
       </main>
 
-      {/* 4. FOOTER */}
+      {/* 3. FOOTER */}
       <footer className="w-full px-4 sm:px-12 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-[10px] font-semibold text-slate-500 relative z-10 border-t border-slate-800/40 bg-[#04060c]/80 backdrop-blur-md">
         <div className="flex items-center gap-2">
           <span className="font-black text-white">Facility<span className="text-red-500">OS</span></span>
