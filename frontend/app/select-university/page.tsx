@@ -9,16 +9,16 @@ import {
   X,
   ChevronRight,
   Moon,
-  Sun,
   LogIn,
-  Sparkles,
+  GraduationCap,
 } from 'lucide-react';
 
 export default function SelectUniversityGatewayPage() {
   const router = useRouter();
   const { setSelectedOrganization } = useApp();
 
-  const [searchQuery, setSearchQuery] = useState('wox');
+  // Search Query starts empty by default
+  const [searchQuery, setSearchQuery] = useState('');
 
   const allUniversities = [
     { id: 'woxsen_main', name: 'Woxsen University', location: 'Hyderabad, Telangana', code: 'WOX-HYD' },
@@ -29,16 +29,21 @@ export default function SelectUniversityGatewayPage() {
     { id: 'iit_hyd', name: 'IIT Hyderabad', location: 'Kandi, Sangareddy', code: 'IITH' },
     { id: 'bits_hyd', name: 'BITS Pilani — Hyderabad Campus', location: 'Jawahar Nagar, Hyderabad', code: 'BITS' },
     { id: 'nalsar_law', name: 'NALSAR University of Law', location: 'Shamirpet, Hyderabad', code: 'NALSAR' },
+    { id: 'mahindra_uni', name: 'Mahindra University', location: 'Bahadurpally, Hyderabad', code: 'MU-HYD' },
+    { id: 'isb_hyd', name: 'Indian School of Business (ISB)', location: 'Gachibowli, Hyderabad', code: 'ISB' },
   ];
 
-  const filtered = searchQuery.trim().length === 0
-    ? allUniversities
-    : allUniversities.filter(
+  // Only show results when user types at least 3 letters
+  const hasMinQueryLength = searchQuery.trim().length >= 3;
+
+  const filtered = hasMinQueryLength
+    ? allUniversities.filter(
         (u) =>
           u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           u.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
           u.code.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      )
+    : [];
 
   const handleSelectUniversity = (uni: typeof allUniversities[0]) => {
     if (setSelectedOrganization) {
@@ -59,9 +64,9 @@ export default function SelectUniversityGatewayPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070b14] text-white flex flex-col justify-between relative overflow-hidden font-sans select-none">
+    <div className="fixed inset-0 z-50 bg-[#070b14] text-white flex flex-col justify-between overflow-y-auto font-sans select-none">
       
-      {/* GLOW BACKGROUND EFFECTS (EXACT MATCH FOR media_1789124410155.png) */}
+      {/* GLOW BACKGROUND EFFECTS */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-blue-600/20 via-red-600/25 to-purple-600/20 blur-[130px] rounded-full pointer-events-none" />
       <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-red-600/15 blur-[120px] rounded-full pointer-events-none" />
       
@@ -87,7 +92,7 @@ export default function SelectUniversityGatewayPage() {
           </div>
         </Link>
 
-        {/* RIGHT CONTROLS: THEME TOGGLE & SIGN IN */}
+        {/* RIGHT CONTROLS */}
         <div className="flex items-center gap-4">
           <button
             type="button"
@@ -108,7 +113,7 @@ export default function SelectUniversityGatewayPage() {
 
       </header>
 
-      {/* 2. HERO SEARCH SECTION (EXACT MATCH FOR media_1789124410155.png) */}
+      {/* 2. HERO SEARCH SECTION */}
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-12 relative z-10 max-w-4xl mx-auto w-full space-y-8 text-center">
         
         {/* EYEBROW & MAIN TITLE */}
@@ -126,7 +131,7 @@ export default function SelectUniversityGatewayPage() {
           </p>
         </div>
 
-        {/* NEON GLOW SEARCH BAR (EXACT MATCH FOR media_1789124410155.png) */}
+        {/* NEON GLOW SEARCH BAR */}
         <div className="w-full max-w-xl space-y-2">
           <div className="relative group">
             
@@ -158,48 +163,55 @@ export default function SelectUniversityGatewayPage() {
           </div>
 
           <p className="text-[11px] text-slate-500 font-medium text-center">
-            Type at least 3 letters to search
+            {hasMinQueryLength
+              ? `Showing results for "${searchQuery}"`
+              : 'Type at least 3 letters to search'}
           </p>
         </div>
 
-        {/* SEARCH RESULTS CARD CONTAINER (EXACT MATCH FOR media_1789124410155.png) */}
-        <div className="w-full max-w-xl rounded-3xl bg-[#0b1120]/90 border border-slate-800/90 p-5 shadow-2xl backdrop-blur-xl text-left space-y-3">
-          
-          {/* HEADER ROW */}
-          <div className="flex items-center justify-between text-[11px] font-black tracking-wider text-slate-400 uppercase border-b border-slate-800/60 pb-3 px-1">
-            <span>UNIVERSITIES & COLLEGES</span>
-            <span className="text-slate-400 font-bold">{filtered.length} results</span>
-          </div>
+        {/* SEARCH RESULTS CARD CONTAINER (ONLY VISIBLE WHEN USER TYPES >= 3 LETTERS) */}
+        {hasMinQueryLength && (
+          <div className="w-full max-w-xl rounded-3xl bg-[#0b1120]/90 border border-slate-800/90 p-5 shadow-2xl backdrop-blur-xl text-left space-y-3 animate-in fade-in zoom-in-95 duration-200">
+            
+            {/* HEADER ROW */}
+            <div className="flex items-center justify-between text-[11px] font-black tracking-wider text-slate-400 uppercase border-b border-slate-800/60 pb-3 px-1">
+              <span>UNIVERSITIES & COLLEGES</span>
+              <span className="text-slate-400 font-bold">{filtered.length} results</span>
+            </div>
 
-          {/* RESULTS LIST */}
-          <div className="divide-y divide-slate-800/60">
-            {filtered.length > 0 ? (
-              filtered.map((uni) => (
-                <div
-                  key={uni.id}
-                  onClick={() => handleSelectUniversity(uni)}
-                  className="py-3.5 px-3 rounded-2xl hover:bg-slate-800/60 transition-all cursor-pointer flex items-center justify-between group"
-                >
-                  <div className="space-y-0.5">
-                    <h3 className="text-sm font-black text-white group-hover:text-red-400 transition-colors">
-                      {uni.name}
-                    </h3>
-                    <p className="text-xs text-slate-400 font-semibold">
-                      {uni.location}
-                    </p>
+            {/* RESULTS LIST */}
+            <div className="divide-y divide-slate-800/60 max-h-80 overflow-y-auto">
+              {filtered.length > 0 ? (
+                filtered.map((uni) => (
+                  <div
+                    key={uni.id}
+                    onClick={() => handleSelectUniversity(uni)}
+                    className="py-3.5 px-3 rounded-2xl hover:bg-slate-800/60 transition-all cursor-pointer flex items-center justify-between group"
+                  >
+                    <div className="space-y-0.5">
+                      <h3 className="text-sm font-black text-white group-hover:text-red-400 transition-colors">
+                        {uni.name}
+                      </h3>
+                      <p className="text-xs text-slate-400 font-semibold">
+                        {uni.location}
+                      </p>
+                    </div>
+
+                    <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-white group-hover:translate-x-1 transition-all shrink-0" />
                   </div>
-
-                  <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-white group-hover:translate-x-1 transition-all shrink-0" />
+                ))
+              ) : (
+                <div className="py-8 text-center space-y-1">
+                  <p className="text-sm font-black text-slate-300">No matching campus found</p>
+                  <p className="text-xs font-semibold text-slate-500">
+                    No university matches "{searchQuery}". Try searching "wox", "iit", or "bits".
+                  </p>
                 </div>
-              ))
-            ) : (
-              <div className="py-8 text-center text-xs font-semibold text-slate-500">
-                No universities found matching "{searchQuery}".
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-        </div>
+          </div>
+        )}
 
       </main>
 
