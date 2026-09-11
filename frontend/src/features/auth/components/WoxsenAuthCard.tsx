@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useApp } from '@/lib/context/AppContext';
 import {
@@ -28,6 +28,17 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
   const router = useRouter();
   const { loginWithToken, loginWithEmail, signUpStudent, users } = useApp();
 
+  const [universityName, setUniversityName] = useState('Woxsen University');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('selected_university_name');
+      if (stored) {
+        setUniversityName(stored);
+      }
+    }
+  }, []);
+
   const [authTab, setAuthTab] = useState<'signin' | 'token' | 'signup'>('signin');
 
   // Email Sign In States & Password Visibility
@@ -43,12 +54,6 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
   // Access Token States
   const [tokenInput, setTokenInput] = useState('');
   const [pinInput, setPinInput] = useState('');
-
-  // Sign Up Form States
-  const [signUpName, setSignUpName] = useState('');
-  const [signUpEmail, setSignUpEmail] = useState('');
-  const [signUpPassword, setSignUpPassword] = useState('');
-  const [signUpConfirmPassword, setSignUpConfirmPassword] = useState('');
 
   const [authError, setAuthError] = useState('');
   const [authNotice, setAuthNotice] = useState('');
@@ -69,15 +74,9 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
     }
   };
 
-  const isValidWoxsenDomain = (email: string): boolean => {
+  const isValidUniversityDomain = (email: string): boolean => {
     const clean = email.trim().toLowerCase();
-    if (!clean.includes('@')) return false;
-    return (
-      clean.endsWith('@woxsen.edu.in') ||
-      clean.endsWith('@university.edu') ||
-      clean === 'admin@woxsen.edu.in' ||
-      clean === 'student@woxsen.edu.in'
-    );
+    return clean.includes('@') && clean.includes('.');
   };
 
   const handleSendOtp = (e: React.FormEvent) => {
@@ -92,8 +91,8 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
       return;
     }
 
-    if (!isValidWoxsenDomain(email)) {
-      setAuthError('❌ Login Restricted: Email MUST end with @woxsen.edu.in domain.');
+    if (!isValidUniversityDomain(email)) {
+      setAuthError('Please enter a valid university email address.');
       return;
     }
 
@@ -120,7 +119,7 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
     if (success) {
       redirectByRole(matchedUser?.role || (email.includes('admin') ? 'admin' : email.includes('warden') ? 'warden' : email.includes('ravi') ? 'worker' : 'student'));
     } else {
-      setAuthError('❌ Sign in failed. Only @woxsen.edu.in registered accounts can log in.');
+      setAuthError('❌ Sign in failed. Please check your credentials.');
     }
   };
 
@@ -164,19 +163,16 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
   return (
     <div className="p-6 sm:p-7 rounded-[28px] bg-[#0b1120]/90 border border-slate-700/50 shadow-[0_0_50px_rgba(0,0,0,0.85)] backdrop-blur-2xl text-left space-y-5 max-w-[440px] mx-auto font-sans relative z-20">
       
-      {/* WOXSEN UNIVERSITY EMBLEM (EXACT MATCH FOR media_1789129357501.jpg) */}
-      <div className="flex flex-col items-center justify-center pt-2 pb-1">
+      {/* DYNAMIC UNIVERSITY EMBLEM HEADER */}
+      <div className="flex flex-col items-center justify-center pt-2 pb-1 text-center">
         <div className="flex items-center justify-center gap-1.5">
           <span className="text-2xl font-black text-red-500 tracking-tighter">W</span>
           <span className="text-lg">🌐</span>
           <span className="text-2xl font-black text-red-500 tracking-tighter">U</span>
         </div>
-        <div className="text-center mt-0.5">
-          <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white leading-none">
-            WOXSEN
-          </p>
-          <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-400 leading-tight">
-            UNIVERSITY
+        <div className="text-center mt-1">
+          <p className="text-[11px] font-black uppercase tracking-[0.25em] text-white leading-tight">
+            {universityName}
           </p>
         </div>
       </div>
@@ -224,12 +220,12 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
         </div>
       )}
 
-      {/* FORM 1: EMAIL SIGN IN (EXACT MATCH FOR media_1789129357501.jpg) */}
+      {/* FORM 1: EMAIL SIGN IN (EXACT MATCH FOR media_1789129602015.jpg) */}
       {authTab === 'signin' && authStep === 'credentials' && (
         <form onSubmit={handleSendOtp} className="space-y-4">
           <div className="space-y-1">
             <label className="block text-xs font-bold text-slate-300">
-              Woxsen Email Address
+              University Email Address
             </label>
             <div className="relative">
               <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -243,7 +239,7 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
               />
             </div>
             <p className="text-[10px] text-slate-400 font-medium">
-              Use your official <strong>@woxsen.edu.in</strong> email address
+              Use your official university email address
             </p>
           </div>
 
@@ -367,7 +363,7 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
         </form>
       )}
 
-      {/* 9 DEMO ROLE QUICK ACCESS CARDS (EXACT MATCH FOR media_1789129357501.jpg) */}
+      {/* 9 DEMO ROLE QUICK ACCESS CARDS */}
       <div className="pt-4 border-t border-slate-800/80 space-y-3">
         <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-400">
           <span>QUICK ACCESS (DEMO)</span>
