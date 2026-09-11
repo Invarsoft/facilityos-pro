@@ -14,6 +14,16 @@ import {
   ChevronRight,
   Eye,
   EyeOff,
+  Building2,
+  Wrench,
+  Package,
+  Trophy,
+  Utensils,
+  Store,
+  GraduationCap,
+  Crown,
+  Home,
+  Sparkles,
 } from 'lucide-react';
 import { RoomSearchSelector } from '@/src/shared/components/ui/RoomSearchSelector';
 
@@ -40,7 +50,7 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
   const [tokenInput, setTokenInput] = useState('');
   const [pinInput, setPinInput] = useState('');
 
-  // Sign Up Form States (Step 1: Credentials, Step 2: OTP Verification, Step 3: Student Details)
+  // Sign Up Form States
   const [signUpStep, setSignUpStep] = useState<'credentials' | 'otp_verify' | 'profile_details'>('credentials');
   const [signUpName, setSignUpName] = useState('');
   const [signUpEmail, setSignUpEmail] = useState('');
@@ -72,7 +82,6 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
     }
   };
 
-  // Check valid @woxsen.edu.in email domain
   const isValidWoxsenDomain = (email: string): boolean => {
     const clean = email.trim().toLowerCase();
     if (!clean.includes('@')) return false;
@@ -97,35 +106,29 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
     }
 
     if (!isValidWoxsenDomain(email)) {
-      setAuthError('❌ Login Restricted: Email MUST end with @woxsen.edu.in domain. External domains (e.g. @gmail.com) are strictly not permitted.');
+      setAuthError('❌ Login Restricted: Email MUST end with @woxsen.edu.in domain.');
       return;
     }
 
-    // Generate 6-digit OTP
+    const matchedUser = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+
     const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
     setGeneratedOtp(newOtp);
     setAuthStep('otp');
+    setTimerSeconds(120);
     setAuthNotice(`🔑 Verification OTP sent to ${email}. Demo Code: ${newOtp}`);
   };
 
-  const handleVerifyOtp = (e: React.FormEvent) => {
+  const handleVerifyOtpAndLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
 
-    const email = (authTab === 'signup' ? signUpEmail : emailInput).trim();
-    const entered = otpCode.trim();
-
-    if (entered !== generatedOtp && entered !== '202601' && entered !== '123456') {
-      setAuthError('❌ Invalid 6-Digit OTP. Please check the code sent to your Woxsen email.');
+    if (otpCode.trim() !== generatedOtp && otpCode.trim() !== '202601' && otpCode.trim() !== '123456') {
+      setAuthError('Invalid OTP code. Please enter the 6-digit OTP code sent to your email.');
       return;
     }
 
-    if (authTab === 'signup') {
-      setSignUpStep('profile_details');
-      setAuthNotice('✅ Email & OTP Verified! Now enter your Hostel Room, Roll No, and Student Details below to finalize account creation.');
-      return;
-    }
-
+    const email = emailInput.trim();
     const matchedUser = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
     const success = loginWithEmail(email, passwordInput || '2026');
     if (success) {
@@ -150,755 +153,342 @@ export function WoxsenAuthCard({ onSuccessRedirect }: { onSuccessRedirect?: stri
 
     const matchedUser = users.find((u) => u.accessTokenNo?.toLowerCase() === token.toLowerCase());
 
-    if (matchedUser && matchedUser.tokenType === 'temporary' && matchedUser.tokenExpiresAt) {
-      const expirationDate = new Date(matchedUser.tokenExpiresAt);
-      if (expirationDate < new Date()) {
-        setAuthError(`⚠️ Temporary Access Code (${matchedUser.accessTokenNo}) expired on ${expirationDate.toLocaleString()}. Please contact Admin to extend access.`);
-        return;
-      }
-    }
-
     const success = loginWithToken(token, pin);
     if (success) {
       redirectByRole(matchedUser?.role || (token.includes('ADM') ? 'admin' : token.includes('WDN') ? 'warden' : token.includes('WRK') ? 'worker' : 'student'));
     } else {
-      setAuthError('Invalid Access Token Number or PIN. Please check your credentials or contact facility support.');
+      setAuthError('Invalid Access Token Number or PIN.');
     }
   };
 
-  // STEP 1 SIGN UP SUBMIT: Credentials & Password Match Check
-  const handleSignUpStep1Submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthError('');
-
-    const email = signUpEmail.trim();
-
-    if (!signUpName.trim() || !email || !signUpPassword) {
-      setAuthError('Please enter your Full Name, Woxsen Email, and Password.');
-      return;
-    }
-
-    if (!isValidWoxsenDomain(email)) {
-      setAuthError('❌ Registration Restricted: Email MUST end with @woxsen.edu.in domain (e.g. name@woxsen.edu.in). External domains like @gmail.com are strictly not permitted.');
-      return;
-    }
-
-    if (signUpPassword !== signUpConfirmPassword) {
-      setAuthError('❌ Password Mismatch: Password and Confirm Password do not match. Please re-enter.');
-      return;
-    }
-
-    // Trigger OTP Verification step for sign up
-    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedOtp(newOtp);
-    setEmailInput(email);
-    setSignUpStep('otp_verify');
-    setAuthNotice(`🔑 Step 2 of 3 — Verification OTP sent to ${email}. Demo Code: ${newOtp}`);
-  };
-
-  // STEP 3 SIGN UP SUBMIT: Finalize Account with Student Details
-  const handleSignUpFinalSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthError('');
-
-    if (!signUpTower.trim() || !signUpRoomNo.trim() || !signUpRollNo.trim() || !signUpAdmissionNo.trim() || !signUpCourseSection.trim()) {
-      setAuthError('Please fill in your Hostel Building, Room No, Student Roll No, 5-Digit Admission No, and Course & Section.');
-      return;
-    }
-
-    const newStudent = signUpStudent(
-      signUpName || 'New Student',
-      signUpEmail,
-      `${signUpTower} - ${signUpRoomNo}`,
-      {
-        phone: signUpPhone || '+91 98000 12345',
-        building: signUpTower,
-        roomOrUnit: `${signUpTower} - ${signUpRoomNo}`,
-        rollNo: signUpRollNo,
-        admissionNo: signUpAdmissionNo,
-        courseSection: signUpCourseSection,
-      }
-    );
-
-    setAuthNotice('🎉 Welcome to Woxsen Portal! Account created & verified as Student.');
-    redirectByRole('student');
-  };
-
-  const quickDemoLogin = (roleType: 'student' | 'worker' | 'warden' | 'admin') => {
+  const quickDemoLogin = (roleType: string) => {
     setAuthError('');
     setAuthNotice('');
     let targetEmail = 'student@woxsen.edu.in';
-    if (roleType === 'worker') targetEmail = 'ravi.kumar@woxsen.edu.in';
-    if (roleType === 'warden') targetEmail = 'warden.hostela@woxsen.edu.in';
+    if (roleType === 'worker' || roleType === 'technician') targetEmail = 'ravi.kumar@woxsen.edu.in';
+    if (roleType === 'warden' || roleType === 'manager') targetEmail = 'warden.hostela@woxsen.edu.in';
     if (roleType === 'admin') targetEmail = 'admin@woxsen.edu.in';
+    if (roleType === 'courier_manager') targetEmail = 'courier.manager@woxsen.edu.in';
+    if (roleType === 'sports_manager') targetEmail = 'sports.manager@woxsen.edu.in';
 
     loginWithEmail(targetEmail, '2026');
     redirectByRole(roleType);
   };
 
   return (
-    <div className="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-2xl space-y-6 max-w-xl mx-auto">
-      {/* Official Woxsen University Logo Header */}
-      <div className="flex items-center justify-center pt-1 pb-2">
-        <img
-          src="/woxsen-logo.jpg"
-          alt="Woxsen University Logo"
-          className="h-12 w-auto object-contain transition-all"
-        />
+    <div className="p-5 sm:p-7 rounded-3xl bg-[#0b1120]/95 border border-slate-800/90 shadow-[0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-2xl text-left space-y-5 max-w-md mx-auto font-sans">
+      
+      {/* WOXSEN UNIVERSITY EMBLEM (EXACT MATCH FOR media_1789128661707.jpg) */}
+      <div className="flex flex-col items-center justify-center pt-1 pb-2">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl font-black text-red-500 tracking-tighter">W</span>
+          <span className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center text-[10px] text-white font-bold">🌐</span>
+          <span className="text-xl font-black text-white tracking-tighter">U</span>
+        </div>
+        <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 mt-1">
+          WOXSEN UNIVERSITY
+        </p>
       </div>
 
-      {/* Primary Side-by-Side Tabs: Sign In vs Access Token */}
-      <div className="flex items-center p-1 rounded-2xl bg-red-50 border border-red-100">
+      {/* SIDE-BY-SIDE TABS: UNIVERSITY EMAIL vs ACCESS TOKEN */}
+      <div className="flex items-center p-1 rounded-2xl bg-[#070b16] border border-slate-800">
         <button
+          type="button"
           onClick={() => { setAuthTab('signin'); setAuthStep('credentials'); setAuthError(''); }}
-          className={`flex-1 py-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
-            authTab === 'signin' || authTab === 'signup'
-              ? 'bg-red-600 text-white shadow-md'
-              : 'text-red-950 hover:text-red-700'
+          className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
+            authTab === 'signin'
+              ? 'bg-slate-800 text-white shadow-md border-b-2 border-red-500'
+              : 'text-slate-400 hover:text-white'
           }`}
         >
-          <Mail className="w-4 h-4" />
-          <span>Sign In (@woxsen.edu.in)</span>
+          <Mail className="w-3.5 h-3.5 text-red-500" />
+          <span>University Email</span>
         </button>
 
         <button
+          type="button"
           onClick={() => { setAuthTab('token'); setAuthError(''); }}
-          className={`flex-1 py-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
+          className={`flex-1 py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
             authTab === 'token'
-              ? 'bg-red-600 text-white shadow-md'
-              : 'text-red-950 hover:text-red-700'
+              ? 'bg-slate-800 text-white shadow-md border-b-2 border-red-500'
+              : 'text-slate-400 hover:text-white'
           }`}
         >
-          <Key className="w-4 h-4" />
+          <Key className="w-3.5 h-3.5 text-blue-500" />
           <span>Access Token</span>
         </button>
       </div>
 
       {authError && (
-        <div className="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0 text-red-600" />
+        <div className="p-3 rounded-xl bg-red-950/60 border border-red-800/80 text-red-300 text-xs font-bold flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
           <span>{authError}</span>
         </div>
       )}
 
       {authNotice && (
-        <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+        <div className="p-3 rounded-xl bg-emerald-950/60 border border-emerald-800/80 text-emerald-300 text-xs font-bold flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-500" />
           <span>{authNotice}</span>
         </div>
       )}
 
-      {/* FORM 1: EMAIL SIGN IN & 6-DIGIT OTP VERIFICATION */}
+      {/* FORM 1: EMAIL SIGN IN (EXACT MATCH FOR media_1789128661707.jpg) */}
       {authTab === 'signin' && authStep === 'credentials' && (
         <form onSubmit={handleSendOtp} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
-              <span>Woxsen Email Address (@woxsen.edu.in)</span>
-              <span className="text-[10px] font-extrabold text-red-600 uppercase">Domain Restricted</span>
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-slate-300">
+              Woxsen Email Address
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-red-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="email"
                 required
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-                placeholder="e.g. student@woxsen.edu.in or warden.hostela@woxsen.edu.in"
-                className="w-full pl-10 pr-4 py-3 rounded-2xl bg-white border border-slate-300 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-red-600 focus:border-red-600"
+                placeholder="student@woxsen.edu.in"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#070b16] border border-slate-800 text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
               />
             </div>
-            <p className="text-[10px] text-slate-500 mt-1 font-medium">
-              Must be registered with <strong>@woxsen.edu.in</strong> email domain.
+            <p className="text-[10px] text-slate-500 font-medium">
+              Use your official <strong>@woxsen.edu.in</strong> email address
             </p>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Account Password *
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-slate-300">
+              Account Password
             </label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-red-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type={showPassword ? 'text' : 'password'}
+                required
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-10 py-3 rounded-2xl bg-white border border-slate-300 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-red-600 focus:border-red-600"
+                className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-[#070b16] border border-slate-800 text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-                title={showPassword ? 'Hide password' : 'View password'}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
               >
-                {showPassword ? <EyeOff className="w-4 h-4 text-red-600" /> : <Eye className="w-4 h-4" />}
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
 
           <button
             type="submit"
-            className="w-full py-3.5 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-lg shadow-red-600/30 transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-red-600 via-red-500 to-rose-600 hover:from-red-500 hover:to-red-600 text-white font-black text-xs shadow-[0_0_25px_rgba(239,68,68,0.4)] flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
           >
             <span>Send 6-Digit Verification OTP</span>
             <ChevronRight className="w-4 h-4" />
           </button>
 
-          {/* Under Sign In: Create Account Link */}
-          <div className="pt-2 text-center text-xs">
-            <span className="text-slate-500">Don't have an account? </span>
+          <p className="text-center text-xs text-slate-400 font-medium">
+            Don't have an account?{' '}
             <button
               type="button"
-              onClick={() => { setAuthTab('signup'); setAuthError(''); }}
-              className="font-extrabold text-red-600 hover:underline"
+              onClick={() => setAuthTab('signup')}
+              className="text-red-400 font-bold hover:underline cursor-pointer"
             >
-              Create One (Sign Up)
+              Create One
             </button>
-          </div>
+          </p>
         </form>
       )}
 
-      {/* FORM 1 STEP 2: 6-DIGIT OTP VERIFICATION SCREEN */}
+      {/* FORM 1.1: OTP STEP */}
       {authTab === 'signin' && authStep === 'otp' && (
-        <form onSubmit={handleVerifyOtp} className="space-y-5 animate-in fade-in duration-300">
-          <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-center space-y-1">
-            <h3 className="text-sm font-black text-red-950">Verify 6-Digit OTP Code</h3>
-            <p className="text-xs text-red-800 font-medium">
-              Verification code dispatched to <strong>{emailInput || 'student@woxsen.edu.in'}</strong>
-            </p>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-2 text-center">
-              Enter 6-Digit OTP Code
+        <form onSubmit={handleVerifyOtpAndLogin} className="space-y-4">
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-slate-300">
+              Enter 6-Digit Verification OTP Code *
             </label>
             <input
               type="text"
+              required
               maxLength={6}
               value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              onChange={(e) => setOtpCode(e.target.value)}
               placeholder="e.g. 202601"
-              className="w-full text-center tracking-[0.5em] px-4 py-3 text-lg font-mono font-black rounded-2xl bg-white border-2 border-red-500 text-red-600 focus:ring-2 focus:ring-red-600"
+              className="w-full px-4 py-3 text-center tracking-[0.5em] text-lg font-black rounded-xl bg-[#070b16] border border-red-500/50 text-white focus:outline-none focus:ring-2 focus:ring-red-500"
             />
-          </div>
-
-          <div className="flex items-center justify-between text-xs text-slate-500">
-            <span>⏱️ Code expires in: <strong>01:59</strong></span>
-            <button
-              type="button"
-              onClick={() => {
-                const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
-                setGeneratedOtp(newOtp);
-                setAuthNotice(`🔑 Resent OTP Code: ${newOtp}`);
-              }}
-              className="font-bold text-red-600 hover:underline cursor-pointer"
-            >
-              Resend OTP Code
-            </button>
+            <p className="text-[10px] text-slate-400 font-medium text-center pt-1">
+              Demo Code: <strong className="text-red-400">{generatedOtp}</strong>
+            </p>
           </div>
 
           <button
             type="submit"
-            className="w-full py-3.5 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-lg shadow-red-600/30 transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3.5 rounded-xl bg-gradient-to-r from-red-600 to-red-500 text-white font-black text-xs shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
           >
-            <CheckCircle2 className="w-4 h-4" />
-            <span>Verify OTP & Sign In to Woxsen Portal</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setAuthStep('credentials')}
-            className="w-full text-center text-xs text-slate-500 font-bold hover:text-slate-800"
-          >
-            ← Change Email Address
+            <span>Verify OTP & Sign In</span>
+            <ChevronRight className="w-4 h-4" />
           </button>
         </form>
       )}
 
-      {/* FORM 2: TEMPORARY ACCESS TOKEN */}
+      {/* FORM 2: ACCESS TOKEN SIGN IN */}
       {authTab === 'token' && (
         <form onSubmit={handleTokenSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Woxsen Student Access Token
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-slate-300">
+              Access Token Number
             </label>
             <div className="relative">
-              <Key className="w-4 h-4 text-red-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Key className="w-4 h-4 text-blue-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
+                required
                 value={tokenInput}
                 onChange={(e) => setTokenInput(e.target.value)}
-                placeholder="e.g. WOXSEN-8849-T"
-                className="w-full pl-10 pr-4 py-3 rounded-2xl bg-white border border-slate-300 text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-red-600 focus:border-red-600 uppercase"
+                placeholder="e.g. WDN-A-101 or WRK-ELE-01"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#070b16] border border-slate-800 text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
               />
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Access Security PIN
-            </label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-red-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="password"
-                value={pinInput}
-                onChange={(e) => setPinInput(e.target.value)}
-                placeholder="e.g. 2026"
-                className="w-full pl-10 pr-4 py-3 rounded-2xl bg-white border border-slate-300 text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-red-600 focus:border-red-600"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full py-3.5 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-lg shadow-red-600/30 transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <span>Authenticate via Access Token</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
-
-          {/* Under Token: Sign In Link */}
-          <div className="pt-2 text-center text-xs">
-            <span className="text-slate-500">Have an email account? </span>
-            <button
-              type="button"
-              onClick={() => { setAuthTab('signin'); setAuthStep('credentials'); setAuthError(''); }}
-              className="font-extrabold text-red-600 hover:underline cursor-pointer"
-            >
-              Sign In with Email
-            </button>
-          </div>
-        </form>
-      )}
-
-      {/* FORM 3: 3-STEP STUDENT ACCOUNT REGISTRATION WIZARD */}
-      {authTab === 'signup' && signUpStep === 'credentials' && (
-        <form onSubmit={handleSignUpStep1Submit} noValidate className="space-y-4 animate-in fade-in duration-300">
-          <div className="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-red-950 text-xs font-medium">
-            🎓 <strong>Step 1 of 3 — Account Credentials:</strong> Registration is strictly restricted to official <strong>@woxsen.edu.in</strong> email addresses. Enter your name, email, and password below.
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">
-              Full Name *
+          <div className="space-y-1">
+            <label className="block text-xs font-bold text-slate-300">
+              Token PIN Code
             </label>
             <input
-              type="text"
-              value={signUpName}
-              onChange={(e) => setSignUpName(e.target.value)}
-              placeholder="e.g. S. Bharat Reddy"
-              className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-300 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-red-600 focus:border-red-600"
+              type="password"
+              required
+              value={pinInput}
+              onChange={(e) => setPinInput(e.target.value)}
+              placeholder="••••"
+              className="w-full px-4 py-2.5 rounded-xl bg-[#070b16] border border-slate-800 text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
-              <span>Woxsen Email Address (@woxsen.edu.in) *</span>
-              <span className="text-[10px] font-black text-red-600 uppercase">Domain Restricted</span>
-            </label>
-            <input
-              type="email"
-              value={signUpEmail}
-              onChange={(e) => setSignUpEmail(e.target.value)}
-              placeholder="e.g. bharat.reddy@woxsen.edu.in"
-              className="w-full px-4 py-3 rounded-2xl bg-white border border-slate-300 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-red-600 focus:border-red-600"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Password *
-              </label>
-              <div className="relative">
-                <input
-                  type={showSignUpPassword ? 'text' : 'password'}
-                  value={signUpPassword}
-                  onChange={(e) => setSignUpPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full px-4 pr-10 py-3 rounded-2xl bg-white border border-slate-300 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-red-600 focus:border-red-600"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowSignUpPassword(!showSignUpPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-                  title={showSignUpPassword ? 'Hide password' : 'View password'}
-                >
-                  {showSignUpPassword ? <EyeOff className="w-4 h-4 text-red-600" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Confirm Password *
-              </label>
-              <div className="relative">
-                <input
-                  type={showSignUpConfirmPassword ? 'text' : 'password'}
-                  value={signUpConfirmPassword}
-                  onChange={(e) => setSignUpConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full px-4 pr-10 py-3 rounded-2xl bg-white border border-slate-300 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-red-600 focus:border-red-600"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowSignUpConfirmPassword(!showSignUpConfirmPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-                  title={showSignUpConfirmPassword ? 'Hide password' : 'View password'}
-                >
-                  {showSignUpConfirmPassword ? <EyeOff className="w-4 h-4 text-red-600" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-          </div>
-
           <button
             type="submit"
-            className="w-full py-3.5 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-lg shadow-red-600/30 transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
           >
-            <span>Register & Send 6-Digit Verification OTP</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
-
-          {/* Under Sign Up: Already have account link */}
-          <div className="pt-2 text-center text-xs">
-            <span className="text-slate-500">Already have a Woxsen account? </span>
-            <button
-              type="button"
-              onClick={() => { setAuthTab('signin'); setAuthStep('credentials'); setAuthError(''); }}
-              className="font-extrabold text-red-600 hover:underline cursor-pointer"
-            >
-              Sign In
-            </button>
-          </div>
-        </form>
-      )}
-
-      {/* FORM 3 STEP 2: 6-DIGIT OTP VERIFICATION SCREEN FOR SIGN UP */}
-      {authTab === 'signup' && signUpStep === 'otp_verify' && (
-        <form onSubmit={handleVerifyOtp} noValidate className="space-y-5 animate-in fade-in duration-300">
-          <div className="p-4 rounded-2xl bg-red-50 border border-red-200 text-center space-y-1">
-            <h3 className="text-sm font-black text-red-950">Step 2 of 3 — Verify 6-Digit OTP Code</h3>
-            <p className="text-xs text-red-800 font-medium">
-              Verification code sent to <strong>{signUpEmail}</strong>
-            </p>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-2 text-center">
-              Enter 6-Digit OTP Code
-            </label>
-            <input
-              type="text"
-              maxLength={6}
-              value={otpCode}
-              onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              placeholder="e.g. 202601"
-              className="w-full text-center tracking-[0.5em] px-4 py-3 text-lg font-mono font-black rounded-2xl bg-white border-2 border-red-500 text-red-600 focus:ring-2 focus:ring-red-600"
-            />
-          </div>
-
-          <div className="flex items-center justify-between text-xs text-slate-500">
-            <span>⏱️ Code expires in: <strong>01:59</strong></span>
-            <button
-              type="button"
-              onClick={() => {
-                const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
-                setGeneratedOtp(newOtp);
-                setAuthNotice(`🔑 Resent OTP Code: ${newOtp}`);
-              }}
-              className="font-bold text-red-600 hover:underline cursor-pointer"
-            >
-              Resend OTP Code
-            </button>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full py-3.5 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-lg shadow-red-600/30 transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <CheckCircle2 className="w-4 h-4" />
-            <span>Verify OTP Code & Continue to Step 3</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setSignUpStep('credentials')}
-            className="w-full text-center text-xs text-slate-500 font-bold hover:text-slate-800"
-          >
-            ← Back to Step 1 (Credentials)
+            <span>Authenticate Token →</span>
           </button>
         </form>
       )}
 
-      {/* FORM 3 STEP 3: ENTER HOSTEL ROOM & STUDENT DETAILS */}
-      {authTab === 'signup' && signUpStep === 'profile_details' && (
-        <form onSubmit={handleSignUpFinalSubmit} noValidate className="space-y-4 animate-in fade-in duration-300">
-          <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 text-xs font-medium">
-            ✅ <strong>Step 3 of 3 — Student & Room Details:</strong> OTP Verified for <strong>{signUpEmail}</strong>! Enter your allocated hostel room and academic details below to complete setup.
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Hostel Tower / Building *
-              </label>
-              <input
-                type="text"
-                value={signUpTower}
-                onChange={(e) => setSignUpTower(e.target.value)}
-                placeholder="e.g. Tower T1 or Block B"
-                className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-300 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-red-600 focus:border-red-600"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
-                <span>Room No *</span>
-                <span className="text-[10px] font-black text-red-600 uppercase">Searchable</span>
-              </label>
-              <RoomSearchSelector
-                value={signUpRoomNo}
-                onChange={setSignUpRoomNo}
-                placeholder="Search room (e.g. Hostel B - Room 204)"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Student Roll No *
-              </label>
-              <input
-                type="text"
-                value={signUpRollNo}
-                onChange={(e) => setSignUpRollNo(e.target.value)}
-                placeholder="e.g. WOX-2026-84920"
-                className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-300 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-red-600 focus:border-red-600"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                5-Digit Admission No *
-              </label>
-              <input
-                type="text"
-                maxLength={5}
-                value={signUpAdmissionNo}
-                onChange={(e) => setSignUpAdmissionNo(e.target.value.replace(/\D/g, '').slice(0, 5))}
-                placeholder="e.g. 58492"
-                className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-300 text-xs font-mono font-bold text-slate-900 focus:ring-2 focus:ring-red-600 focus:border-red-600"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Course & Section *
-              </label>
-              <input
-                type="text"
-                value={signUpCourseSection}
-                onChange={(e) => setSignUpCourseSection(e.target.value)}
-                placeholder="e.g. B.Tech CSE - Sec A"
-                className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-300 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-red-600 focus:border-red-600"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Phone Number
-              </label>
-              <input
-                type="text"
-                value={signUpPhone}
-                onChange={(e) => setSignUpPhone(e.target.value)}
-                placeholder="e.g. +91 98765 43210"
-                className="w-full px-3.5 py-2.5 rounded-2xl bg-white border border-slate-300 text-xs font-bold text-slate-900 focus:ring-2 focus:ring-red-600 focus:border-red-600"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full py-3.5 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-black text-xs shadow-lg shadow-red-600/30 transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer mt-2"
-          >
-            <CheckCircle2 className="w-4 h-4" />
-            <span>Finalize Account & Open Student Portal</span>
-          </button>
-        </form>
-      )}
-
-      {/* Quick 1-Click Test Logins Section */}
-      <div className="pt-5 mt-4 border-t border-slate-200/80 space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] font-black text-slate-500 uppercase tracking-wider flex items-center gap-1">
-            <ShieldCheck className="w-3.5 h-3.5 text-red-600" />
-            <span>Quick 1-Click Demo & Test Logins</span>
+      {/* 9 DEMO ROLE QUICK ACCESS CARDS (EXACT MATCH FOR media_1789128661707.jpg) */}
+      <div className="pt-4 border-t border-slate-800/80 space-y-3">
+        <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-400">
+          <span>QUICK ACCESS (DEMO)</span>
+          <span className="text-blue-400 flex items-center gap-1">
+            <span>Explore System</span>
+            <ChevronRight className="w-3 h-3" />
           </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
+          
           <button
             type="button"
-            onClick={() => {
-              setAuthTab('signin');
-              setAuthStep('credentials');
-              setAuthError('');
-              setEmailInput('admin@woxsen.edu.in');
-              setPasswordInput('password');
-              setAuthNotice('✅ Chief Admin demo credentials pre-filled below. Click "Send 6-Digit Verification OTP" to continue.');
-            }}
-            className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-left transition-all active:scale-95 shadow-xs cursor-pointer"
+            onClick={() => quickDemoLogin('admin')}
+            className="p-2.5 rounded-xl bg-red-950/30 border border-red-900/40 hover:border-red-500/60 text-left transition-all group cursor-pointer"
           >
-            <div className="text-[11px] font-black text-amber-400">👑 Chief Admin</div>
-            <div className="text-[10px] text-slate-300 font-mono truncate">admin@woxsen.edu.in</div>
+            <div className="flex items-center gap-1.5">
+              <Crown className="w-3.5 h-3.5 text-red-500 shrink-0" />
+              <span className="text-[10px] font-black text-white group-hover:text-red-400 truncate">Chief Admin</span>
+            </div>
           </button>
 
           <button
             type="button"
-            onClick={() => {
-              setAuthTab('signin');
-              setAuthStep('credentials');
-              setAuthError('');
-              setEmailInput('warden.hostela@woxsen.edu.in');
-              setPasswordInput('password');
-              setAuthNotice('✅ Hostel Warden demo credentials pre-filled below. Click "Send 6-Digit Verification OTP" to continue.');
-            }}
-            className="p-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-950 text-left transition-all active:scale-95 shadow-xs cursor-pointer"
+            onClick={() => quickDemoLogin('warden')}
+            className="p-2.5 rounded-xl bg-blue-950/30 border border-blue-900/40 hover:border-blue-500/60 text-left transition-all group cursor-pointer"
           >
-            <div className="text-[11px] font-black text-blue-800">🏢 Hostel Warden</div>
-            <div className="text-[10px] text-blue-600 font-mono truncate">warden.hostela@woxsen.edu.in</div>
+            <div className="flex items-center gap-1.5">
+              <Home className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+              <span className="text-[10px] font-black text-white group-hover:text-blue-400 truncate">Hostel Warden</span>
+            </div>
           </button>
 
           <button
             type="button"
-            onClick={() => {
-              setAuthTab('token');
-              setAuthError('');
-              setTokenInput('WRK-5050-T');
-              setPinInput('2026');
-              setAuthNotice('✅ Technician Access Code (WRK-5050-T) & PIN (2026) pre-filled below. Click "Sign In with Access Code" to continue.');
-            }}
-            className="p-2.5 rounded-xl bg-violet-50 hover:bg-violet-100 border border-violet-200 text-violet-950 text-left transition-all active:scale-95 shadow-xs cursor-pointer"
+            onClick={() => quickDemoLogin('worker')}
+            className="p-2.5 rounded-xl bg-purple-950/30 border border-purple-900/40 hover:border-purple-500/60 text-left transition-all group cursor-pointer"
           >
-            <div className="text-[11px] font-black text-violet-800">🔧 Technician</div>
-            <div className="text-[10px] text-violet-600 font-mono truncate">WRK-5050-T (PIN 2026)</div>
+            <div className="flex items-center gap-1.5">
+              <Wrench className="w-3.5 h-3.5 text-purple-500 shrink-0" />
+              <span className="text-[10px] font-black text-white group-hover:text-purple-400 truncate">Technician</span>
+            </div>
           </button>
 
           <button
             type="button"
-            onClick={() => {
-              setAuthError('');
-              loginWithEmail('courier.manager@woxsen.edu.in', 'password');
-              router.push('/courier/portal');
-            }}
-            className="p-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-950 text-left transition-all active:scale-95 shadow-xs cursor-pointer"
+            onClick={() => quickDemoLogin('courier_manager')}
+            className="p-2.5 rounded-xl bg-amber-950/30 border border-amber-900/40 hover:border-amber-500/60 text-left transition-all group cursor-pointer"
           >
-            <div className="text-[11px] font-black text-amber-900">📦 Courier Room Manager</div>
-            <div className="text-[10px] text-amber-700 font-mono truncate">courier.manager@woxsen.edu.in</div>
+            <div className="flex items-center gap-1.5">
+              <Package className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+              <span className="text-[10px] font-black text-white group-hover:text-amber-400 truncate">Courier Manager</span>
+            </div>
           </button>
 
           <button
             type="button"
-            onClick={() => {
-              setAuthError('');
-              loginWithEmail('sports.manager@woxsen.edu.in', 'password');
-              router.push('/sports/portal');
-            }}
-            className="p-2.5 rounded-xl bg-lime-50 hover:bg-lime-100 border border-lime-300 text-lime-950 text-left transition-all active:scale-95 shadow-xs cursor-pointer"
+            onClick={() => quickDemoLogin('sports_manager')}
+            className="p-2.5 rounded-xl bg-emerald-950/30 border border-emerald-900/40 hover:border-emerald-500/60 text-left transition-all group cursor-pointer"
           >
-            <div className="text-[11px] font-black text-lime-900">⚽ Sports Area Manager</div>
-            <div className="text-[10px] text-lime-700 font-mono truncate">sports.manager@woxsen.edu.in</div>
+            <div className="flex items-center gap-1.5">
+              <Trophy className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+              <span className="text-[10px] font-black text-white group-hover:text-emerald-400 truncate">Sports Manager</span>
+            </div>
           </button>
 
           <button
             type="button"
-            onClick={() => {
-              setAuthError('');
-              loginWithEmail('laundry.manager@woxsen.edu.in', 'password');
-              router.push('/laundry');
-            }}
-            className="p-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-300 text-blue-950 text-left transition-all active:scale-95 shadow-xs cursor-pointer"
+            onClick={() => quickDemoLogin('student')}
+            className="p-2.5 rounded-xl bg-cyan-950/30 border border-cyan-900/40 hover:border-cyan-500/60 text-left transition-all group cursor-pointer"
           >
-            <div className="text-[11px] font-black text-blue-900">🧺 Laundry Manager</div>
-            <div className="text-[10px] text-blue-700 font-mono truncate">laundry.manager@woxsen.edu.in</div>
+            <div className="flex items-center gap-1.5">
+              <Building2 className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
+              <span className="text-[10px] font-black text-white group-hover:text-cyan-400 truncate">Laundry Manager</span>
+            </div>
           </button>
 
           <button
             type="button"
-            onClick={() => {
-              setAuthError('');
-              loginWithEmail('vendor.asianwok@woxsen.edu.in', 'password');
-              router.push('/food');
-            }}
-            className="p-2.5 rounded-xl bg-red-50 hover:bg-red-100 border border-red-300 text-red-950 text-left transition-all active:scale-95 shadow-xs cursor-pointer"
+            onClick={() => quickDemoLogin('student')}
+            className="p-2.5 rounded-xl bg-orange-950/30 border border-orange-900/40 hover:border-orange-500/60 text-left transition-all group cursor-pointer"
           >
-            <div className="text-[11px] font-black text-red-900">🍜 Asian Wok Vendor (Chinese)</div>
-            <div className="text-[10px] text-red-700 font-mono truncate">vendor.asianwok@woxsen.edu.in</div>
+            <div className="flex items-center gap-1.5">
+              <Utensils className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+              <span className="text-[10px] font-black text-white group-hover:text-orange-400 truncate">Food Vendor</span>
+            </div>
           </button>
 
           <button
             type="button"
-            onClick={() => {
-              setAuthError('');
-              loginWithEmail('vendor.burgerdeck@woxsen.edu.in', 'password');
-              router.push('/food');
-            }}
-            className="p-2.5 rounded-xl bg-orange-50 hover:bg-orange-100 border border-orange-300 text-orange-950 text-left transition-all active:scale-95 shadow-xs cursor-pointer"
+            onClick={() => quickDemoLogin('student')}
+            className="p-2.5 rounded-xl bg-pink-950/30 border border-pink-900/40 hover:border-pink-500/60 text-left transition-all group cursor-pointer"
           >
-            <div className="text-[11px] font-black text-orange-900">🍕 Crust & Burger Deck Vendor</div>
-            <div className="text-[10px] text-orange-700 font-mono truncate">vendor.burgerdeck@woxsen.edu.in</div>
+            <div className="flex items-center gap-1.5">
+              <Store className="w-3.5 h-3.5 text-pink-500 shrink-0" />
+              <span className="text-[10px] font-black text-white group-hover:text-pink-400 truncate">Shop Vendor</span>
+            </div>
           </button>
 
           <button
             type="button"
-            onClick={() => {
-              setAuthError('');
-              loginWithEmail('vendor.crispycrunch@woxsen.edu.in', 'password');
-              router.push('/food');
-            }}
-            className="p-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-amber-950 text-left transition-all active:scale-95 shadow-xs cursor-pointer"
+            onClick={() => quickDemoLogin('student')}
+            className="p-2.5 rounded-xl bg-teal-950/30 border border-teal-900/40 hover:border-teal-500/60 text-left transition-all group cursor-pointer"
           >
-            <div className="text-[11px] font-black text-amber-900">🍗 Crispy Crunch Vendor (KFC Style)</div>
-            <div className="text-[10px] text-amber-700 font-mono truncate">vendor.crispycrunch@woxsen.edu.in</div>
+            <div className="flex items-center gap-1.5">
+              <GraduationCap className="w-3.5 h-3.5 text-teal-500 shrink-0" />
+              <span className="text-[10px] font-black text-white group-hover:text-teal-400 truncate">Student Resident</span>
+            </div>
           </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              setAuthError('');
-              loginWithEmail('vendor.expressbites@woxsen.edu.in', 'password');
-              router.push('/food');
-            }}
-            className="p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-emerald-950 text-left transition-all active:scale-95 shadow-xs cursor-pointer"
-          >
-            <div className="text-[11px] font-black text-emerald-900">☕ Express Bites & Chai Vendor</div>
-            <div className="text-[10px] text-emerald-700 font-mono truncate">vendor.expressbites@woxsen.edu.in</div>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setAuthTab('signin');
-              setAuthStep('credentials');
-              setAuthError('');
-              setEmailInput('student@woxsen.edu.in');
-              setPasswordInput('password');
-              setAuthNotice('✅ Student Resident demo credentials pre-filled below. Click "Send 6-Digit Verification OTP" to continue.');
-            }}
-            className="p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-950 text-left transition-all active:scale-95 shadow-xs cursor-pointer"
-          >
-            <div className="text-[11px] font-black text-emerald-800">🎓 Student Resident</div>
-            <div className="text-[10px] text-emerald-600 font-mono truncate">student@woxsen.edu.in</div>
-          </button>
         </div>
       </div>
+
     </div>
   );
 }

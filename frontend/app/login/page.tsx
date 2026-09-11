@@ -1,100 +1,127 @@
 'use client';
 
-import React, { Suspense, useState, useEffect } from 'react';
-import { WoxsenAuthCard } from '@/src/features/auth/components/WoxsenAuthCard';
-import { Lock, GraduationCap, ArrowLeft } from 'lucide-react';
+import React, { Suspense } from 'react';
 import Link from 'next/link';
+import { WoxsenAuthCard } from '@/src/features/auth/components/WoxsenAuthCard';
+import {
+  Zap,
+  ShieldCheck,
+  Users,
+  BarChart3,
+} from 'lucide-react';
 
 function LoginContent() {
-  const [universityName, setUniversityName] = useState('Woxsen University');
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('selected_university_name');
-      if (stored) {
-        setUniversityName(stored);
-      }
-    }
-  }, []);
-
   return (
-    <div className="fixed inset-0 z-50 bg-[#070b14] text-white flex flex-col justify-between overflow-y-auto font-sans select-none">
+    <div className="fixed inset-0 z-50 bg-[#060913] text-white flex flex-col justify-between overflow-y-auto font-sans select-none">
       
-      {/* VIVID GRADIENT GLOW BACKGROUNDS (EXACT MATCH FOR UNIVERSITY SELECTOR) */}
-      <div className="absolute top-1/4 left-0 w-[450px] h-[450px] bg-red-600/20 blur-[140px] rounded-full pointer-events-none" />
-      <div className="absolute top-1/3 right-0 w-[450px] h-[450px] bg-blue-600/25 blur-[140px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-80 bg-gradient-to-t from-[#04060c] via-[#070b14]/90 to-transparent pointer-events-none" />
+      {/* 1. DUAL RED/BLUE GLOW LIGHTING BACKGROUND (EXACT MATCH FOR media_1789128661707.jpg) */}
+      <div className="absolute top-0 left-0 w-[550px] h-[550px] bg-red-600/25 blur-[160px] rounded-full pointer-events-none" />
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-600/30 blur-[160px] rounded-full pointer-events-none" />
 
-      {/* 1. TOP HEADER NAVIGATION BAR */}
-      <header className="w-full px-4 sm:px-12 py-4 sm:py-5 flex items-center justify-between border-b border-slate-800/40 relative z-20 backdrop-blur-md bg-[#070b14]/70">
-        
-        {/* LOGO */}
-        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-red-500 to-red-600 text-white font-black text-lg sm:text-xl flex items-center justify-center shadow-lg shadow-red-600/30 group-hover:scale-105 transition-transform">
+      {/* 2. CAMPUS ARCHITECTURE WATERMARK OVERLAY */}
+      <div
+        className="absolute inset-0 bg-cover bg-bottom opacity-15 pointer-events-none mix-blend-luminosity"
+        style={{ backgroundImage: `url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1920&auto=format&fit=crop')` }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#04060d] via-[#060913]/70 to-transparent pointer-events-none" />
+
+      {/* 3. TOP HEADER NAVIGATION BAR */}
+      <header className="w-full px-6 sm:px-12 py-5 flex items-center justify-between border-b border-slate-800/40 relative z-20 backdrop-blur-md bg-[#060913]/60">
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 text-white font-black text-xl flex items-center justify-center shadow-lg shadow-red-600/30 group-hover:scale-105 transition-transform">
             F
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-black text-base sm:text-xl tracking-tight text-white">Facility</span>
-              <span className="font-black text-base sm:text-xl tracking-tight text-red-500">OS</span>
-              <span className="text-[8px] sm:text-[9px] uppercase font-black tracking-widest px-1.5 py-0.5 rounded bg-red-600/20 text-red-400 border border-red-500/30">
+              <span className="font-black text-xl tracking-tight text-white">Facility</span>
+              <span className="font-black text-xl tracking-tight text-red-500">OS</span>
+              <span className="text-[9px] uppercase font-black tracking-widest px-1.5 py-0.5 rounded bg-red-600/20 text-red-400 border border-red-500/30">
                 PRO
               </span>
             </div>
-            <p className="text-[9px] sm:text-[10px] text-slate-400 font-semibold -mt-0.5 tracking-wide hidden sm:block">
+            <p className="text-[10px] text-slate-400 font-semibold -mt-0.5 tracking-wide">
               Manage. Maintain. Resolve.
             </p>
           </div>
         </Link>
 
-        {/* CHANGE UNIVERSITY BUTTON */}
-        <Link
-          href="/select-university"
-          className="px-3.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
-        >
-          <ArrowLeft className="w-3.5 h-3.5 text-red-500" />
-          <span>Change University</span>
-        </Link>
-
+        <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.25em] text-slate-400 hidden sm:block">
+          SMART CAMPUSES. SMOOTHER OPERATIONS.
+        </p>
       </header>
 
-      {/* 2. LOGIN MAIN CONTENT WITH DARK NEON GLOW STYLE */}
-      <main className="flex-1 flex flex-col items-center justify-center px-3.5 sm:px-6 py-8 sm:py-12 relative z-10 max-w-4xl mx-auto w-full space-y-6">
+      {/* 4. MAIN LOGIN CONTENT CONTAINER (EXACT MATCH FOR media_1789128661707.jpg) */}
+      <main className="flex-1 flex flex-col items-center justify-center px-4 py-8 sm:py-12 relative z-10 max-w-4xl mx-auto w-full space-y-6 text-center">
         
-        {/* BRAND BANNER WITH SELECTED UNIVERSITY NAME */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-600/20 text-red-400 border border-red-500/30 text-xs font-black uppercase tracking-wider shadow-lg backdrop-blur-md">
-            <GraduationCap className="w-4 h-4 text-red-500" />
-            <span>{universityName}</span>
-          </div>
-
-          <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
-            Campus Sign In
+        {/* HERO TITLE */}
+        <div className="space-y-2">
+          <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-none">
+            Welcome <span className="text-red-500">Back</span>
           </h1>
-
-          <p className="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto font-medium">
-            Sign in with your official university email address. Your role is automatically detected on sign in.
+          <p className="text-xs sm:text-sm text-slate-300 font-medium">
+            Sign in to access your campus services
           </p>
         </div>
 
-        {/* SHARED UNIFIED AUTH CARD */}
-        <div className="w-full max-w-md">
+        {/* CENTERED GLASSMOPHIC AUTH CARD CONTAINER */}
+        <div className="w-full max-w-md mx-auto">
           <WoxsenAuthCard onSuccessRedirect="/" />
         </div>
 
-        {/* SECURITY LOCK NOTICE */}
-        <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 text-center text-xs text-slate-400 font-medium flex items-center justify-center gap-2 max-w-md mx-auto backdrop-blur-md">
-          <Lock className="w-4 h-4 text-red-500 shrink-0" />
-          <span>Campus infrastructure and service requests are protected until authenticated.</span>
+        {/* 5. FOUR FEATURE BADGES WITH VERTICAL DIVIDERS */}
+        <div className="w-full pt-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-0 max-w-3xl mx-auto divide-y md:divide-y-0 md:divide-x divide-slate-800/60">
+            
+            {/* BADGE 1 */}
+            <div className="flex flex-col items-center text-center space-y-1.5 p-2 group">
+              <div className="w-10 h-10 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 flex items-center justify-center shadow-lg shadow-red-500/10 group-hover:scale-110 transition-transform">
+                <Zap className="w-4 h-4 fill-red-400" />
+              </div>
+              <p className="text-[11px] font-black text-slate-300 group-hover:text-white transition-colors">
+                Streamline Operations
+              </p>
+            </div>
+
+            {/* BADGE 2 */}
+            <div className="flex flex-col items-center text-center space-y-1.5 p-2 group">
+              <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-blue-400 flex items-center justify-center shadow-lg shadow-blue-500/10 group-hover:scale-110 transition-transform">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+              <p className="text-[11px] font-black text-slate-300 group-hover:text-white transition-colors">
+                Ensure Safety & Compliance
+              </p>
+            </div>
+
+            {/* BADGE 3 */}
+            <div className="flex flex-col items-center text-center space-y-1.5 p-2 group">
+              <div className="w-10 h-10 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-purple-400 flex items-center justify-center shadow-lg shadow-purple-500/10 group-hover:scale-110 transition-transform">
+                <Users className="w-4 h-4" />
+              </div>
+              <p className="text-[11px] font-black text-slate-300 group-hover:text-white transition-colors">
+                Better Campus Experience
+              </p>
+            </div>
+
+            {/* BADGE 4 */}
+            <div className="flex flex-col items-center text-center space-y-1.5 p-2 group">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/10 group-hover:scale-110 transition-transform">
+                <BarChart3 className="w-4 h-4" />
+              </div>
+              <p className="text-[11px] font-black text-slate-300 group-hover:text-white transition-colors">
+                Data-Driven Decisions
+              </p>
+            </div>
+
+          </div>
         </div>
 
       </main>
 
-      {/* 3. FOOTER */}
-      <footer className="w-full px-4 sm:px-12 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-[10px] font-semibold text-slate-500 relative z-10 border-t border-slate-800/40 bg-[#04060c]/80 backdrop-blur-md">
+      {/* 6. FOOTER BAR */}
+      <footer className="w-full px-6 sm:px-12 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-semibold text-slate-500 relative z-20 border-t border-slate-800/40 bg-[#04060d]/90 backdrop-blur-md">
         <div className="flex items-center gap-2">
           <span className="font-black text-white">Facility<span className="text-red-500">OS</span></span>
-          <span className="text-slate-600">|</span>
+          <span className="text-slate-700">|</span>
           <span>&copy; 2025 FacilityOS. All rights reserved.</span>
         </div>
 
